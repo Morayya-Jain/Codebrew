@@ -234,7 +234,7 @@ export class BootScene extends Scene {
         // Rock face — tilted slab (parallelogram via triangles)
         // Back face (darker)
         gfx.fillStyle(0x4a3a30, 0.8);
-        gfx.fillTriangle(cx - 24, cy - 28, cx + 28, cy - 32, cx + 32, cy + 16, );
+        gfx.fillTriangle(cx - 24, cy - 28, cx + 28, cy - 32, cx + 32, cy + 16);
         gfx.fillTriangle(cx - 24, cy - 28, cx + 32, cy + 16, cx - 20, cy + 20);
 
         // Front face (lighter)
@@ -834,7 +834,7 @@ export class BootScene extends Scene {
         const center = brushSize / 2;
 
         for (let r = center; r > 0; r -= 1) {
-            const alpha = 1.0 - (r / center);
+            const alpha = r / center;
             gfx.fillStyle(0xffffff, alpha);
             gfx.fillCircle(center, center, r);
         }

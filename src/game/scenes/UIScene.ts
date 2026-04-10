@@ -23,7 +23,7 @@ export class UIScene extends Scene {
 
         // Progress tracker (top right)
         this.progressText = this.add.text(width - 20, 20,
-            '0 / 10 Stories Discovered', {
+            `0 / ${this.totalLandmarks} Stories Discovered`, {
                 fontFamily: '"Crimson Text", Georgia, serif',
                 fontSize: '16px',
                 color: '#e8c170',

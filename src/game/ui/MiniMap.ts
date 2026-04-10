@@ -14,6 +14,7 @@ export class MiniMap {
     private fogTexture!: Phaser.GameObjects.RenderTexture;
     private playerDot!: Phaser.GameObjects.Graphics;
     private landmarkDots!: Phaser.GameObjects.Graphics;
+    private undiscoveredDots!: Phaser.GameObjects.Graphics;
     private border!: Phaser.GameObjects.Graphics;
 
     private lastRevealX = -999;
@@ -34,8 +35,8 @@ export class MiniMap {
 
     private worldToMap(worldX: number, worldY: number): { mx: number; my: number } {
         return {
-            mx: (worldX / CONSTANTS.WORLD_WIDTH) * this.mapWidth,
-            my: (worldY / CONSTANTS.WORLD_HEIGHT) * this.mapHeight,
+            mx: Math.max(0, Math.min(this.mapWidth, (worldX / CONSTANTS.WORLD_WIDTH) * this.mapWidth)),
+            my: Math.max(0, Math.min(this.mapHeight, (worldY / CONSTANTS.WORLD_HEIGHT) * this.mapHeight)),
         };
     }
 
@@ -120,7 +121,11 @@ export class MiniMap {
     }
 
     private createOverlayElements(): void {
-        // Landmark dots (drawn above fog)
+        // Undiscovered landmark dots (below fog — hidden by fog until area revealed)
+        this.undiscoveredDots = this.scene.add.graphics()
+            .setScrollFactor(0).setDepth(50.5);
+
+        // Discovered landmark dots (above fog — always visible)
         this.landmarkDots = this.scene.add.graphics()
             .setScrollFactor(0).setDepth(52);
 
@@ -186,26 +191,23 @@ export class MiniMap {
 
         // Update landmark dots
         this.landmarkDots.clear();
+        this.undiscoveredDots.clear();
         const landmarks = this.gameScene.getLandmarkPositions();
         landmarks.forEach(lm => {
             const lmPos = this.worldToMap(lm.x, lm.y);
             const isDiscovered = discoveredIds.has(lm.id);
 
-            // Show landmark if discovered OR if fog is revealed in that area
-            // For simplicity, show all landmarks that are within revealed fog
-            // (We always show discovered ones brightly; others are dim if visible)
             if (isDiscovered) {
-                // Bright colored dot
+                // Bright colored dot (above fog — always visible)
                 const color = parseInt(lm.iconColor.replace('#', ''), 16);
                 this.landmarkDots.fillStyle(color, 0.9);
                 this.landmarkDots.fillCircle(this.x + lmPos.mx, this.y + lmPos.my, 4);
-                // Outline
                 this.landmarkDots.lineStyle(1, 0xffffff, 0.5);
                 this.landmarkDots.strokeCircle(this.x + lmPos.mx, this.y + lmPos.my, 4);
             } else {
-                // Dim dot for undiscovered but visible landmarks
-                this.landmarkDots.fillStyle(0x6a5a4a, 0.4);
-                this.landmarkDots.fillCircle(this.x + lmPos.mx, this.y + lmPos.my, 3);
+                // Dim dot below fog — only visible where fog has been cleared
+                this.undiscoveredDots.fillStyle(0x6a5a4a, 0.4);
+                this.undiscoveredDots.fillCircle(this.x + lmPos.mx, this.y + lmPos.my, 3);
             }
         });
     }

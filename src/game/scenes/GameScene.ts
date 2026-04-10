@@ -140,6 +140,7 @@ export class GameScene extends Scene {
 
     // Public getters for UIScene / MiniMap
     getPlayerPosition(): { x: number; y: number } {
+        if (!this.player) return { x: 4000, y: 3400 };
         return { x: this.player.x, y: this.player.y };
     }
 
@@ -348,8 +349,8 @@ export class GameScene extends Scene {
             { x: 3200, y: 2630 },
             { x: 4100, y: 2510 },
             { x: 5300, y: 2375 },
-            { x: 6200, y: 2220 },
-            { x: 7100, y: 2100 },
+            { x: 6200, y: 2248 },
+            { x: 7100, y: 2116 },
         ];
 
         crossings.forEach(({ x, y }) => {
@@ -650,8 +651,12 @@ export class GameScene extends Scene {
         ];
 
         const clearance = 140;
+        const rockTarget = 45;
+        let placedRocks = 0;
+        let rockAttempts = 0;
 
-        for (let i = 0; i < 45; i++) {
+        while (placedRocks < rockTarget && rockAttempts < rockTarget * 4) {
+            rockAttempts++;
             const cx = 200 + rng() * (width - 400);
             const cy = 200 + rng() * (height - 400);
 
@@ -659,6 +664,7 @@ export class GameScene extends Scene {
                 lz => Math.abs(cx - lz.x) < clearance && Math.abs(cy - lz.y) < clearance
             );
             if (tooClose) continue;
+            placedRocks++;
 
             const rockCount = 1 + Math.floor(rng() * 3);
             for (let r = 0; r < rockCount; r++) {
@@ -701,36 +707,59 @@ export class GameScene extends Scene {
     }
 
     private createRiverCollisions(): void {
-        // River collision segments matching the new river path
+        // River collision uses small sub-segments that follow the diagonal path
         // 6 crossing gaps (~140px wide each)
         // Crossings at x: 1900, 3200, 4100, 5300, 6200, 7100
 
-        const riverSegments: BarrierDef[] = [
-            // Segment 1: left edge to crossing 1 (x=0 to x=1830)
-            { x: 900, y: 2550, width: 1800, height: 42 },
-
-            // Segment 2: crossing 1 to crossing 2 (x=1970 to x=3130)
-            { x: 2550, y: 2700, width: 1160, height: 42 },
-
-            // Segment 3: crossing 2 to crossing 3 (x=3270 to x=4030)
-            { x: 3650, y: 2580, width: 760, height: 42 },
-
-            // Segment 4: crossing 3 to crossing 4 (x=4170 to x=5230)
-            { x: 4700, y: 2440, width: 1060, height: 42 },
-
-            // Segment 5: crossing 4 to crossing 5 (x=5370 to x=6130)
-            { x: 5750, y: 2310, width: 760, height: 42 },
-
-            // Segment 6: crossing 5 to crossing 6 (x=6270 to x=7030)
-            { x: 6650, y: 2190, width: 760, height: 42 },
-
-            // Segment 7: crossing 6 to right edge (x=7170 to x=8000)
-            { x: 7580, y: 2040, width: 840, height: 42 },
+        // River path points (same as visual river)
+        const riverPath = [
+            { x: 0, y: 2400 }, { x: 400, y: 2480 }, { x: 800, y: 2560 },
+            { x: 1200, y: 2620 }, { x: 1600, y: 2680 },
+            { x: 2100, y: 2720 }, { x: 2500, y: 2700 }, { x: 2900, y: 2660 },
+            { x: 3400, y: 2600 }, { x: 3800, y: 2540 },
+            { x: 4300, y: 2480 }, { x: 4700, y: 2440 }, { x: 5100, y: 2400 },
+            { x: 5500, y: 2350 }, { x: 5900, y: 2280 },
+            { x: 6400, y: 2200 }, { x: 6800, y: 2140 },
+            { x: 7300, y: 2080 }, { x: 7600, y: 2020 }, { x: 8000, y: 1960 },
         ];
 
-        riverSegments.forEach(seg => {
-            this.addBarrier(seg);
-        });
+        // Crossing zones (x-ranges where no collision should exist)
+        const crossingGaps = [
+            { xMin: 1830, xMax: 1970 },
+            { xMin: 3130, xMax: 3270 },
+            { xMin: 4030, xMax: 4170 },
+            { xMin: 5230, xMax: 5370 },
+            { xMin: 6130, xMax: 6270 },
+            { xMin: 7030, xMax: 7170 },
+        ];
+
+        // Generate small collision segments between each pair of river points
+        const segWidth = 200;
+        for (let i = 0; i < riverPath.length - 1; i++) {
+            const p1 = riverPath[i];
+            const p2 = riverPath[i + 1];
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const subSteps = Math.max(1, Math.ceil(Math.abs(dx) / segWidth));
+
+            for (let s = 0; s < subSteps; s++) {
+                const t1 = s / subSteps;
+                const t2 = (s + 1) / subSteps;
+                const sx = p1.x + dx * ((t1 + t2) / 2);
+                const sy = p1.y + dy * ((t1 + t2) / 2);
+                const sw = Math.abs(dx) / subSteps;
+
+                // Skip if this sub-segment overlaps a crossing gap
+                const segLeft = sx - sw / 2;
+                const segRight = sx + sw / 2;
+                const inGap = crossingGaps.some(
+                    g => segRight > g.xMin && segLeft < g.xMax
+                );
+                if (inGap) continue;
+
+                this.addBarrier({ x: sx, y: sy, width: sw + 10, height: 42 });
+            }
+        }
     }
 
     private createBoundaryFade(width: number, height: number): void {
@@ -741,13 +770,13 @@ export class GameScene extends Scene {
         const strips = 20;
 
         for (let i = 0; i < strips; i++) {
-            const t = i / strips;
-            const alpha = t * t * 0.65; // Quadratic ease-in for smoother fade
+            const t = 1 - (i / strips);
+            const alpha = t * t * 0.65; // Opaque at edge, fading to transparent inward
             const stripSize = fadeWidth / strips;
 
             gfx.fillStyle(0x2a3a22, alpha);
 
-            // Top edge
+            // Top edge (strip 0 = outermost = most opaque)
             gfx.fillRect(0, i * stripSize, width, stripSize);
             // Bottom edge
             gfx.fillRect(0, height - (i + 1) * stripSize, width, stripSize);
