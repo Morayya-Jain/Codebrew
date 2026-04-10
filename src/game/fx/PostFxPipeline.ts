@@ -49,19 +49,19 @@ void main() {
     vec2 uv = outTexCoord;
     vec3 col = texture2D(uMainSampler, uv).rgb;
 
-    // ---- Cheap bloom: 5x5 taps at 5-texel spacing, smooth-thresholded brightness ----
-    // Computed dark-scene luminances before tuning:
-    //   ground 0.19, river 0.25, campfire icon 0.52, tan dot-art 0.77.
-    // Threshold 0.42 + smoothstep window keeps ground/river out, lets landmark
-    // accents and glows contribute to the bloom.
+    // ---- Cheap bloom: 5x5 taps at 2.5-texel spacing, smooth-thresholded ----
+    // Computed dark-scene luminances: ground 0.19, river 0.25, campfire 0.52,
+    // tan dot-art 0.77. Threshold 0.42 keeps ground/river out; tight 2.5-texel
+    // kernel gives a ~10px halo that reads as "glow" not "blur". Sparse bright
+    // pixels in the kernel = proportionally-scaled contribution.
     vec2 texel = 1.0 / uResolution;
     vec3 bloom = vec3(0.0);
     for (int i = -2; i <= 2; i++) {
         for (int j = -2; j <= 2; j++) {
-            vec2 off = vec2(float(i), float(j)) * texel * 5.0;
+            vec2 off = vec2(float(i), float(j)) * texel * 2.5;
             vec3 s = texture2D(uMainSampler, uv + off).rgb;
             float l = luma(s);
-            float bright = smoothstep(uBloomThreshold, uBloomThreshold + 0.15, l);
+            float bright = smoothstep(uBloomThreshold, uBloomThreshold + 0.2, l);
             bloom += s * bright;
         }
     }
@@ -79,9 +79,14 @@ void main() {
     // ---- Ambient tint (multiplicative, time-of-day driven) ----
     col *= uAmbientTint;
 
-    // ---- Animated film grain ----
-    float g = hash12(uv * uResolution + vec2(uTime * 37.0, uTime * 91.0)) - 0.5;
-    col += g * uGrainStrength;
+    // ---- Animated film grain (luminance-only, only on shadows) ----
+    // Per-texel hash at canvas resolution is scaled by DPR on retinas which
+    // makes raw RGB grain read as blocky noise. Apply to luminance only (shifts
+    // perceived brightness without color fringing) and fade it out of bright
+    // regions (highlights look worse with grain).
+    float g = (hash12(uv * uResolution + vec2(uTime * 37.0, uTime * 91.0)) - 0.5);
+    float grainMask = 1.0 - smoothstep(0.35, 0.7, luma(col));
+    col += vec3(g) * uGrainStrength * grainMask;
 
     // ---- Soft vignette ----
     vec2 v = uv - 0.5;
@@ -94,13 +99,13 @@ void main() {
 `;
 
 export class PostFxPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
-    private ambientTint_: [number, number, number] = [1.12, 1.0, 0.82];
-    private warmLift_: [number, number, number] = [0.12, 0.05, -0.02];
-    private bloomStrength_ = 2.5;
+    private ambientTint_: [number, number, number] = [1.08, 1.0, 0.88];
+    private warmLift_: [number, number, number] = [0.07, 0.03, -0.01];
+    private bloomStrength_ = 1.4;
     private bloomThreshold_ = 0.42;
-    private grainStrength_ = 0.045;
-    private vignetteStrength_ = 0.4;
-    private saturation_ = 1.12;
+    private grainStrength_ = 0.012;
+    private vignetteStrength_ = 0.28;
+    private saturation_ = 1.05;
 
     constructor(game: Phaser.Game) {
         super({

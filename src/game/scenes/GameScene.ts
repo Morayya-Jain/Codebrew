@@ -38,7 +38,6 @@ export class GameScene extends Scene {
     private landmarkPositions: Array<{ x: number; y: number; id: string; iconColor: string }> = [];
     private leadOffsetX_ = 0;
     private leadOffsetY_ = 0;
-    private breatheBase_ = 1;
     private postFx_: PostFxPipeline | null = null;
 
     constructor() {
@@ -82,7 +81,6 @@ export class GameScene extends Scene {
         this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         this.cameras.main.startFollow(this.player, true, 0.18, 0.18);
         this.cameras.main.setBackgroundColor(timeOfDay.palette.letterboxColor);
-        this.breatheBase_ = this.cameras.main.zoom;
 
         // Register and attach the post-FX pipeline (WebGL only; graceful skip on Canvas)
         this.attachPostFxPipeline();
@@ -198,12 +196,12 @@ export class GameScene extends Scene {
     }
 
     private updateCameraPolish(): void {
-        // Camera breathing (±0.5%, 8s period)
-        const t = this.time.now / 1000;
-        const breathe = Math.sin(t * (Math.PI * 2) / 8) * 0.005;
-        this.cameras.main.setZoom(this.breatheBase_ * (1 + breathe));
+        // NOTE: no breathing zoom. A non-integer setZoom forces bilinear filtering
+        // on every sprite in the scene (including the post-FX render target copy)
+        // which reads as softness/blur on retina displays. The look-ahead offset
+        // only changes scroll, which is pixel-rounded by startFollow(..., true).
 
-        // Look-ahead: camera leads player by up to 60px in movement direction
+        // Look-ahead: camera leads player by up to 60px in movement direction.
         const body = this.player.body as Phaser.Physics.Arcade.Body | null;
         const vx = body?.velocity.x ?? 0;
         const vy = body?.velocity.y ?? 0;
@@ -212,7 +210,10 @@ export class GameScene extends Scene {
         const targetY = len > 10 ? -(vy / len) * 60 : 0;
         this.leadOffsetX_ += (targetX - this.leadOffsetX_) * 0.05;
         this.leadOffsetY_ += (targetY - this.leadOffsetY_) * 0.05;
-        this.cameras.main.setFollowOffset(this.leadOffsetX_, this.leadOffsetY_);
+        this.cameras.main.setFollowOffset(
+            Math.round(this.leadOffsetX_),
+            Math.round(this.leadOffsetY_),
+        );
     }
 
     // =========================================================================

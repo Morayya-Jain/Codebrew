@@ -11,6 +11,11 @@ const config: Phaser.Types.Core.GameConfig = {
     height: 720,
     parent: 'game-container',
     backgroundColor: '#1a0f08',
+    render: {
+        antialias: true,
+        pixelArt: false,
+        roundPixels: true,
+    },
     physics: {
         default: 'arcade',
         arcade: {
