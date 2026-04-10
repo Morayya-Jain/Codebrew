@@ -1,10 +1,11 @@
 import { Scene } from 'phaser';
-import { Player } from '../entities/Player';
+import { Player, PLAYER_EVENTS } from '../entities/Player';
 import { Landmark } from '../entities/Landmark';
 import { CONSTANTS } from '../types';
 import type { LandmarkData, LandmarksFile } from '../types';
 import { PostFxPipeline } from '../fx/PostFxPipeline';
 import { timeOfDay } from '../systems/TimeOfDay';
+import { AmbientAudio } from '../systems/AmbientAudio';
 
 interface AmbientParticle {
     x: number;
@@ -39,6 +40,7 @@ export class GameScene extends Scene {
     private leadOffsetX_ = 0;
     private leadOffsetY_ = 0;
     private postFx_: PostFxPipeline | null = null;
+    private audio_: AmbientAudio | null = null;
 
     constructor() {
         super('GameScene');
@@ -101,6 +103,41 @@ export class GameScene extends Scene {
             this.interactKey = this.input.keyboard.addKey('E');
         }
 
+        // Ambient audio — Web Audio synth, no asset files.
+        this.audio_ = new AmbientAudio(this);
+        // Register a point source per landmark so nearby ones drive biome bed.
+        for (const p of this.landmarkPositions) {
+            if (p.id === 'campfire') this.audio_.addPointSource(p.x, p.y, 'fire');
+        }
+        // River positional source — sample a handful of midpoints from the meander.
+        const riverSamples: Array<readonly [number, number]> = [
+            [1200, 2100], [2600, 2800], [4000, 3800], [5400, 4400], [6800, 4900],
+        ];
+        for (const [rx, ry] of riverSamples) this.audio_.addPointSource(rx, ry, 'water');
+
+        // Start audio on the very first user input (autoplay policy compliant).
+        const onFirstInput = (): void => {
+            this.audio_?.start();
+        };
+        this.input.keyboard?.once('keydown', onFirstInput);
+        this.input.once('pointerdown', onFirstInput);
+
+        // Mute toggle: M key
+        this.input.keyboard?.on('keydown-M', () => {
+            this.audio_?.toggleMute();
+        });
+
+        // Footsteps: react to Player step events
+        this.events.on(PLAYER_EVENTS.STEP, () => {
+            this.audio_?.step('dirt');
+        });
+
+        // Tear audio down when the scene shuts down so we don't leak oscillators.
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.audio_?.destroy();
+            this.audio_ = null;
+        });
+
         // Launch UI scene as overlay
         this.scene.launch('UIScene');
 
@@ -121,6 +158,7 @@ export class GameScene extends Scene {
         this.player.update();
         this.updateAmbientParticles(delta);
         this.updateCameraPolish();
+        this.audio_?.update(this.player.x, this.player.y, delta);
 
         // Update landmark proximity
         this.nearestLandmark = null;

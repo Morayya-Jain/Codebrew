@@ -1,10 +1,15 @@
 import { Physics, Scene } from 'phaser';
 import { CONSTANTS } from '../types';
 
+export const PLAYER_EVENTS = {
+    STEP: 'player-step',
+} as const;
+
 export class Player extends Physics.Arcade.Sprite {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
     private shiftKey!: Phaser.Input.Keyboard.Key;
+    private stepAccum_ = 0;
 
     constructor(scene: Scene, x: number, y: number) {
         super(scene, x, y, 'player-frame-0');
@@ -64,7 +69,15 @@ export class Player extends Physics.Arcade.Sprite {
             if (this.anims.currentAnim?.key !== 'player-walk') {
                 this.play('player-walk', true);
             }
+            // Emit step events scaled by speed. 500 units of movement => 1 step.
+            const deltaMs = this.scene.game.loop.delta;
+            this.stepAccum_ += Math.hypot(vx, vy) * (deltaMs / 1000);
+            if (this.stepAccum_ >= 115) {
+                this.stepAccum_ = 0;
+                this.scene.events.emit(PLAYER_EVENTS.STEP);
+            }
         } else {
+            this.stepAccum_ = 0;
             if (this.anims.currentAnim?.key !== 'player-idle') {
                 this.play('player-idle', true);
             }
