@@ -32,6 +32,30 @@ export class PreloadScene extends Scene {
     preload(): void {
         this.load.setPath('assets');
         this.load.json('landmarks', 'landmarks.json');
+
+        // Try to load painted landmark hero scenes if the user has dropped them
+        // into public/assets/landmarks/. Missing files just silently fall back
+        // to the procedural icons baked in BootScene — the loader continues
+        // past individual file errors rather than failing the whole scene.
+        const landmarkIds = [
+            'campfire', 'waterhole', 'rock_art', 'corroboree_ground',
+            'bush_tucker', 'songline', 'ancestor_tree', 'grinding_stones',
+            'emu_dreaming', 'possum_cloak',
+        ];
+        for (const id of landmarkIds) {
+            this.load.image(`landmark-hero-${id}`, `landmarks/${id}.png`);
+            this.load.image(`landmark-hero-${id}-bg`, `landmarks/${id}_bg.png`);
+            this.load.image(`landmark-hero-${id}-fg`, `landmarks/${id}_fg.png`);
+        }
+
+        this.load.on('loaderror', (file: Phaser.Loader.File) => {
+            // Expected: missing hero images. Warn but do not fail.
+            if (file.key?.startsWith('landmark-hero-')) {
+                return;
+            }
+            // eslint-disable-next-line no-console
+            console.warn(`[PreloadScene] Failed to load: ${file.key} (${file.url})`);
+        });
     }
 
     create(): void {

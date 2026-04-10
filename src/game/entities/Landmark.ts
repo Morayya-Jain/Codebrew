@@ -3,13 +3,21 @@ import { FloatingLabel } from '../ui/FloatingLabel';
 import type { LandmarkData, ProximityState } from '../types';
 import { CONSTANTS } from '../types';
 
+export const LANDMARK_EVENTS = {
+    NEAR_ENTER: 'landmark-near-enter',
+    NEAR_LEAVE: 'landmark-near-leave',
+} as const;
+
 export class Landmark extends GameObjects.Container {
     readonly data_: LandmarkData;
     private icon: GameObjects.Sprite;
+    private heroBg_: GameObjects.Image | null = null;
+    private heroFg_: GameObjects.Image | null = null;
     private glowGraphics: GameObjects.Graphics;
     private label: FloatingLabel;
     private _isNear = false;
     private lastGlowState: ProximityState = 'hidden';
+    private usingHero_ = false;
 
     constructor(scene: Scene, data: LandmarkData) {
         super(scene, data.position.x, data.position.y);
@@ -21,10 +29,37 @@ export class Landmark extends GameObjects.Container {
         this.glowGraphics.setAlpha(0);
         this.glowGraphics.setDepth(1);
 
-        // Landmark icon sprite
-        this.icon = scene.add.sprite(0, 0, `landmark-${data.id}`);
-        this.icon.setDisplaySize(64, 64);
-        this.add(this.icon);
+        // Prefer a user-provided painted hero scene (see public/assets/landmarks/)
+        // Falls back to the procedural icon baked in BootScene.
+        const heroKey = `landmark-hero-${data.id}`;
+        const heroBgKey = `landmark-hero-${data.id}-bg`;
+        const heroFgKey = `landmark-hero-${data.id}-fg`;
+
+        if (scene.textures.exists(heroKey)) {
+            this.usingHero_ = true;
+            if (scene.textures.exists(heroBgKey)) {
+                const bg = scene.add.image(0, 0, heroBgKey);
+                bg.setDisplaySize(260, 260);
+                bg.setOrigin(0.5, 0.9);
+                this.add(bg);
+                this.heroBg_ = bg;
+            }
+            this.icon = scene.add.sprite(0, 0, heroKey);
+            this.icon.setDisplaySize(220, 220);
+            this.icon.setOrigin(0.5, 0.9);
+            this.add(this.icon);
+            if (scene.textures.exists(heroFgKey)) {
+                const fg = scene.add.image(0, 0, heroFgKey);
+                fg.setDisplaySize(240, 240);
+                fg.setOrigin(0.5, 0.9);
+                this.add(fg);
+                this.heroFg_ = fg;
+            }
+        } else {
+            this.icon = scene.add.sprite(0, 0, `landmark-${data.id}`);
+            this.icon.setDisplaySize(72, 72);
+            this.add(this.icon);
+        }
 
         // Floating label positioned above the icon
         this.label = new FloatingLabel(
@@ -35,17 +70,21 @@ export class Landmark extends GameObjects.Container {
             data.shortDescription
         );
 
-        // Gentle bob animation on the icon
-        scene.tweens.add({
-            targets: this.icon,
-            y: -6,
-            duration: 1500 + Math.random() * 500,
-            ease: 'Sine.easeInOut',
-            yoyo: true,
-            repeat: -1,
-        });
+        // Gentle bob animation — procedural icons bob, hero scenes hold still
+        // (a painted scene bobbing looks weird).
+        if (!this.usingHero_) {
+            scene.tweens.add({
+                targets: this.icon,
+                y: -6,
+                duration: 1500 + Math.random() * 500,
+                ease: 'Sine.easeInOut',
+                yoyo: true,
+                repeat: -1,
+            });
+        }
 
-        this.setDepth(3);
+        // Depth-sort by world Y so landmarks sort with trees/player correctly.
+        this.setDepth(3 + data.position.y * 0.001);
         scene.add.existing(this);
     }
 
@@ -71,7 +110,16 @@ export class Landmark extends GameObjects.Container {
             state = 'near';
         }
 
+        const wasNear = this._isNear;
         this._isNear = state === 'near';
+
+        // Emit enter/leave for camera framing + audio ducking
+        if (this._isNear && !wasNear) {
+            this.scene.events.emit(LANDMARK_EVENTS.NEAR_ENTER, this);
+        } else if (!this._isNear && wasNear) {
+            this.scene.events.emit(LANDMARK_EVENTS.NEAR_LEAVE, this);
+        }
+
         this.label.setState(state);
         this.updateGlow(state, dist);
     }
@@ -100,6 +148,8 @@ export class Landmark extends GameObjects.Container {
     destroy(fromScene?: boolean): void {
         this.glowGraphics.destroy();
         this.label.destroy();
+        if (this.heroBg_) this.heroBg_.destroy();
+        if (this.heroFg_) this.heroFg_.destroy();
         super.destroy(fromScene);
     }
 }

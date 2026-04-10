@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 import { Player, PLAYER_EVENTS } from '../entities/Player';
-import { Landmark } from '../entities/Landmark';
+import { Landmark, LANDMARK_EVENTS } from '../entities/Landmark';
 import { CONSTANTS } from '../types';
 import type { LandmarkData, LandmarksFile } from '../types';
 import { PostFxPipeline } from '../fx/PostFxPipeline';
@@ -138,6 +138,28 @@ export class GameScene extends Scene {
         // Footsteps: react to Player step events
         this.events.on(PLAYER_EVENTS.STEP, () => {
             this.audio_?.step('dirt');
+        });
+
+        // Near-proximity landmark framing: subtle camera zoom when the player
+        // steps into a landmark's "near" range, back out on leave. Zoom is held
+        // steady at 1.08 during the framing (a single bilinear resample, not
+        // oscillated every frame) so it doesn't create the blur the removed
+        // breathing did.
+        this.events.on(LANDMARK_EVENTS.NEAR_ENTER, () => {
+            this.tweens.add({
+                targets: this.cameras.main,
+                zoom: 1.08,
+                duration: 900,
+                ease: 'Sine.easeInOut',
+            });
+        });
+        this.events.on(LANDMARK_EVENTS.NEAR_LEAVE, () => {
+            this.tweens.add({
+                targets: this.cameras.main,
+                zoom: 1.0,
+                duration: 700,
+                ease: 'Sine.easeInOut',
+            });
         });
 
         // Tear audio down when the scene shuts down so we don't leak oscillators.

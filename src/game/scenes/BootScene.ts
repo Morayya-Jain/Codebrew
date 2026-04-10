@@ -512,51 +512,85 @@ export class BootScene extends Scene {
     }
 
     private generatePlayerFrames(): void {
+        // Neutral contemporary bushwalker — hat, boots, backpack silhouette.
+        // 4 frames for the walk cycle: two idle stances alternating, plus two
+        // walk poses with opposite leg positions.
         for (let i = 0; i < 4; i++) {
             const gfx = this.add.graphics();
-            const bobY = (i % 2 === 0) ? 0 : -3;
-            const legOffset = (i % 2 === 0) ? 4 : -4;
+            const bobY = (i % 2 === 0) ? 0 : -2;
+            const legL = [0, 4, 0, -4][i];
+            const legR = [0, -4, 0, 4][i];
 
-            // Shadow
-            gfx.fillStyle(0x000000, 0.2);
-            gfx.fillEllipse(32, 58, 24, 8);
+            const cx = 32;
 
-            // Body (poncho/cloak)
-            gfx.fillStyle(0xc47a4a);
-            gfx.fillRoundedRect(20, 22 + bobY, 24, 24, 4);
+            // Drop shadow
+            gfx.fillStyle(0x000000, 0.28);
+            gfx.fillEllipse(cx, 60, 22, 6);
 
-            // Decorative stripe on body
-            gfx.fillStyle(0xe8c170, 0.6);
-            gfx.fillRect(22, 30 + bobY, 20, 3);
-            gfx.fillRect(22, 36 + bobY, 20, 3);
+            // Backpack (behind the torso) — warm dark canvas
+            gfx.fillStyle(0x4a3a26, 1);
+            gfx.fillRoundedRect(cx - 9, 21 + bobY, 18, 22, 3);
+            // Pack top flap
+            gfx.fillStyle(0x5a4830, 1);
+            gfx.fillRoundedRect(cx - 9, 19 + bobY, 18, 6, 2);
+            // Strap
+            gfx.fillStyle(0x2a1f14, 1);
+            gfx.fillRect(cx - 12, 22 + bobY, 3, 18);
+            gfx.fillRect(cx + 9, 22 + bobY, 3, 18);
+            // Rolled sleeping mat on top
+            gfx.fillStyle(0x7a5a3a, 1);
+            gfx.fillEllipse(cx, 18 + bobY, 20, 5);
+
+            // Torso — long-sleeve shirt
+            gfx.fillStyle(0x6a7a5c, 1);
+            gfx.fillRoundedRect(cx - 8, 24 + bobY, 16, 20, 4);
+            // Shirt shade side
+            gfx.fillStyle(0x4a5a3c, 0.8);
+            gfx.fillRoundedRect(cx + 2, 24 + bobY, 6, 20, 3);
+
+            // Arms — visible on the sides
+            gfx.fillStyle(0x6a7a5c, 1);
+            gfx.fillRoundedRect(cx - 12, 26 + bobY, 5, 14, 2);
+            gfx.fillRoundedRect(cx + 7, 26 + bobY, 5, 14, 2);
+            // Hands
+            gfx.fillStyle(0xbe9878, 1);
+            gfx.fillCircle(cx - 10, 41 + bobY, 2.2);
+            gfx.fillCircle(cx + 9, 41 + bobY, 2.2);
+
+            // Neck
+            gfx.fillStyle(0xbe9878, 1);
+            gfx.fillRect(cx - 2, 18 + bobY, 4, 4);
 
             // Head
-            gfx.fillStyle(0x8b6b4a);
-            gfx.fillCircle(32, 16 + bobY, 11);
+            gfx.fillStyle(0xbe9878, 1);
+            gfx.fillCircle(cx, 14 + bobY, 7);
+            // Subtle face shadow
+            gfx.fillStyle(0x8a6850, 0.5);
+            gfx.fillEllipse(cx + 2, 15 + bobY, 10, 8);
 
-            // Hair
-            gfx.fillStyle(0x1a1a1a);
-            gfx.fillCircle(32, 12 + bobY, 10);
-            gfx.fillRect(22, 12 + bobY, 20, 6);
+            // Wide-brim hat — crown + brim
+            gfx.fillStyle(0x2a1f14, 1);
+            gfx.fillEllipse(cx, 10 + bobY, 24, 5);
+            gfx.fillStyle(0x3a2a18, 1);
+            gfx.fillRoundedRect(cx - 7, 4 + bobY, 14, 7, 3);
+            // Hat band
+            gfx.fillStyle(0x8a6a38, 1);
+            gfx.fillRect(cx - 7, 9 + bobY, 14, 1.5);
 
-            // Headband
-            gfx.fillStyle(0xd4513a);
-            gfx.fillRect(22, 14 + bobY, 20, 3);
+            // Eyes — tiny shadowed dots under the hat brim
+            gfx.fillStyle(0x1a1210, 1);
+            gfx.fillCircle(cx - 2, 14 + bobY, 0.9);
+            gfx.fillCircle(cx + 2, 14 + bobY, 0.9);
 
-            // Face features
-            gfx.fillStyle(0x1a1a1a);
-            gfx.fillCircle(28, 17 + bobY, 1.5);
-            gfx.fillCircle(36, 17 + bobY, 1.5);
+            // Trousers / cargo pants
+            gfx.fillStyle(0x403020, 1);
+            gfx.fillRoundedRect(cx - 8 + legL, 43 + bobY, 7, 14, 2);
+            gfx.fillRoundedRect(cx + 1 + legR, 43 + bobY, 7, 14, 2);
 
-            // Legs
-            gfx.fillStyle(0x6b4a30);
-            gfx.fillRoundedRect(25 + legOffset, 44 + bobY, 6, 14, 2);
-            gfx.fillRoundedRect(33 - legOffset, 44 + bobY, 6, 14, 2);
-
-            // Feet
-            gfx.fillStyle(0x4a3220);
-            gfx.fillEllipse(28 + legOffset, 57 + bobY, 7, 4);
-            gfx.fillEllipse(36 - legOffset, 57 + bobY, 7, 4);
+            // Boots
+            gfx.fillStyle(0x1a120a, 1);
+            gfx.fillEllipse(cx - 4 + legL, 58, 9, 4);
+            gfx.fillEllipse(cx + 4 + legR, 58, 9, 4);
 
             gfx.generateTexture(`player-frame-${i}`, 64, 64);
             gfx.destroy();
