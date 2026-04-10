@@ -74,7 +74,7 @@ export class GameScene extends Scene {
 
         // Setup camera
         this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-        this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+        this.cameras.main.startFollow(this.player, true, 0.18, 0.18);
         this.cameras.main.setBackgroundColor(0x1a1510);
 
         // Load landmarks from JSON
@@ -170,12 +170,12 @@ export class GameScene extends Scene {
         gfx.fillStyle(0x3a2e22, 1);
         gfx.fillRect(0, 0, width, height);
 
-        // Terrain noise — patches of lighter/darker ground
+        // Terrain noise — larger, fewer patches (visible at zoom level)
         const rng = this.createSeededRandom(42);
-        for (let i = 0; i < 800; i++) {
+        for (let i = 0; i < 200; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 40 + rng() * 120;
+            const patchSize = 80 + rng() * 200;
             const colors = [0x443828, 0x302418, 0x3a3020, 0x342818, 0x483c2a];
             const lightness = colors[Math.floor(rng() * colors.length)];
             const alpha = 0.15 + rng() * 0.3;
@@ -184,10 +184,10 @@ export class GameScene extends Scene {
         }
 
         // Olive and reddish-earth patches for variety
-        for (let i = 0; i < 120; i++) {
+        for (let i = 0; i < 40; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 50 + rng() * 100;
+            const patchSize = 100 + rng() * 180;
             const isOlive = rng() > 0.5;
             gfx.fillStyle(isOlive ? 0x3a3a22 : 0x4a3028, 0.1 + rng() * 0.15);
             gfx.fillEllipse(px, py, patchSize, patchSize * 0.7);
@@ -201,29 +201,29 @@ export class GameScene extends Scene {
         const rng = this.createSeededRandom(99);
 
         // Sandy patches (lighter areas)
-        for (let i = 0; i < 120; i++) {
+        for (let i = 0; i < 40; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 50 + rng() * 80;
+            const patchSize = 80 + rng() * 140;
             gfx.fillStyle(0x5a4a38, 0.15);
             gfx.fillEllipse(px, py, patchSize, patchSize * 0.7);
         }
 
-        // Sparse grass tufts (small green dots)
-        for (let i = 0; i < 1200; i++) {
+        // Grass tufts — larger and fewer (tiny dots invisible at this zoom)
+        for (let i = 0; i < 250; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const tSize = 2 + rng() * 6;
+            const tSize = 4 + rng() * 10;
             const greenShade = rng() > 0.5 ? 0x3a5a2a : 0x2a4a1a;
             gfx.fillStyle(greenShade, 0.2 + rng() * 0.2);
             gfx.fillCircle(px, py, tSize);
         }
 
         // Darker undergrowth patches
-        for (let i = 0; i < 80; i++) {
+        for (let i = 0; i < 30; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 25 + rng() * 50;
+            const patchSize = 40 + rng() * 80;
             gfx.fillStyle(0x2a3a1a, 0.2);
             gfx.fillEllipse(px, py, patchSize, patchSize);
         }
@@ -235,7 +235,7 @@ export class GameScene extends Scene {
 
         const rng = this.createSeededRandom(77);
 
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 15; i++) {
             const hx = rng() * width;
             const hy = rng() * height;
             const hw = 250 + rng() * 350;
@@ -317,17 +317,17 @@ export class GameScene extends Scene {
         }
         gfx.strokePath();
 
-        // Water shimmer (horizontal dashes for reflection)
+        // Water shimmer (fewer, larger for visibility at zoom level)
         const shimmerRng = this.createSeededRandom(555);
         for (let i = 0; i < riverPoints.length - 1; i++) {
             const p1 = riverPoints[i];
             const p2 = riverPoints[i + 1];
-            for (let t = 0; t < 1; t += 0.08) {
+            for (let t = 0; t < 1; t += 0.25) {
                 const x = p1.x + (p2.x - p1.x) * t + (shimmerRng() - 0.5) * 24;
                 const y = p1.y + (p2.y - p1.y) * t + (shimmerRng() - 0.5) * 18;
-                const dashW = 4 + shimmerRng() * 8;
-                gfx.fillStyle(0x6aaacc, 0.06 + shimmerRng() * 0.08);
-                gfx.fillRect(x - dashW / 2, y, dashW, 1.5);
+                const dashW = 6 + shimmerRng() * 10;
+                gfx.fillStyle(0x6aaacc, 0.08 + shimmerRng() * 0.08);
+                gfx.fillRect(x - dashW / 2, y, dashW, 2);
             }
         }
 
@@ -335,11 +335,11 @@ export class GameScene extends Scene {
         for (let i = 0; i < riverPoints.length - 1; i++) {
             const p1 = riverPoints[i];
             const p2 = riverPoints[i + 1];
-            for (let t = 0; t < 1; t += 0.12) {
+            for (let t = 0; t < 1; t += 0.35) {
                 const x = p1.x + (p2.x - p1.x) * t + (shimmerRng() - 0.5) * 20;
                 const y = p1.y + (p2.y - p1.y) * t + (shimmerRng() - 0.5) * 16;
                 gfx.fillStyle(0x4a8aaa, 0.25);
-                gfx.fillCircle(x, y, 1.5);
+                gfx.fillCircle(x, y, 2);
             }
         }
 
@@ -441,9 +441,9 @@ export class GameScene extends Scene {
 
     private drawDotPath(gfx: Phaser.GameObjects.Graphics, x1: number, y1: number, x2: number, y2: number): void {
         const dist = Phaser.Math.Distance.Between(x1, y1, x2, y2);
-        const steps = Math.floor(dist / 22);
+        const steps = Math.floor(dist / 45); // Larger step size = fewer draw calls
 
-        // Path ground (worn earth) — wider base with color variation
+        // Path ground (worn earth)
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const x = x1 + (x2 - x1) * t;
@@ -454,27 +454,19 @@ export class GameScene extends Scene {
             const px = x + dx * perpOffset;
             const py = y + dy * perpOffset;
 
-            // Main worn earth
             gfx.fillStyle(0x3d2e1e, 0.3);
-            gfx.fillCircle(px, py, 12);
+            gfx.fillCircle(px, py, 16);
 
-            // Slight color variation
-            if (i % 3 === 0) {
-                gfx.fillStyle(0x4a3828, 0.15);
-                gfx.fillCircle(px, py, 14);
-            }
-
-            // Grass encroachment on edges
-            if (i % 4 === 0) {
+            // Grass encroachment on edges (every other step)
+            if (i % 2 === 0) {
                 gfx.fillStyle(0x3a5a2a, 0.2);
-                gfx.fillCircle(px + dx * 14, py + dy * 14, 3);
-                gfx.fillCircle(px - dx * 14, py - dy * 14, 2.5);
+                gfx.fillCircle(px + dx * 16, py + dy * 16, 3);
             }
         }
 
-        // Dot-art trail along path
+        // Dot-art trail along path (every 3rd step)
         gfx.fillStyle(0xe8c170, 0.18);
-        for (let i = 0; i <= steps; i += 2) {
+        for (let i = 0; i <= steps; i += 3) {
             const t = i / steps;
             const x = x1 + (x2 - x1) * t;
             const y = y1 + (y2 - y1) * t;
@@ -482,18 +474,13 @@ export class GameScene extends Scene {
             const dx = -(y2 - y1) / dist;
             const dy = (x2 - x1) / dist;
 
-            gfx.fillCircle(x + dx * perpOffset, y + dy * perpOffset, 2.5);
+            gfx.fillCircle(x + dx * perpOffset, y + dy * perpOffset, 3);
 
-            // Small surrounding dots
+            // Two surrounding dots instead of four
             gfx.fillStyle(0xe8c170, 0.08);
-            for (let a = 0; a < 4; a++) {
-                const angle = (a / 4) * Math.PI * 2 + t * 2;
-                gfx.fillCircle(
-                    x + dx * perpOffset + Math.cos(angle) * 8,
-                    y + dy * perpOffset + Math.sin(angle) * 8,
-                    1.5
-                );
-            }
+            const angle1 = t * 2;
+            gfx.fillCircle(x + dx * perpOffset + Math.cos(angle1) * 9, y + dy * perpOffset + Math.sin(angle1) * 9, 2);
+            gfx.fillCircle(x + dx * perpOffset - Math.cos(angle1) * 9, y + dy * perpOffset - Math.sin(angle1) * 9, 2);
             gfx.fillStyle(0xe8c170, 0.18);
         }
     }
@@ -505,7 +492,7 @@ export class GameScene extends Scene {
         const rng = this.createSeededRandom(333);
 
         // Fallen logs
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 12; i++) {
             const lx = 200 + rng() * (width - 400);
             const ly = 200 + rng() * (height - 400);
             const len = 20 + rng() * 35;
@@ -536,7 +523,7 @@ export class GameScene extends Scene {
         }
 
         // Small puddles near river area
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 10; i++) {
             const px = 200 + rng() * (width - 400);
             // Bias puddles toward the river y-range (2000-2800)
             const py = 1800 + rng() * 1200;
@@ -579,7 +566,7 @@ export class GameScene extends Scene {
         ];
 
         const clearance = 160;
-        const treeCount = 140;
+        const treeCount = 80;
         let placed = 0;
         let attempts = 0;
 
@@ -606,35 +593,25 @@ export class GameScene extends Scene {
         shadowGfx: Phaser.GameObjects.Graphics,
         x: number, y: number, size: number
     ): void {
-        // Cast shadow (SE offset for consistent NW light)
+        // Cast shadow (SE offset)
         shadowGfx.fillStyle(0x000000, 0.12);
         shadowGfx.fillEllipse(x + 8, y + 10, size * 2.2, size * 1.6);
 
-        // Trunk visible below canopy
-        canopyGfx.fillStyle(0x3a2210, 0.7);
-        canopyGfx.fillRoundedRect(x - 3, y - 4, 6, 12, 2);
-
-        // Outer canopy (dark green, slightly wider than tall for isometric feel)
+        // Outer canopy (wider than tall for isometric feel)
         canopyGfx.fillStyle(0x1a3a16, 0.75);
         canopyGfx.fillEllipse(x, y, size * 2, size * 1.6);
 
-        // Mid canopy layer
-        canopyGfx.fillStyle(0x2a4a22, 0.65);
-        canopyGfx.fillEllipse(x - size * 0.15, y - size * 0.12, size * 1.5, size * 1.2);
+        // Mid canopy + highlight combined
+        canopyGfx.fillStyle(0x2a4a22, 0.6);
+        canopyGfx.fillEllipse(x - size * 0.15, y - size * 0.12, size * 1.4, size * 1.1);
 
-        // Highlight (NW, sunlit side)
-        canopyGfx.fillStyle(0x3a6a2a, 0.45);
-        canopyGfx.fillEllipse(x - size * 0.3, y - size * 0.25, size * 0.9, size * 0.7);
+        // NW highlight
+        canopyGfx.fillStyle(0x3a6a2a, 0.4);
+        canopyGfx.fillEllipse(x - size * 0.3, y - size * 0.25, size * 0.8, size * 0.6);
 
-        // Leaf texture dots (scattered darker spots)
-        canopyGfx.fillStyle(0x1a3016, 0.3);
-        canopyGfx.fillCircle(x + size * 0.3, y + size * 0.15, size * 0.15);
-        canopyGfx.fillCircle(x - size * 0.1, y + size * 0.2, size * 0.12);
-        canopyGfx.fillCircle(x + size * 0.15, y - size * 0.15, size * 0.1);
-
-        // Bright leaf spot
-        canopyGfx.fillStyle(0x4a7a3a, 0.3);
-        canopyGfx.fillCircle(x - size * 0.35, y - size * 0.3, size * 0.2);
+        // Trunk center dot
+        canopyGfx.fillStyle(0x2a1a10, 0.5);
+        canopyGfx.fillCircle(x, y, size * 0.15);
     }
 
     private createRocks(width: number, height: number): void {
@@ -651,7 +628,7 @@ export class GameScene extends Scene {
         ];
 
         const clearance = 140;
-        const rockTarget = 45;
+        const rockTarget = 30;
         let placedRocks = 0;
         let rockAttempts = 0;
 
@@ -767,7 +744,7 @@ export class GameScene extends Scene {
         gfx.setDepth(7);
 
         const fadeWidth = 200;
-        const strips = 20;
+        const strips = 10;
 
         for (let i = 0; i < strips; i++) {
             const t = 1 - (i / strips);
@@ -788,7 +765,7 @@ export class GameScene extends Scene {
 
         // Very faint dotted boundary line
         gfx.fillStyle(0x4a6a3a, 0.12);
-        const dotSpacing = 40;
+        const dotSpacing = 80;
         // Top
         for (let x = 0; x < width; x += dotSpacing) {
             gfx.fillCircle(x, 2, 1.5);
@@ -825,7 +802,7 @@ export class GameScene extends Scene {
     // =========================================================================
 
     private initAmbientParticles(width: number, height: number): void {
-        this.ambientParticles = Array.from({ length: 200 }, () => ({
+        this.ambientParticles = Array.from({ length: 80 }, () => ({
             x: Math.random() * width,
             y: Math.random() * height,
             vx: (Math.random() - 0.5) * 0.3,
