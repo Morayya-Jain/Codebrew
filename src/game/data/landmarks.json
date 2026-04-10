@@ -5,7 +5,7 @@
             "name": "Campfire Gathering Place",
             "shortDescription": "A place where people have gathered around fires to share stories for thousands of years.",
             "fullStory": "For thousands of years, people have come together around fires like this one. Elders sat with younger people and shared stories about the land, the seasons, and the Dreamtime.\n\nThe campfire was the centre of community life. Around the fire, people talked, settled disagreements, sang songs, and danced together. The fire was seen as a gift from the ancestors, and keeping it burning meant keeping culture alive.\n\nToday, campfire gatherings are still important to Aboriginal communities. They are places for healing, learning, and coming together as a family and community.",
-            "position": { "x": 1000, "y": 800 },
+            "position": { "x": 4000, "y": 3200 },
             "iconColor": "#e8651a",
             "illustrationColor": "#d4510a"
         },
@@ -14,7 +14,7 @@
             "name": "Sacred Waterhole",
             "shortDescription": "A waterhole that holds deep meaning for the people who have cared for it since ancient times.",
             "fullStory": "This waterhole is important to the Traditional Owners who have looked after this land for many generations. In Dreamtime stories of the Kulin Nation, waterholes were made by the Rainbow Serpent as it moved across the land and shaped the rivers and creeks.\n\nWaterholes were not just places to get water. They were meeting spots, spiritual places, and markers of the journeys of the ancestors.\n\nAboriginal people knew which waterholes held water all year and which ones dried up in summer. This knowledge was passed down carefully through stories and teaching.",
-            "position": { "x": 350, "y": 450 },
+            "position": { "x": 1400, "y": 1800 },
             "iconColor": "#1a8fe8",
             "illustrationColor": "#0a6dba"
         },
@@ -23,7 +23,7 @@
             "name": "Rock Art Gallery",
             "shortDescription": "Paintings made on rock, telling stories that have lasted for thousands of years.",
             "fullStory": "The rock art in Victoria is some of the oldest art in the world. Paintings in the Grampians (Gariwerd) are over 20,000 years old.\n\nThese paintings tell Dreamtime stories, mark important places, and record history. The artists used natural paints made from ochre, a type of coloured rock, mixed with water or animal fat.\n\nYou can see hand stencils, animal tracks, and symbols in these paintings. Some places have layers of art painted over thousands of years.\n\nThese sites are sacred and are still important places for Aboriginal people today.",
-            "position": { "x": 1650, "y": 350 },
+            "position": { "x": 6600, "y": 1400 },
             "iconColor": "#c44b2a",
             "illustrationColor": "#a83520"
         },
@@ -32,7 +32,7 @@
             "name": "Corroboree Ground",
             "shortDescription": "A place where people come together to dance, sing, and share stories through ceremony.",
             "fullStory": "This is a corroboree ground, a place where Aboriginal communities come together for ceremony. Corroborees can bring hundreds of people from different clan groups, with some travelling very far to be there.\n\nAt a corroboree, people dance and sing stories from the Dreamtime. They paint their bodies with ochre and wear special clothes. Each dance tells a story about an ancestor, an animal, or the land.\n\nCorroborees are also a chance for groups to trade, to strengthen friendships, and for young people to learn the culture. The Kulin Nation held large gatherings at sites across Victoria, where different language groups came together.",
-            "position": { "x": 1600, "y": 1250 },
+            "position": { "x": 6400, "y": 5000 },
             "iconColor": "#8b5e3c",
             "illustrationColor": "#6d4a2f"
         },
@@ -41,7 +41,7 @@
             "name": "Bush Tucker Trail",
             "shortDescription": "Native plants and foods that Aboriginal people have known and used for thousands of years.",
             "fullStory": "Aboriginal people have known how to find food in this land for over 65,000 years. Victoria's forests and plains were full of food for those who knew where to look.\n\nSome important foods from this area:\n\nMurnong (yam daisy) has yellow flowers and roots that can be cooked and eaten. It used to grow across the plains in huge numbers.\n\nKangaroo grass seeds were collected and ground into flour for making bread.\n\nWattle seeds are full of protein and were used in cooking and drinks.\n\nLooking after the land was part of getting food. Aboriginal people used careful burning to keep the land healthy, help plants grow back, and create good homes for animals.",
-            "position": { "x": 400, "y": 1200 },
+            "position": { "x": 1600, "y": 4800 },
             "iconColor": "#4a8c3f",
             "illustrationColor": "#3a7030"
         },
@@ -50,9 +50,45 @@
             "name": "Songline Path",
             "shortDescription": "An ancient route through the land, remembered through songs and stories.",
             "fullStory": "Songlines, also called Dreaming tracks, are paths across the land that are recorded in songs, stories, and dances.\n\nEach songline tells the story of an ancestor who walked the land and shaped it during the Dreamtime. By singing the right songs in the right order, a person can find their way across hundreds of kilometres, even through land they have never visited before.\n\nSonglines also hold important knowledge: where to find water and food, which places are sacred, and which groups are responsible for caring for which parts of the land.\n\nIn Victoria, songlines connected the Kulin Nation to communities far away. These paths were used to trade goods like stone axes, possum skin cloaks, and ochre, and to share songs, dances, and stories.\n\nSonglines are still alive and important to Aboriginal communities today.",
-            "position": { "x": 1000, "y": 200 },
+            "position": { "x": 4000, "y": 800 },
             "iconColor": "#9b59b6",
             "illustrationColor": "#7d3f99"
+        },
+        {
+            "id": "ancestor-tree",
+            "name": "Ancestor Tree",
+            "shortDescription": "An ancient scarred tree, marked long ago when bark was cut to make canoes and shields.",
+            "fullStory": "This old tree carries the marks of Aboriginal craftspeople from long ago. The scars on its trunk show where large sheets of bark were carefully removed to make canoes, shields, and coolamons (carrying vessels).\n\nRemoving bark was a skilled task. People chose the right tree, cut the bark at the right time of year, and took only what was needed so the tree could heal and keep growing. Many scarred trees are hundreds of years old and still standing.\n\nThese trees are living records of Aboriginal life and culture. Each scar tells a story about the people who lived here, what they made, and how they cared for the land.\n\nScarred trees are now protected as important cultural heritage sites across Victoria. They remind us that Aboriginal people shaped and managed this landscape for tens of thousands of years.",
+            "position": { "x": 2800, "y": 600 },
+            "iconColor": "#6b4226",
+            "illustrationColor": "#5a3620"
+        },
+        {
+            "id": "grinding-stones",
+            "name": "Grinding Stones",
+            "shortDescription": "Stone tools worn smooth from generations of grinding seeds and ochre.",
+            "fullStory": "These grinding stones have been shaped by thousands of years of use. Aboriginal women used stones like these to grind seeds, nuts, and roots into flour for making bread and other foods.\n\nThe large flat stone on the bottom is called a millstone or mortar. The smaller stone held in the hands is the muller or pestle. Together, they could grind hard kangaroo grass seeds into fine flour.\n\nGrinding stones were also used to prepare ochre for painting — crushing coloured rocks into powder that could be mixed with water or animal fat to make paint for ceremonies, rock art, and body decoration.\n\nThese tools show great knowledge of the land's resources. Aboriginal people knew which stones made the best grinders, where to find them, and how to shape them. Grinding stones were valuable and were sometimes traded over long distances.\n\nThe deep grooves worn into these stones tell us that people used this place for a very long time.",
+            "position": { "x": 5600, "y": 2800 },
+            "iconColor": "#7a7a6a",
+            "illustrationColor": "#5a5a4a"
+        },
+        {
+            "id": "emu-dreaming",
+            "name": "Emu Dreaming Track",
+            "shortDescription": "A dreaming track marked by emu footprints, tracing the path of ancestral spirits.",
+            "fullStory": "This dreaming track follows the path of the Emu Spirit, one of the important ancestral beings in Aboriginal culture. The large three-toed footprints mark the route the Emu ancestor took as it walked across the land during the Dreamtime.\n\nEmus were deeply important to Aboriginal life. They provided food, feathers for decoration, and fat that was used as medicine and for waterproofing. Aboriginal people knew the emu's habits — where they nested, when their eggs were ready, and how they moved across the land with the seasons.\n\nThe Emu is also seen in the night sky. Aboriginal astronomers recognised a great emu shape in the dark spaces between the stars of the Milky Way. When the celestial emu appeared in a certain position, it was a sign that real emus were laying their eggs and it was time to collect them.\n\nDreaming tracks like this one are maps, histories, and spiritual guides all woven together. They connect places, people, and knowledge across the land.",
+            "position": { "x": 3200, "y": 5600 },
+            "iconColor": "#8b6b3a",
+            "illustrationColor": "#7a5a2a"
+        },
+        {
+            "id": "possum-cloak",
+            "name": "Possum Skin Cloak Site",
+            "shortDescription": "A place where possum skin cloaks were crafted, each one telling a family's story.",
+            "fullStory": "At this site, skilled craftspeople made possum skin cloaks — one of the most important and beautiful items in Aboriginal culture of south-eastern Australia.\n\nEach cloak was made from many possum skins carefully sewn together with sinew. The inside of the cloak was decorated with intricate designs, each panel telling the story of the wearer's life, their clan totem, and their connection to country.\n\nA baby would receive their first small cloak at birth, and as they grew, more skins would be added. By the time a person was an elder, their cloak told the story of their whole life.\n\nPossum skin cloaks kept people warm through cold Victorian winters, but they were much more than clothing. They were worn at ceremonies, used as blankets, and wrapped around people when they passed away.\n\nAfter European settlement, the tradition of making possum skin cloaks was nearly lost. But in recent years, Aboriginal artists and communities have been reviving this ancient craft, creating new cloaks that carry forward the stories and knowledge of their ancestors.",
+            "position": { "x": 6800, "y": 3800 },
+            "iconColor": "#5a4a3a",
+            "illustrationColor": "#4a3a2a"
         }
     ]
 }

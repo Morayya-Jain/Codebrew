@@ -18,15 +18,17 @@ export interface GameConstants {
     WORLD_WIDTH: number;
     WORLD_HEIGHT: number;
     PLAYER_SPEED: number;
+    SPRINT_SPEED: number;
     FAR_THRESHOLD: number;
     MID_THRESHOLD: number;
     NEAR_THRESHOLD: number;
 }
 
 export const CONSTANTS: Readonly<GameConstants> = Object.freeze({
-    WORLD_WIDTH: 2000,
-    WORLD_HEIGHT: 1600,
-    PLAYER_SPEED: 200,
+    WORLD_WIDTH: 8000,
+    WORLD_HEIGHT: 6400,
+    PLAYER_SPEED: 300,
+    SPRINT_SPEED: 480,
     FAR_THRESHOLD: 400,
     MID_THRESHOLD: 250,
     NEAR_THRESHOLD: 130,

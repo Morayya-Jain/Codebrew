@@ -1,13 +1,17 @@
 import { Scene } from 'phaser';
 import { StoryCard } from '../ui/StoryCard';
+import { MiniMap } from '../ui/MiniMap';
 import type { LandmarkData } from '../types';
+import type { GameScene } from './GameScene';
 
 export class UIScene extends Scene {
     private storyCard!: StoryCard;
+    private miniMap!: MiniMap;
     private progressText!: Phaser.GameObjects.Text;
     private hintText!: Phaser.GameObjects.Text;
     private discoveredIds: Set<string> = new Set();
-    private totalLandmarks = 6;
+    private totalLandmarks = 10;
+    private progressDotsGfx!: Phaser.GameObjects.Graphics;
 
     constructor() {
         super('UIScene');
@@ -19,7 +23,7 @@ export class UIScene extends Scene {
 
         // Progress tracker (top right)
         this.progressText = this.add.text(width - 20, 20,
-            '0 / 6 Stories Discovered', {
+            '0 / 10 Stories Discovered', {
                 fontFamily: '"Crimson Text", Georgia, serif',
                 fontSize: '16px',
                 color: '#e8c170',
@@ -27,11 +31,12 @@ export class UIScene extends Scene {
             }).setOrigin(1, 0).setAlpha(0.7).setScrollFactor(0);
 
         // Progress dots
+        this.progressDotsGfx = this.add.graphics().setScrollFactor(0);
         this.updateProgressDots();
 
         // HUD hint text (bottom center)
         this.hintText = this.add.text(width / 2, height - 28,
-            'WASD / Arrow Keys to move  |  E near landmarks to read stories',
+            'WASD / Arrow Keys to move  |  Shift to sprint  |  E near landmarks to read stories',
             {
                 fontFamily: '"Crimson Text", Georgia, serif',
                 fontSize: '14px',
@@ -57,8 +62,20 @@ export class UIScene extends Scene {
             this.storyCard.show(data, () => this.closeStoryCard());
         });
 
+        // Initialize mini-map (bottom-right)
+        const gameScene = this.scene.get('GameScene') as GameScene;
+        this.miniMap = new MiniMap(this, width - 236, height - 192, 220, 176, gameScene);
+
         // Fade in
         this.cameras.main.fadeIn(500, 10, 6, 3);
+    }
+
+    update(): void {
+        const gameScene = this.scene.get('GameScene') as GameScene;
+        if (gameScene && this.miniMap) {
+            const pos = gameScene.getPlayerPosition();
+            this.miniMap.update(pos.x, pos.y, this.discoveredIds);
+        }
     }
 
     private closeStoryCard(): void {
@@ -94,13 +111,12 @@ export class UIScene extends Scene {
         const baseX = width - 20;
         const baseY = 45;
 
-        // Clear previous dots (simple approach: redraw)
-        const gfx = this.add.graphics().setScrollFactor(0);
+        this.progressDotsGfx.clear();
         for (let i = 0; i < this.totalLandmarks; i++) {
-            const x = baseX - (this.totalLandmarks - 1 - i) * 18;
+            const x = baseX - (this.totalLandmarks - 1 - i) * 14;
             const discovered = i < this.discoveredIds.size;
-            gfx.fillStyle(discovered ? 0xe8c170 : 0x3a2a1a, discovered ? 0.9 : 0.5);
-            gfx.fillCircle(x, baseY, 5);
+            this.progressDotsGfx.fillStyle(discovered ? 0xe8c170 : 0x3a2a1a, discovered ? 0.9 : 0.5);
+            this.progressDotsGfx.fillCircle(x, baseY, 4);
         }
     }
 }

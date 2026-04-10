@@ -4,6 +4,7 @@ import { CONSTANTS } from '../types';
 export class Player extends Physics.Arcade.Sprite {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
+    private shiftKey!: Phaser.Input.Keyboard.Key;
 
     constructor(scene: Scene, x: number, y: number) {
         super(scene, x, y, 'player-frame-0');
@@ -26,11 +27,13 @@ export class Player extends Physics.Arcade.Sprite {
                 S: scene.input.keyboard.addKey('S'),
                 D: scene.input.keyboard.addKey('D'),
             };
+            this.shiftKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
         }
     }
 
     update(): void {
-        const speed = CONSTANTS.PLAYER_SPEED;
+        const isSprinting = this.shiftKey?.isDown ?? false;
+        const speed = isSprinting ? CONSTANTS.SPRINT_SPEED : CONSTANTS.PLAYER_SPEED;
         let vx = 0;
         let vy = 0;
 
