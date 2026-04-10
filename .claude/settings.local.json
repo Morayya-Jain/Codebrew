@@ -10,7 +10,9 @@
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(curl -s http://localhost:8080/)",
-      "Bash(curl -s http://localhost:8080/src/game/main.ts)"
+      "Bash(curl -s http://localhost:8080/src/game/main.ts)",
+      "Bash(grep -E \"\\\\.\\(ts|js|json\\)$\")",
+      "Bash(npx tsc:*)"
     ]
   },
   "disabledMcpjsonServers": [

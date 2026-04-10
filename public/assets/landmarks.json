@@ -3,8 +3,8 @@
         {
             "id": "campfire",
             "name": "Campfire Gathering Place",
-            "shortDescription": "A sacred site where stories are shared under the stars.",
-            "fullStory": "For thousands of years, this campfire site has served as a gathering place for Aboriginal communities in the Kulin Nation region of Victoria. Here, Elders would share Dreamtime stories with younger generations, passing down knowledge of the land, the seasons, and the spiritual connections that bind people to Country.\n\nThe campfire is more than warmth — it is the heart of community. Around these flames, laws were discussed, disputes settled, songs sung, and dances performed. The fire itself is considered a gift from the ancestral beings, and its light represents the continuity of culture across countless generations.\n\nEven today, campfire gatherings remain central to Aboriginal cultural practice, serving as spaces for healing, education, and the strengthening of community bonds.",
+            "shortDescription": "A place where people have gathered around fires to share stories for thousands of years.",
+            "fullStory": "For thousands of years, people have come together around fires like this one. Elders sat with younger people and shared stories about the land, the seasons, and the Dreamtime.\n\nThe campfire was the centre of community life. Around the fire, people talked, settled disagreements, sang songs, and danced together. The fire was seen as a gift from the ancestors, and keeping it burning meant keeping culture alive.\n\nToday, campfire gatherings are still important to Aboriginal communities. They are places for healing, learning, and coming together as a family and community.",
             "position": { "x": 1000, "y": 800 },
             "iconColor": "#e8651a",
             "illustrationColor": "#d4510a"
@@ -12,8 +12,8 @@
         {
             "id": "waterhole",
             "name": "Sacred Waterhole",
-            "shortDescription": "A life-giving waterhole connected to the Rainbow Serpent.",
-            "fullStory": "This waterhole holds deep spiritual significance for the Traditional Owners of this region. In the Dreamtime narratives of the Kulin Nation, waterholes were often created by the Rainbow Serpent (known as Mindi by some Victorian Aboriginal groups) as it traveled across the landscape, shaping the rivers, creeks, and billabongs.\n\nWaterholes are not merely sources of water — they are meeting places, spiritual sites, and markers of ancestral journeys. Many waterholes are associated with specific Dreamtime stories that explain their creation and the responsibilities humans have to care for them.\n\nTraditional water management practices ensured these precious resources were sustainably maintained. The knowledge of which waterholes were permanent, which were seasonal, and how to find water in dry times was passed down through generations of careful observation and storytelling.",
+            "shortDescription": "A waterhole that holds deep meaning for the people who have cared for it since ancient times.",
+            "fullStory": "This waterhole is important to the Traditional Owners who have looked after this land for many generations. In Dreamtime stories of the Kulin Nation, waterholes were made by the Rainbow Serpent as it moved across the land and shaped the rivers and creeks.\n\nWaterholes were not just places to get water. They were meeting spots, spiritual places, and markers of the journeys of the ancestors.\n\nAboriginal people knew which waterholes held water all year and which ones dried up in summer. This knowledge was passed down carefully through stories and teaching.",
             "position": { "x": 350, "y": 450 },
             "iconColor": "#1a8fe8",
             "illustrationColor": "#0a6dba"
@@ -21,8 +21,8 @@
         {
             "id": "rock-art",
             "name": "Rock Art Gallery",
-            "shortDescription": "Ancient paintings telling stories across millennia.",
-            "fullStory": "The rock art found across Victoria represents one of the oldest continuous artistic traditions on Earth. Aboriginal rock art in the Grampians (Gariwerd) region dates back over 20,000 years, making it some of the oldest known art in the world.\n\nThese paintings serve multiple purposes: they record Dreamtime stories, mark territorial boundaries, document historical events, and serve as teaching tools. The art uses natural ochre pigments — red, yellow, white, and black — ground from local rocks and mixed with water or animal fat.\n\nCommon motifs include hand stencils (created by spraying ochre around a placed hand), animal tracks, human figures, and abstract symbols. Each mark carries meaning understood within the cultural context of its creation. Some sites contain layers of art spanning thousands of years, creating a visual timeline of cultural continuity.\n\nThese sites are deeply sacred. Many remain active places of cultural practice, and their locations are often shared only with those who have the cultural authority to visit them.",
+            "shortDescription": "Paintings made on rock, telling stories that have lasted for thousands of years.",
+            "fullStory": "The rock art in Victoria is some of the oldest art in the world. Paintings in the Grampians (Gariwerd) are over 20,000 years old.\n\nThese paintings tell Dreamtime stories, mark important places, and record history. The artists used natural paints made from ochre, a type of coloured rock, mixed with water or animal fat.\n\nYou can see hand stencils, animal tracks, and symbols in these paintings. Some places have layers of art painted over thousands of years.\n\nThese sites are sacred and are still important places for Aboriginal people today.",
             "position": { "x": 1650, "y": 350 },
             "iconColor": "#c44b2a",
             "illustrationColor": "#a83520"
@@ -30,8 +30,8 @@
         {
             "id": "meeting-place",
             "name": "Corroboree Ground",
-            "shortDescription": "A ceremonial ground for dance, song, and celebration.",
-            "fullStory": "This corroboree ground is a place where Aboriginal communities come together for ceremony, dance, and celebration. Corroborees are gatherings that can involve hundreds of people from different clan groups, sometimes traveling great distances to attend.\n\nDuring a corroboree, stories of the Dreamtime are enacted through elaborate dances accompanied by clapping sticks, didgeridoo, and song. Dancers paint their bodies with ochre and wear ceremonial dress. Each dance tells a specific story — perhaps the journey of an ancestral being, the behavior of an animal, or the changing of the seasons.\n\nCorroborees serve vital social functions: they reinforce cultural knowledge, strengthen alliances between groups, facilitate trade, and provide opportunities for young people to learn. Some corroborees are open to all, while others are restricted to initiated men or women only.\n\nThe Kulin Nation held major gatherings at sites across Victoria, including the Melbourne area, where different language groups — Wurundjeri, Boonwurrung, Taungurong, Dja Dja Wurrung, and Wathaurong — would come together.",
+            "shortDescription": "A place where people come together to dance, sing, and share stories through ceremony.",
+            "fullStory": "This is a corroboree ground, a place where Aboriginal communities come together for ceremony. Corroborees can bring hundreds of people from different clan groups, with some travelling very far to be there.\n\nAt a corroboree, people dance and sing stories from the Dreamtime. They paint their bodies with ochre and wear special clothes. Each dance tells a story about an ancestor, an animal, or the land.\n\nCorroborees are also a chance for groups to trade, to strengthen friendships, and for young people to learn the culture. The Kulin Nation held large gatherings at sites across Victoria, where different language groups came together.",
             "position": { "x": 1600, "y": 1250 },
             "iconColor": "#8b5e3c",
             "illustrationColor": "#6d4a2f"
@@ -39,8 +39,8 @@
         {
             "id": "bush-tucker",
             "name": "Bush Tucker Trail",
-            "shortDescription": "Native plants and foods that sustained communities for millennia.",
-            "fullStory": "This area represents the rich knowledge of bush tucker — the native foods that have sustained Aboriginal peoples for over 65,000 years. Victoria's diverse ecosystems provided an abundance of food sources that required deep ecological knowledge to harvest sustainably.\n\nKey bush tucker foods in this region include:\n\n- Murnong (yam daisy): Once so abundant it carpeted the plains in yellow flowers. The tubers were roasted in earth ovens and were a staple food. Colonization and grazing almost wiped it out.\n\n- Kangaroo grass seeds: Harvested and ground into flour for bread, this was one of the world's earliest forms of grain cultivation.\n\n- Wattle seeds: Rich in protein, ground and used in cakes and drinks.\n\n- Bush tomatoes, native berries, and greens provided vitamins and variety.\n\nAboriginal food practices were not simply gathering — they involved sophisticated land management including fire-stick farming (cultural burning) to encourage new growth, increase animal habitat, and reduce bushfire risk. This deep understanding of ecology sustained one of the world's oldest continuous civilizations.",
+            "shortDescription": "Native plants and foods that Aboriginal people have known and used for thousands of years.",
+            "fullStory": "Aboriginal people have known how to find food in this land for over 65,000 years. Victoria's forests and plains were full of food for those who knew where to look.\n\nSome important foods from this area:\n\nMurnong (yam daisy) has yellow flowers and roots that can be cooked and eaten. It used to grow across the plains in huge numbers.\n\nKangaroo grass seeds were collected and ground into flour for making bread.\n\nWattle seeds are full of protein and were used in cooking and drinks.\n\nLooking after the land was part of getting food. Aboriginal people used careful burning to keep the land healthy, help plants grow back, and create good homes for animals.",
             "position": { "x": 400, "y": 1200 },
             "iconColor": "#4a8c3f",
             "illustrationColor": "#3a7030"
@@ -48,8 +48,8 @@
         {
             "id": "songline",
             "name": "Songline Path",
-            "shortDescription": "An ancient navigational route encoded in song and story.",
-            "fullStory": "Songlines — also called Dreaming tracks — are one of the most remarkable cultural achievements in human history. They are paths across the land that are recorded in traditional songs, stories, and dances, creating an oral map that can guide a person across hundreds or even thousands of kilometers.\n\nEach songline describes the journey of an ancestral being during the Dreamtime as they created the landscape. By singing the correct verses in sequence, a knowledgeable person can navigate from landmark to landmark, even across Country they have never physically visited.\n\nSonglines are not just navigation tools — they encode ecological knowledge (where to find water, food, and shelter), spiritual information (which sites are sacred, which areas to avoid), and social law (which groups have responsibility for which stretches of Country).\n\nIn Victoria, songlines connected the Kulin Nation peoples to communities far beyond their borders, creating trade and cultural exchange networks that spanned the continent. These routes facilitated the exchange of goods like greenstone axes (from Mt William), possum skin cloaks, and ochre, as well as songs, dances, and stories.\n\nSonglines represent a living knowledge system that continues to be maintained and revitalized by Aboriginal communities today.",
+            "shortDescription": "An ancient route through the land, remembered through songs and stories.",
+            "fullStory": "Songlines, also called Dreaming tracks, are paths across the land that are recorded in songs, stories, and dances.\n\nEach songline tells the story of an ancestor who walked the land and shaped it during the Dreamtime. By singing the right songs in the right order, a person can find their way across hundreds of kilometres, even through land they have never visited before.\n\nSonglines also hold important knowledge: where to find water and food, which places are sacred, and which groups are responsible for caring for which parts of the land.\n\nIn Victoria, songlines connected the Kulin Nation to communities far away. These paths were used to trade goods like stone axes, possum skin cloaks, and ochre, and to share songs, dances, and stories.\n\nSonglines are still alive and important to Aboriginal communities today.",
             "position": { "x": 1000, "y": 200 },
             "iconColor": "#9b59b6",
             "illustrationColor": "#7d3f99"
