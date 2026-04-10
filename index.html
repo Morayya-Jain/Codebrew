@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/src/styles/story-card.css">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <title>Walking Through Country</title>
+</head>
+
+<body>
+    <div id="app">
+        <div id="game-container"></div>
+    </div>
+
+    <div id="story-card-overlay">
+        <div class="story-card">
+            <button class="story-card__close-btn" aria-label="Close">&times;</button>
+            <div class="story-card__illustration">
+                <span class="story-card__illustration-label"></span>
+            </div>
+            <div class="story-card__content">
+                <h2 class="story-card__title"></h2>
+                <p class="story-card__text"></p>
+                <div class="story-card__actions">
+                    <button class="story-card__tts-btn">Read Aloud</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
