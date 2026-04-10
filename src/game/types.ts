@@ -24,8 +24,8 @@ export interface GameConstants {
 }
 
 export const CONSTANTS: Readonly<GameConstants> = Object.freeze({
-    WORLD_WIDTH: 3200,
-    WORLD_HEIGHT: 720,
+    WORLD_WIDTH: 2000,
+    WORLD_HEIGHT: 1600,
     PLAYER_SPEED: 200,
     FAR_THRESHOLD: 400,
     MID_THRESHOLD: 250,
