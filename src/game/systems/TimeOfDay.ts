@@ -32,7 +32,7 @@ export const TIME_OF_DAY_PALETTES: Record<TimeOfDayState, TimeOfDayPalette> = {
         directionalColor: 0xe8a8b8,
         sunAngle: 12,
         starfieldAlpha: 0.25,
-        bloomStrength: 0.5,
+        bloomStrength: 2.2,
         letterboxColor: 0x150f14,
     },
     [TimeOfDayState.Morning]: {
@@ -41,16 +41,16 @@ export const TIME_OF_DAY_PALETTES: Record<TimeOfDayState, TimeOfDayPalette> = {
         directionalColor: 0xfff4d8,
         sunAngle: 55,
         starfieldAlpha: 0,
-        bloomStrength: 0.4,
+        bloomStrength: 1.8,
         letterboxColor: 0x1a150c,
     },
     [TimeOfDayState.GoldenHour]: {
-        ambientTint: [1.08, 1.0, 0.86],
-        warmLift: [0.1, 0.04, -0.02],
+        ambientTint: [1.12, 1.0, 0.82],
+        warmLift: [0.12, 0.05, -0.02],
         directionalColor: 0xffb060,
         sunAngle: 18,
         starfieldAlpha: 0,
-        bloomStrength: 0.55,
+        bloomStrength: 2.5,
         letterboxColor: 0x1a0f08,
     },
     [TimeOfDayState.Dusk]: {
@@ -59,7 +59,7 @@ export const TIME_OF_DAY_PALETTES: Record<TimeOfDayState, TimeOfDayPalette> = {
         directionalColor: 0xd06a8a,
         sunAngle: 8,
         starfieldAlpha: 0.35,
-        bloomStrength: 0.5,
+        bloomStrength: 2.3,
         letterboxColor: 0x14080e,
     },
     [TimeOfDayState.Night]: {
@@ -68,7 +68,7 @@ export const TIME_OF_DAY_PALETTES: Record<TimeOfDayState, TimeOfDayPalette> = {
         directionalColor: 0x4a5a88,
         sunAngle: -30,
         starfieldAlpha: 1.0,
-        bloomStrength: 0.7,
+        bloomStrength: 3.2,
         letterboxColor: 0x050610,
     },
 };

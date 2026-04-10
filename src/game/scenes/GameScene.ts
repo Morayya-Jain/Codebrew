@@ -174,9 +174,9 @@ export class GameScene extends Scene {
         if (!renderer || renderer.type !== Phaser.WEBGL || !renderer.pipelines) {
             return;
         }
-        if (!renderer.pipelines.getPostPipeline('PostFxPipeline')) {
-            renderer.pipelines.addPostPipeline('PostFxPipeline', PostFxPipeline);
-        }
+        // addPostPipeline is idempotent — internal `postPipelineClasses.has()` guard
+        // protects against double-registration when the scene is restarted.
+        renderer.pipelines.addPostPipeline('PostFxPipeline', PostFxPipeline);
         this.cameras.main.setPostPipeline('PostFxPipeline');
         const pipe = this.cameras.main.getPostPipeline('PostFxPipeline');
         const instance = Array.isArray(pipe) ? pipe[0] : pipe;
@@ -184,10 +184,16 @@ export class GameScene extends Scene {
             instance.applyPalette(timeOfDay.palette);
             this.postFx_ = instance;
         }
-        // React to time-of-day changes in later phases
-        timeOfDay.on('change', () => {
+        // React to time-of-day changes in later phases (Phase 6 animates).
+        const handlePaletteChange = (): void => {
             this.postFx_?.applyPalette(timeOfDay.palette);
             this.cameras.main.setBackgroundColor(timeOfDay.palette.letterboxColor);
+        };
+        timeOfDay.on('change', handlePaletteChange);
+        // Remove THIS listener only — `off('change')` without a handler would
+        // also kill listeners registered by other scenes in later phases.
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            timeOfDay.off('change', handlePaletteChange);
         });
     }
 
