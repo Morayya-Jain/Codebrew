@@ -3,6 +3,8 @@ import { Player } from '../entities/Player';
 import { Landmark } from '../entities/Landmark';
 import { CONSTANTS } from '../types';
 import type { LandmarkData, LandmarksFile } from '../types';
+import { PostFxPipeline } from '../fx/PostFxPipeline';
+import { timeOfDay } from '../systems/TimeOfDay';
 
 interface AmbientParticle {
     x: number;
@@ -34,6 +36,10 @@ export class GameScene extends Scene {
     private ambientParticles: AmbientParticle[] = [];
     private particleGraphics!: Phaser.GameObjects.Graphics;
     private landmarkPositions: Array<{ x: number; y: number; id: string; iconColor: string }> = [];
+    private leadOffsetX_ = 0;
+    private leadOffsetY_ = 0;
+    private breatheBase_ = 1;
+    private postFx_: PostFxPipeline | null = null;
 
     constructor() {
         super('GameScene');
@@ -75,7 +81,11 @@ export class GameScene extends Scene {
         // Setup camera
         this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         this.cameras.main.startFollow(this.player, true, 0.18, 0.18);
-        this.cameras.main.setBackgroundColor(0x1a1510);
+        this.cameras.main.setBackgroundColor(timeOfDay.palette.letterboxColor);
+        this.breatheBase_ = this.cameras.main.zoom;
+
+        // Register and attach the post-FX pipeline (WebGL only; graceful skip on Canvas)
+        this.attachPostFxPipeline();
 
         // Load landmarks from JSON
         const landmarksData = this.cache.json.get('landmarks') as LandmarksFile | null;
@@ -112,6 +122,7 @@ export class GameScene extends Scene {
 
         this.player.update();
         this.updateAmbientParticles(delta);
+        this.updateCameraPolish();
 
         // Update landmark proximity
         this.nearestLandmark = null;
@@ -156,6 +167,46 @@ export class GameScene extends Scene {
         uiScene.events.emit('openStoryCard', data);
 
         this.scene.pause();
+    }
+
+    private attachPostFxPipeline(): void {
+        const renderer = this.renderer as Phaser.Renderer.WebGL.WebGLRenderer;
+        if (!renderer || renderer.type !== Phaser.WEBGL || !renderer.pipelines) {
+            return;
+        }
+        if (!renderer.pipelines.getPostPipeline('PostFxPipeline')) {
+            renderer.pipelines.addPostPipeline('PostFxPipeline', PostFxPipeline);
+        }
+        this.cameras.main.setPostPipeline('PostFxPipeline');
+        const pipe = this.cameras.main.getPostPipeline('PostFxPipeline');
+        const instance = Array.isArray(pipe) ? pipe[0] : pipe;
+        if (instance instanceof PostFxPipeline) {
+            instance.applyPalette(timeOfDay.palette);
+            this.postFx_ = instance;
+        }
+        // React to time-of-day changes in later phases
+        timeOfDay.on('change', () => {
+            this.postFx_?.applyPalette(timeOfDay.palette);
+            this.cameras.main.setBackgroundColor(timeOfDay.palette.letterboxColor);
+        });
+    }
+
+    private updateCameraPolish(): void {
+        // Camera breathing (±0.5%, 8s period)
+        const t = this.time.now / 1000;
+        const breathe = Math.sin(t * (Math.PI * 2) / 8) * 0.005;
+        this.cameras.main.setZoom(this.breatheBase_ * (1 + breathe));
+
+        // Look-ahead: camera leads player by up to 60px in movement direction
+        const body = this.player.body as Phaser.Physics.Arcade.Body | null;
+        const vx = body?.velocity.x ?? 0;
+        const vy = body?.velocity.y ?? 0;
+        const len = Math.hypot(vx, vy);
+        const targetX = len > 10 ? -(vx / len) * 60 : 0;
+        const targetY = len > 10 ? -(vy / len) * 60 : 0;
+        this.leadOffsetX_ += (targetX - this.leadOffsetX_) * 0.05;
+        this.leadOffsetY_ += (targetY - this.leadOffsetY_) * 0.05;
+        this.cameras.main.setFollowOffset(this.leadOffsetX_, this.leadOffsetY_);
     }
 
     // =========================================================================
