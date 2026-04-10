@@ -87,9 +87,6 @@ export class GameScene extends Scene {
         this.particleGraphics.setDepth(8);
         this.initAmbientParticles(WORLD_WIDTH, WORLD_HEIGHT);
 
-        // Phase 6 particle emitters: smoke, embers, dust, fireflies, wind leaves.
-        this.createParticleSystems_();
-
         // Create player near center campfire
         this.player = new Player(this, 4000, 3400);
 
@@ -114,6 +111,11 @@ export class GameScene extends Scene {
                 x: d.position.x, y: d.position.y, id: d.id, iconColor: d.iconColor,
             }));
         }
+
+        // Phase 6 particle emitters (smoke, embers, dust, fireflies, wind leaves)
+        // — created AFTER landmarks so the smoke/ember emitters can anchor to
+        // the real campfire position from landmarks.json.
+        this.createParticleSystems_();
 
         // Interaction key
         if (this.input.keyboard) {
@@ -157,6 +159,7 @@ export class GameScene extends Scene {
         // oscillated every frame) so it doesn't create the blur the removed
         // breathing did.
         this.events.on(LANDMARK_EVENTS.NEAR_ENTER, () => {
+            this.tweens.killTweensOf(this.cameras.main);
             this.tweens.add({
                 targets: this.cameras.main,
                 zoom: 1.08,
@@ -165,6 +168,7 @@ export class GameScene extends Scene {
             });
         });
         this.events.on(LANDMARK_EVENTS.NEAR_LEAVE, () => {
+            this.tweens.killTweensOf(this.cameras.main);
             this.tweens.add({
                 targets: this.cameras.main,
                 zoom: 1.0,
@@ -307,11 +311,12 @@ export class GameScene extends Scene {
             tuft.setOrigin(0.5, 0.9);
             tuft.setScale(scale);
             tuft.setAlpha(0.8 + rng() * 0.15);
-            // Depth-sort by world Y (so things further down are drawn later).
-            // Foreground layer: draw above player (depth 5) for tufts the player
-            // should visually walk through.
+            // Foreground tufts share the Y-sort scheme with a slight positive
+            // tiebreak so they draw ABOVE the player at the same Y (player
+            // walks "through" the grass). Background tufts stay at 1.2 so
+            // they're always behind dynamic objects.
             const foreground = rng() < 0.35;
-            tuft.setDepth(foreground ? 6.5 + y * 0.00001 : 1.2);
+            tuft.setDepth(foreground ? 2 + y * 0.001 + 0.03 : 1.2);
             tuft.setData('windPhase', rng() * Math.PI * 2);
             tuft.setData('baseScaleX', scale);
             this.grassTufts_.push(tuft);
@@ -444,10 +449,15 @@ export class GameScene extends Scene {
         });
         this.leafEmitter_.setDepth(7);
 
-        // Subscribe to wind gusts
-        windSystem.on('gust', () => {
+        // Subscribe to wind gusts — save the handler ref so we only remove
+        // THIS scene's listener on shutdown, not other subscribers.
+        const gustHandler = (): void => {
             if (!this.leafEmitter_) return;
             this.leafEmitter_.emitParticle(14);
+        };
+        windSystem.on('gust', gustHandler);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            windSystem.off('gust', gustHandler);
         });
     }
 
@@ -962,8 +972,9 @@ export class GameScene extends Scene {
             sprite.setOrigin(0.5, 0.97); // base of trunk sits at (tx, ty)
             sprite.setScale(scale);
             sprite.setFlipX(flipX);
-            // Depth-sort by world Y so foreground trees draw over player + bg trees.
-            sprite.setDepth(ty * 0.001 + 4);
+            // Shared Y-sort scheme: 2 + y/1000 (base, no tiebreak — player
+            // naturally sits above trees at the same Y via its +0.01 offset).
+            sprite.setDepth(2 + ty * 0.001);
             sprite.setData('windPhase', rng() * Math.PI * 2);
             sprite.setData('baseRot', 0);
             this.treeSprites_.push(sprite);
@@ -1011,7 +1022,7 @@ export class GameScene extends Scene {
                 }
                 const sprite = this.add.image(x, y, `${s.key}-0`);
                 sprite.setOrigin(0.5, 0.95);
-                sprite.setDepth(y * 0.001 + 3.5);
+                sprite.setDepth(2 + y * 0.001);
                 sprite.setData('animKey', s.key);
                 sprite.setData('frame', 0);
                 sprite.setData('frameTimer', rng() * 1000);
@@ -1081,6 +1092,7 @@ export class GameScene extends Scene {
                 // World bounds clamp
                 sprite.x = Math.max(80, Math.min(CONSTANTS.WORLD_WIDTH - 80, sprite.x));
                 sprite.y = Math.max(80, Math.min(CONSTANTS.WORLD_HEIGHT - 80, sprite.y));
+                sprite.setDepth(2 + sprite.y * 0.001);
             }
         }
     }

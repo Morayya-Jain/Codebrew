@@ -18,7 +18,8 @@ export class Player extends Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.setCollideWorldBounds(true);
-        this.setDepth(5);
+        // Y-sorted depth — see Player.update() for the runtime formula.
+        this.setDepth(2 + y * 0.001 + 0.01);
 
         const body = this.body as Phaser.Physics.Arcade.Body;
         body.setSize(28, 28);
@@ -60,6 +61,11 @@ export class Player extends Physics.Arcade.Sprite {
         }
 
         this.setVelocity(vx, vy);
+
+        // Y-sorted depth: 2 (base) + y/1000 + 0.01 tiebreak so the player
+        // sits just above trees/fauna/landmarks at the same world Y but
+        // still under any foreground grass at that Y.
+        this.setDepth(2 + this.y * 0.001 + 0.01);
 
         if (vx < 0) this.setFlipX(true);
         else if (vx > 0) this.setFlipX(false);

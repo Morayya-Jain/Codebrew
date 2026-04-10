@@ -83,8 +83,10 @@ export class Landmark extends GameObjects.Container {
             });
         }
 
-        // Depth-sort by world Y so landmarks sort with trees/player correctly.
-        this.setDepth(3 + data.position.y * 0.001);
+        // Y-sorted depth (shared scheme with trees/player/fauna). +0.02 tiebreak
+        // so landmarks sit above trees/player/fauna at the same Y, making the
+        // icon always readable when the player is standing right on top of it.
+        this.setDepth(2 + data.position.y * 0.001 + 0.02);
         scene.add.existing(this);
     }
 
