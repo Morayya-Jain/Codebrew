@@ -6,6 +6,7 @@ import type { LandmarkData, LandmarksFile } from '../types';
 import { PostFxPipeline } from '../fx/PostFxPipeline';
 import { timeOfDay } from '../systems/TimeOfDay';
 import { AmbientAudio } from '../systems/AmbientAudio';
+import { windSystem } from '../systems/WindSystem';
 
 interface AmbientParticle {
     x: number;
@@ -41,6 +42,9 @@ export class GameScene extends Scene {
     private leadOffsetY_ = 0;
     private postFx_: PostFxPipeline | null = null;
     private audio_: AmbientAudio | null = null;
+    private grassTufts_: Phaser.GameObjects.Image[] = [];
+    private riverShimmers_: Phaser.GameObjects.Graphics[] = [];
+    private riverShimmerPhase_ = 0;
 
     constructor() {
         super('GameScene');
@@ -67,6 +71,7 @@ export class GameScene extends Scene {
         this.createRocks(WORLD_WIDTH, WORLD_HEIGHT);
         this.createRiverCollisions();
         this.createBoundaryFade(WORLD_WIDTH, WORLD_HEIGHT);
+        this.createGrassField(WORLD_WIDTH, WORLD_HEIGHT);
 
         // Ambient particles (fireflies/dust)
         this.particleGraphics = this.add.graphics();
@@ -156,7 +161,10 @@ export class GameScene extends Scene {
         if (this.isPaused) return;
 
         this.player.update();
+        windSystem.tick(delta);
         this.updateAmbientParticles(delta);
+        this.updateGrassWind_();
+        this.updateRiverShimmer_(delta);
         this.updateCameraPolish();
         this.audio_?.update(this.player.x, this.player.y, delta);
 
@@ -233,6 +241,78 @@ export class GameScene extends Scene {
         });
     }
 
+    private createGrassField(width: number, height: number): void {
+        const rng = this.createSeededRandom(311);
+        // Scatter ~420 tufts; a fifth sit above player depth so the player walks
+        // through them (the near-edge ones feel "physical" — this is the single
+        // cheapest way to kill the flat top-down reading of the scene).
+        const count = 420;
+        for (let i = 0; i < count; i++) {
+            const x = rng() * width;
+            const y = rng() * height;
+
+            // Avoid placing on paths/river/landmarks by staying clear of the
+            // central campfire clearing radius.
+            const cdx = x - 4000;
+            const cdy = y - 3200;
+            if (cdx * cdx + cdy * cdy < 180 * 180) continue;
+
+            const tuft = this.add.image(x, y, 'grass-tuft');
+            const scale = 0.7 + rng() * 0.75;
+            tuft.setOrigin(0.5, 0.9);
+            tuft.setScale(scale);
+            tuft.setAlpha(0.8 + rng() * 0.15);
+            // Depth-sort by world Y (so things further down are drawn later).
+            // Foreground layer: draw above player (depth 5) for tufts the player
+            // should visually walk through.
+            const foreground = rng() < 0.35;
+            tuft.setDepth(foreground ? 6.5 + y * 0.00001 : 1.2);
+            tuft.setData('windPhase', rng() * Math.PI * 2);
+            tuft.setData('baseScaleX', scale);
+            this.grassTufts_.push(tuft);
+        }
+
+        // Scatter bark flakes under tree clusters — small touches of realism.
+        for (let i = 0; i < 110; i++) {
+            const x = rng() * width;
+            const y = rng() * height;
+            const cdx = x - 4000;
+            const cdy = y - 3200;
+            if (cdx * cdx + cdy * cdy < 180 * 180) continue;
+            const flake = this.add.image(x, y, 'bark-flake');
+            flake.setOrigin(0.5, 0.8);
+            flake.setRotation(rng() * Math.PI * 2);
+            flake.setAlpha(0.7);
+            flake.setDepth(1.1);
+        }
+    }
+
+    private updateGrassWind_(): void {
+        if (this.grassTufts_.length === 0) return;
+        const { value, direction } = windSystem.sample();
+        const shearX = Math.cos(direction) * 0.1 * value;
+        // Soft sine noise per tuft drives per-blade wobble
+        const t = this.time.now / 1000;
+        for (let i = 0; i < this.grassTufts_.length; i++) {
+            const tuft = this.grassTufts_[i];
+            const phase = (tuft.getData('windPhase') as number) ?? 0;
+            const base = (tuft.getData('baseScaleX') as number) ?? 1;
+            const wobble = Math.sin(t * 2.1 + phase) * 0.06 * value;
+            tuft.setScale(base * (1 + wobble), base);
+            tuft.rotation = shearX + Math.sin(t + phase) * 0.04 * value;
+        }
+    }
+
+    private updateRiverShimmer_(deltaMs: number): void {
+        this.riverShimmerPhase_ += deltaMs / 1000;
+        if (this.riverShimmers_.length === 0) return;
+        for (let i = 0; i < this.riverShimmers_.length; i++) {
+            const g = this.riverShimmers_[i];
+            const a = 0.25 + 0.2 * Math.sin(this.riverShimmerPhase_ * 1.7 + i * 0.6);
+            g.setAlpha(Math.max(0.1, Math.min(0.55, a)));
+        }
+    }
+
     private updateCameraPolish(): void {
         // NOTE: no breathing zoom. A non-integer setZoom forces bilinear filtering
         // on every sprite in the scene (including the post-FX render target copy)
@@ -259,68 +339,88 @@ export class GameScene extends Scene {
     // =========================================================================
 
     private createGroundBase(width: number, height: number): void {
+        // Dense high-detail loam, tiled across the whole world.
+        // The 512×512 source tile is generated procedurally in BootScene.
+        const loam = this.add.tileSprite(width / 2, height / 2, width, height, 'ground-loam');
+        loam.setDepth(0);
+        loam.setOrigin(0.5, 0.5);
+
+        // Low-frequency earth-tone variation on top so the tile repeat pattern
+        // isn't perceptible. Keep the old ellipse patch system but softer.
         const gfx = this.add.graphics();
         gfx.setDepth(0);
 
-        // Base earth tone fill
-        gfx.fillStyle(0x3a2e22, 1);
-        gfx.fillRect(0, 0, width, height);
-
-        // Terrain noise — larger, fewer patches (visible at zoom level)
         const rng = this.createSeededRandom(42);
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 120; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 80 + rng() * 200;
+            const patchSize = 220 + rng() * 380;
             const colors = [0x443828, 0x302418, 0x3a3020, 0x342818, 0x483c2a];
             const lightness = colors[Math.floor(rng() * colors.length)];
-            const alpha = 0.15 + rng() * 0.3;
+            const alpha = 0.08 + rng() * 0.15;
             gfx.fillStyle(lightness, alpha);
             gfx.fillEllipse(px, py, patchSize, patchSize * (0.5 + rng() * 0.8));
         }
-
-        // Olive and reddish-earth patches for variety
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 30; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 100 + rng() * 180;
+            const patchSize = 180 + rng() * 320;
             const isOlive = rng() > 0.5;
-            gfx.fillStyle(isOlive ? 0x3a3a22 : 0x4a3028, 0.1 + rng() * 0.15);
+            gfx.fillStyle(isOlive ? 0x3a3a22 : 0x4a3028, 0.08 + rng() * 0.1);
             gfx.fillEllipse(px, py, patchSize, patchSize * 0.7);
         }
     }
 
     private createGroundVariation(width: number, height: number): void {
-        const gfx = this.add.graphics();
-        gfx.setDepth(0);
+        // Two additional tileable biome layers alpha-blended over the loam:
+        // a grass-blade layer in the wetter mid-world and a leaf-litter layer
+        // under tree clusters. Tiling uses a mask graphic for soft-edged patches.
 
         const rng = this.createSeededRandom(99);
 
-        // Sandy patches (lighter areas)
+        // --- Grass biome patches (soft-edged via RenderTexture + alpha mask) ---
+        const grassRT = this.add.renderTexture(0, 0, width, height);
+        grassRT.setDepth(0);
+        grassRT.setOrigin(0, 0);
+        const grassMask = this.add.graphics();
+        grassMask.fillStyle(0xffffff, 1);
+        // Scatter 40 fat grass patches across the world
+        for (let i = 0; i < 40; i++) {
+            const cx = rng() * width;
+            const cy = rng() * height;
+            const r = 260 + rng() * 380;
+            grassMask.fillCircle(cx, cy, r);
+        }
+        const grassTile = this.add.tileSprite(width / 2, height / 2, width, height, 'ground-grass');
+        grassTile.setOrigin(0.5, 0.5);
+        grassTile.setMask(grassMask.createGeometryMask());
+        grassTile.setDepth(0);
+        // Keep the mask graphics invisible — it exists only to clip the tile.
+        grassMask.setVisible(false);
+
+        // --- Leaf-litter biome patches, smaller and more clustered ---
+        const litterMask = this.add.graphics();
+        litterMask.fillStyle(0xffffff, 1);
+        for (let i = 0; i < 70; i++) {
+            const cx = rng() * width;
+            const cy = rng() * height;
+            const r = 120 + rng() * 220;
+            litterMask.fillCircle(cx, cy, r);
+        }
+        const litterTile = this.add.tileSprite(width / 2, height / 2, width, height, 'ground-litter');
+        litterTile.setOrigin(0.5, 0.5);
+        litterTile.setMask(litterMask.createGeometryMask());
+        litterTile.setDepth(0);
+        litterMask.setVisible(false);
+
+        // --- Darker undergrowth patches for contrast ---
+        const gfx = this.add.graphics();
+        gfx.setDepth(0);
         for (let i = 0; i < 40; i++) {
             const px = rng() * width;
             const py = rng() * height;
-            const patchSize = 80 + rng() * 140;
-            gfx.fillStyle(0x5a4a38, 0.15);
-            gfx.fillEllipse(px, py, patchSize, patchSize * 0.7);
-        }
-
-        // Grass tufts — larger and fewer (tiny dots invisible at this zoom)
-        for (let i = 0; i < 250; i++) {
-            const px = rng() * width;
-            const py = rng() * height;
-            const tSize = 4 + rng() * 10;
-            const greenShade = rng() > 0.5 ? 0x3a5a2a : 0x2a4a1a;
-            gfx.fillStyle(greenShade, 0.2 + rng() * 0.2);
-            gfx.fillCircle(px, py, tSize);
-        }
-
-        // Darker undergrowth patches
-        for (let i = 0; i < 30; i++) {
-            const px = rng() * width;
-            const py = rng() * height;
-            const patchSize = 40 + rng() * 80;
-            gfx.fillStyle(0x2a3a1a, 0.2);
+            const patchSize = 60 + rng() * 140;
+            gfx.fillStyle(0x1f2e14, 0.22);
             gfx.fillEllipse(px, py, patchSize, patchSize);
         }
     }
@@ -331,23 +431,43 @@ export class GameScene extends Scene {
 
         const rng = this.createSeededRandom(77);
 
-        for (let i = 0; i < 15; i++) {
+        // 28 hills, dramatically larger and more visible than before.
+        // Sun angle derived from TimeOfDay — placeholder Phase 3 uses Golden-hour
+        // (sun from upper-left), Phase 6 will animate this.
+        const sunAngle = timeOfDay.palette.sunAngle * (Math.PI / 180);
+        const litOffsetX = -Math.cos(sunAngle) * 90;
+        const litOffsetY = -Math.sin(sunAngle) * 40;
+
+        for (let i = 0; i < 28; i++) {
             const hx = rng() * width;
             const hy = rng() * height;
-            const hw = 250 + rng() * 350;
-            const hh = hw * (0.5 + rng() * 0.3);
+            const hw = 420 + rng() * 520;
+            const hh = hw * (0.42 + rng() * 0.22);
 
-            // Sunlit side (upper-left, lighter)
-            gfx.fillStyle(0x4a4030, 0.08 + rng() * 0.07);
-            gfx.fillEllipse(hx - hw * 0.1, hy - hh * 0.1, hw * 0.8, hh * 0.7);
-
-            // Shadow side (lower-right, darker)
-            gfx.fillStyle(0x1a1810, 0.06 + rng() * 0.06);
-            gfx.fillEllipse(hx + hw * 0.1, hy + hh * 0.1, hw * 0.8, hh * 0.7);
-
-            // Main hill body
-            gfx.fillStyle(0x342a1e, 0.05 + rng() * 0.05);
+            // Main hill body — a warm dark earth mass so it actually reads.
+            gfx.fillStyle(0x2a2218, 0.35);
             gfx.fillEllipse(hx, hy, hw, hh);
+
+            // Shadow under / behind the hill.
+            gfx.fillStyle(0x140e08, 0.42);
+            gfx.fillEllipse(hx - litOffsetX * 0.6, hy - litOffsetY * 0.6, hw * 0.92, hh * 0.9);
+
+            // Lit face — warmer ochre highlight, offset toward the sun.
+            gfx.fillStyle(0x6a5030, 0.22);
+            gfx.fillEllipse(hx + litOffsetX, hy + litOffsetY, hw * 0.7, hh * 0.55);
+
+            // Peak highlight — small brighter cap where the light hits most.
+            gfx.fillStyle(0x8a6838, 0.18);
+            gfx.fillEllipse(hx + litOffsetX * 1.25, hy + litOffsetY * 1.25, hw * 0.35, hh * 0.3);
+
+            // Break the silhouette with a few dark scrub patches on the body.
+            const scrubCount = 3 + Math.floor(rng() * 3);
+            for (let s = 0; s < scrubCount; s++) {
+                const sx = hx + (rng() - 0.5) * hw * 0.6;
+                const sy = hy + (rng() - 0.5) * hh * 0.5;
+                gfx.fillStyle(0x1a2410, 0.28);
+                gfx.fillEllipse(sx, sy, 40 + rng() * 70, 20 + rng() * 40);
+            }
         }
     }
 
@@ -413,30 +533,31 @@ export class GameScene extends Scene {
         }
         gfx.strokePath();
 
-        // Water shimmer (fewer, larger for visibility at zoom level)
+        // Water shimmer: split into 3 alpha-animated layers so the river "moves".
         const shimmerRng = this.createSeededRandom(555);
-        for (let i = 0; i < riverPoints.length - 1; i++) {
-            const p1 = riverPoints[i];
-            const p2 = riverPoints[i + 1];
-            for (let t = 0; t < 1; t += 0.25) {
-                const x = p1.x + (p2.x - p1.x) * t + (shimmerRng() - 0.5) * 24;
-                const y = p1.y + (p2.y - p1.y) * t + (shimmerRng() - 0.5) * 18;
-                const dashW = 6 + shimmerRng() * 10;
-                gfx.fillStyle(0x6aaacc, 0.08 + shimmerRng() * 0.08);
-                gfx.fillRect(x - dashW / 2, y, dashW, 2);
+        const shimmerLayerCount = 3;
+        for (let layer = 0; layer < shimmerLayerCount; layer++) {
+            const shimmerGfx = this.add.graphics();
+            shimmerGfx.setDepth(1.2);
+            for (let i = 0; i < riverPoints.length - 1; i++) {
+                const p1 = riverPoints[i];
+                const p2 = riverPoints[i + 1];
+                for (let t = layer / shimmerLayerCount; t < 1; t += 0.25) {
+                    const x = p1.x + (p2.x - p1.x) * t + (shimmerRng() - 0.5) * 24;
+                    const y = p1.y + (p2.y - p1.y) * t + (shimmerRng() - 0.5) * 18;
+                    const dashW = 6 + shimmerRng() * 10;
+                    shimmerGfx.fillStyle(0x6aaacc, 0.22);
+                    shimmerGfx.fillRect(x - dashW / 2, y, dashW, 2);
+                    shimmerGfx.fillStyle(0x4a8aaa, 0.35);
+                    shimmerGfx.fillCircle(
+                        x + (shimmerRng() - 0.5) * 6,
+                        y + (shimmerRng() - 0.5) * 4,
+                        1.8,
+                    );
+                }
             }
-        }
-
-        // Shimmer dots
-        for (let i = 0; i < riverPoints.length - 1; i++) {
-            const p1 = riverPoints[i];
-            const p2 = riverPoints[i + 1];
-            for (let t = 0; t < 1; t += 0.35) {
-                const x = p1.x + (p2.x - p1.x) * t + (shimmerRng() - 0.5) * 20;
-                const y = p1.y + (p2.y - p1.y) * t + (shimmerRng() - 0.5) * 16;
-                gfx.fillStyle(0x4a8aaa, 0.25);
-                gfx.fillCircle(x, y, 2);
-            }
+            shimmerGfx.setAlpha(0.25 + layer * 0.1);
+            this.riverShimmers_.push(shimmerGfx);
         }
 
         // Crossings — 6 crossing points

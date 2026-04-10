@@ -1,5 +1,17 @@
 import { Scene } from 'phaser';
 
+/** Deterministic mulberry32 RNG — same seed yields the same texture every boot. */
+function seededRng(seed: number): () => number {
+    let a = seed >>> 0;
+    return (): number => {
+        a |= 0;
+        a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
 export class BootScene extends Scene {
     constructor() {
         super('BootScene');
@@ -9,7 +21,194 @@ export class BootScene extends Scene {
         this.generatePlayerFrames();
         this.generateLandmarkIcons();
         this.generateMiniMapBrush();
+        this.generateGroundTiles();
+        this.generateGrassTuft();
+        this.generateBarkFlake();
         this.scene.start('TitleScene');
+    }
+
+    /**
+     * Bake three 512×512 tileable ground textures that GameScene samples as
+     * TileSprites for the entire world. Procedural, but far richer than the
+     * old ellipse-scatter base: three-octave ellipse noise for pebble detail,
+     * scattered grass tufts baked into variants, leaf-litter dots.
+     *
+     * Tileability: every ellipse drawn near an edge is also mirrored to the
+     * opposite edge so there is no visible seam when the sprite repeats.
+     */
+    private generateGroundTiles(): void {
+        const size = 512;
+
+        // ---- Base loam: warm earth with multi-octave brown noise ----
+        {
+            const gfx = this.add.graphics();
+            gfx.fillStyle(0x3a2e22, 1);
+            gfx.fillRect(0, 0, size, size);
+            const rng = seededRng(42);
+            // Large patches
+            for (let i = 0; i < 60; i++) {
+                const x = rng() * size;
+                const y = rng() * size;
+                const w = 80 + rng() * 160;
+                const h = w * (0.5 + rng() * 0.7);
+                const colors = [0x443828, 0x302418, 0x4a3a28, 0x342820, 0x3f3420];
+                const c = colors[Math.floor(rng() * colors.length)];
+                gfx.fillStyle(c, 0.22 + rng() * 0.2);
+                gfx.fillEllipse(x, y, w, h);
+                // Wrap mirror for seamless tiling
+                if (x < 100) gfx.fillEllipse(x + size, y, w, h);
+                if (x > size - 100) gfx.fillEllipse(x - size, y, w, h);
+                if (y < 100) gfx.fillEllipse(x, y + size, w, h);
+                if (y > size - 100) gfx.fillEllipse(x, y - size, w, h);
+            }
+            // Medium speckle
+            for (let i = 0; i < 250; i++) {
+                const x = rng() * size;
+                const y = rng() * size;
+                const r = 8 + rng() * 18;
+                const colors = [0x5a4a30, 0x2a2018, 0x4a3830, 0x302418];
+                const c = colors[Math.floor(rng() * colors.length)];
+                gfx.fillStyle(c, 0.12 + rng() * 0.18);
+                gfx.fillEllipse(x, y, r, r * (0.6 + rng() * 0.6));
+                if (x < 40) gfx.fillEllipse(x + size, y, r, r);
+                if (x > size - 40) gfx.fillEllipse(x - size, y, r, r);
+                if (y < 40) gfx.fillEllipse(x, y + size, r, r);
+                if (y > size - 40) gfx.fillEllipse(x, y - size, r, r);
+            }
+            // High-frequency pebble/grit
+            for (let i = 0; i < 2200; i++) {
+                const x = rng() * size;
+                const y = rng() * size;
+                const r = 0.6 + rng() * 2.2;
+                const shade = rng();
+                const c = shade < 0.5 ? 0x1f1812 : shade < 0.85 ? 0x5a4a38 : 0x7a5a3a;
+                gfx.fillStyle(c, 0.22 + rng() * 0.35);
+                gfx.fillCircle(x, y, r);
+            }
+            gfx.generateTexture('ground-loam', size, size);
+            gfx.destroy();
+        }
+
+        // ---- Grass biome tile (semi-transparent so it alpha-blends over loam) ----
+        {
+            const gfx = this.add.graphics();
+            const rng = seededRng(77);
+            // Sparse green wash
+            gfx.fillStyle(0x2a4a1c, 0.12);
+            gfx.fillRect(0, 0, size, size);
+            // Grass blade clusters — 300 small 3-stroke tufts
+            for (let i = 0; i < 320; i++) {
+                const cx = rng() * size;
+                const cy = rng() * size;
+                const tuftColor = rng() < 0.5 ? 0x3a5a2a : 0x2a4a1a;
+                gfx.fillStyle(tuftColor, 0.45 + rng() * 0.25);
+                for (let k = 0; k < 3; k++) {
+                    const bx = cx + (rng() * 6 - 3);
+                    const by = cy + (rng() * 4 - 2);
+                    gfx.fillEllipse(bx, by, 1.8, 4.5);
+                }
+            }
+            gfx.generateTexture('ground-grass', size, size);
+            gfx.destroy();
+        }
+
+        // ---- Leaf-litter biome tile ----
+        {
+            const gfx = this.add.graphics();
+            const rng = seededRng(123);
+            gfx.fillStyle(0x000000, 0);
+            gfx.fillRect(0, 0, size, size);
+            // Eucalypt leaves — thin elongated shapes
+            for (let i = 0; i < 180; i++) {
+                const x = rng() * size;
+                const y = rng() * size;
+                const rot = rng() * Math.PI;
+                const len = 8 + rng() * 14;
+                const wid = 2 + rng() * 2;
+                const shade = rng();
+                const c = shade < 0.4 ? 0x6a4a2a : shade < 0.75 ? 0x7a5a2e : 0x8a6a38;
+                gfx.fillStyle(c, 0.35 + rng() * 0.25);
+                // Approximate rotated ellipse with 5 points
+                const pts: Phaser.Math.Vector2[] = [];
+                for (let p = 0; p < 8; p++) {
+                    const a = (p / 8) * Math.PI * 2;
+                    const ex = Math.cos(a) * len * 0.5;
+                    const ey = Math.sin(a) * wid * 0.5;
+                    const rx = ex * Math.cos(rot) - ey * Math.sin(rot);
+                    const ry = ex * Math.sin(rot) + ey * Math.cos(rot);
+                    pts.push(new Phaser.Math.Vector2(x + rx, y + ry));
+                }
+                gfx.fillPoints(pts, true);
+            }
+            gfx.generateTexture('ground-litter', size, size);
+            gfx.destroy();
+        }
+    }
+
+    /**
+     * Bake a single 24×32 grass tuft with a small drop shadow so GameScene
+     * can scatter hundreds of them across the world as depth-sorted sprites.
+     */
+    private generateGrassTuft(): void {
+        const gfx = this.add.graphics();
+        const w = 24;
+        const h = 32;
+        // Shadow
+        gfx.fillStyle(0x000000, 0.22);
+        gfx.fillEllipse(w / 2, h - 3, 14, 4);
+        // Back blades — darker
+        gfx.fillStyle(0x243e18, 0.9);
+        for (let i = 0; i < 5; i++) {
+            const bx = w / 2 + (i - 2) * 2.5;
+            const bh = 18 + ((i * 13) % 5);
+            const pts = [
+                new Phaser.Math.Vector2(bx, h - 4),
+                new Phaser.Math.Vector2(bx - 1.4, h - 4 - bh),
+                new Phaser.Math.Vector2(bx + 1.4, h - 4 - bh + 1.5),
+            ];
+            gfx.fillPoints(pts, true);
+        }
+        // Front blades — lighter sunlit
+        gfx.fillStyle(0x486a22, 0.95);
+        for (let i = 0; i < 6; i++) {
+            const bx = w / 2 + (i - 2.5) * 2.2;
+            const bh = 14 + ((i * 7) % 6);
+            const lean = ((i * 5) % 4) - 1.5;
+            const pts = [
+                new Phaser.Math.Vector2(bx, h - 3),
+                new Phaser.Math.Vector2(bx + lean - 1, h - 3 - bh),
+                new Phaser.Math.Vector2(bx + lean + 1, h - 3 - bh + 2),
+            ];
+            gfx.fillPoints(pts, true);
+        }
+        // Highlight stroke
+        gfx.lineStyle(1, 0x6a8a30, 0.6);
+        gfx.lineBetween(w / 2 - 1, h - 3, w / 2 - 2, h - 16);
+        gfx.lineBetween(w / 2 + 2, h - 3, w / 2 + 3, h - 14);
+        gfx.generateTexture('grass-tuft', w, h);
+        gfx.destroy();
+    }
+
+    /** Small fallen eucalypt-bark flake used to scatter detail near trees. */
+    private generateBarkFlake(): void {
+        const gfx = this.add.graphics();
+        const w = 18;
+        const h = 10;
+        gfx.fillStyle(0x000000, 0.18);
+        gfx.fillEllipse(w / 2, h - 2, 12, 3);
+        const shades = [0x7a5a3a, 0x8a6a44, 0x5a3e24];
+        for (let i = 0; i < 3; i++) {
+            gfx.fillStyle(shades[i], 0.7);
+            const pts = [
+                new Phaser.Math.Vector2(2 + i, 2 + i * 0.5),
+                new Phaser.Math.Vector2(w - 3 - i * 0.5, 2 + i * 0.7),
+                new Phaser.Math.Vector2(w - 4, h - 3),
+                new Phaser.Math.Vector2(3, h - 3),
+            ];
+            gfx.fillPoints(pts, true);
+        }
+        gfx.generateTexture('bark-flake', w, h);
+        gfx.destroy();
     }
 
     private generatePlayerFrames(): void {
