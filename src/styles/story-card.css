@@ -20,19 +20,38 @@
 }
 
 .story-card {
-    background: linear-gradient(145deg, #2a1f16, #1a1210);
-    border: 1px solid rgba(232, 193, 112, 0.3);
-    border-radius: 16px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 85vh;
+    /* Layered parchment/bark — a warm gradient plus an SVG fibrous noise
+       overlay gives the card a tactile, aged feel without needing an asset. */
+    background:
+        radial-gradient(ellipse at top left, rgba(232, 193, 112, 0.05), transparent 60%),
+        radial-gradient(ellipse at bottom right, rgba(180, 90, 40, 0.05), transparent 60%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0 0.04  0 0 0 0.35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+        linear-gradient(145deg, #2a1f16, #14100c);
+    background-blend-mode: normal, normal, overlay, normal;
+    border: 1px solid rgba(232, 193, 112, 0.42);
+    border-radius: 14px;
+    max-width: 620px;
+    width: 92%;
+    max-height: 86vh;
     overflow-y: auto;
     position: relative;
     transform: translateY(20px) scale(0.95);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow:
-        0 0 40px rgba(232, 193, 112, 0.08),
-        0 20px 60px rgba(0, 0, 0, 0.5);
+        0 0 0 1px rgba(40, 22, 10, 0.6),
+        0 0 60px rgba(232, 150, 60, 0.12),
+        0 24px 70px rgba(0, 0, 0, 0.65),
+        inset 0 0 80px rgba(0, 0, 0, 0.35);
+}
+
+.story-card::before {
+    /* Soft golden frame inset for the "parchment page edge" read. */
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(232, 193, 112, 0.18);
+    border-radius: 10px;
+    pointer-events: none;
 }
 
 #story-card-overlay.visible .story-card {

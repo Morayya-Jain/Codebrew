@@ -47,6 +47,11 @@ export class GameScene extends Scene {
     private riverShimmerPhase_ = 0;
     private treeSprites_: Phaser.GameObjects.Image[] = [];
     private faunaSprites_: Phaser.GameObjects.Image[] = [];
+    private smokeEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    private emberEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    private dustEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    private fireflyEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    private leafEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
     constructor() {
         super('GameScene');
@@ -76,10 +81,14 @@ export class GameScene extends Scene {
         this.createGrassField(WORLD_WIDTH, WORLD_HEIGHT);
         this.createFauna(WORLD_WIDTH, WORLD_HEIGHT);
 
-        // Ambient particles (fireflies/dust)
+        // Ambient particles (fireflies/dust) — legacy graphics-based system,
+        // kept for backwards compatibility alongside the new emitters.
         this.particleGraphics = this.add.graphics();
         this.particleGraphics.setDepth(8);
         this.initAmbientParticles(WORLD_WIDTH, WORLD_HEIGHT);
+
+        // Phase 6 particle emitters: smoke, embers, dust, fireflies, wind leaves.
+        this.createParticleSystems_();
 
         // Create player near center campfire
         this.player = new Player(this, 4000, 3400);
@@ -123,9 +132,11 @@ export class GameScene extends Scene {
         ];
         for (const [rx, ry] of riverSamples) this.audio_.addPointSource(rx, ry, 'water');
 
-        // Start audio on the very first user input (autoplay policy compliant).
+        // Start audio + time-of-day cycling on the first user input
+        // (autoplay policy compliant, plus the opening scene holds golden hour).
         const onFirstInput = (): void => {
             this.audio_?.start();
+            timeOfDay.start();
         };
         this.input.keyboard?.once('keydown', onFirstInput);
         this.input.once('pointerdown', onFirstInput);
@@ -187,11 +198,18 @@ export class GameScene extends Scene {
 
         this.player.update();
         windSystem.tick(delta);
+        timeOfDay.tick(delta);
+        // Poll time-of-day → apply interpolated palette to the pipeline.
+        // Cheap (just a handful of uniform sets); the pipeline applies them
+        // during its next onDraw pass.
+        this.postFx_?.applyPalette(timeOfDay.palette);
+        this.cameras.main.setBackgroundColor(timeOfDay.palette.letterboxColor);
         this.updateAmbientParticles(delta);
         this.updateGrassWind_();
         this.updateTreesWind_();
         this.updateFauna_(delta);
         this.updateRiverShimmer_(delta);
+        this.updateParticleFollow_();
         this.updateCameraPolish();
         this.audio_?.update(this.player.x, this.player.y, delta);
 
@@ -338,6 +356,118 @@ export class GameScene extends Scene {
             const a = 0.25 + 0.2 * Math.sin(this.riverShimmerPhase_ * 1.7 + i * 0.6);
             g.setAlpha(Math.max(0.1, Math.min(0.55, a)));
         }
+    }
+
+    private createParticleSystems_(): void {
+        // Campfire smoke + ember emitters, anchored to the campfire landmark.
+        const campfire = this.landmarkPositions.find(l => l.id === 'campfire');
+        const fireX = campfire?.x ?? 4000;
+        const fireY = campfire?.y ?? 3200;
+
+        this.smokeEmitter_ = this.add.particles(fireX, fireY - 10, 'particle-soft', {
+            frequency: 130,
+            lifespan: 5000,
+            speedY: { min: -38, max: -22 },
+            speedX: { min: -6, max: 10 },
+            scale: { start: 0.9, end: 2.6 },
+            alpha: { start: 0.4, end: 0 },
+            tint: [0x1a1612, 0x3a2e22, 0x2a2018],
+            quantity: 1,
+            rotate: { min: 0, max: 360 },
+        });
+        this.smokeEmitter_.setDepth(7);
+
+        this.emberEmitter_ = this.add.particles(fireX, fireY - 4, 'particle-ember', {
+            frequency: 160,
+            lifespan: 1400,
+            speedY: { min: -100, max: -60 },
+            speedX: { min: -20, max: 20 },
+            scale: { start: 1, end: 0.2 },
+            alpha: { start: 1, end: 0 },
+            quantity: 1,
+            gravityY: 20,
+        });
+        this.emberEmitter_.setDepth(7);
+
+        // Dust motes drifting through sunbeams — world-wide, camera-follow.
+        this.dustEmitter_ = this.add.particles(0, 0, 'particle-soft', {
+            frequency: 110,
+            lifespan: 7000,
+            speedX: { min: -8, max: 8 },
+            speedY: { min: -12, max: -2 },
+            scale: { start: 0.25, end: 0.9 },
+            alpha: { start: 0, end: 0.22, ease: 'Sine.easeInOut' },
+            tint: [0xfff0c0, 0xffd89c, 0xf0c080],
+            quantity: 1,
+            emitZone: {
+                type: 'random',
+                source: new Phaser.Geom.Rectangle(-660, -380, 1320, 760),
+                quantity: 1,
+            } as Phaser.Types.GameObjects.Particles.ParticleEmitterRandomZoneConfig,
+        });
+        this.dustEmitter_.setDepth(7);
+
+        // Fireflies — night only, also camera-relative.
+        this.fireflyEmitter_ = this.add.particles(0, 0, 'particle-soft', {
+            frequency: 260,
+            lifespan: 5200,
+            speedX: { min: -12, max: 12 },
+            speedY: { min: -10, max: 10 },
+            scale: { start: 0.3, end: 0.9 },
+            alpha: { start: 0, end: 0.85, ease: 'Sine.easeInOut' },
+            tint: [0xc8ff88, 0x88ff88],
+            quantity: 1,
+            emitZone: {
+                type: 'random',
+                source: new Phaser.Geom.Rectangle(-660, -380, 1320, 760),
+                quantity: 1,
+            } as Phaser.Types.GameObjects.Particles.ParticleEmitterRandomZoneConfig,
+        });
+        this.fireflyEmitter_.setDepth(7);
+        this.fireflyEmitter_.stop();
+
+        // Wind-swept leaves — idle off, triggered on WindSystem 'gust'.
+        this.leafEmitter_ = this.add.particles(0, 0, 'particle-leaf', {
+            frequency: -1, // manual only
+            lifespan: 2200,
+            speedX: { min: 80, max: 160 },
+            speedY: { min: -20, max: 20 },
+            scale: { start: 0.9, end: 0.5 },
+            rotate: { start: 0, end: 360 },
+            alpha: { start: 0.9, end: 0 },
+            quantity: 2,
+            emitZone: {
+                type: 'random',
+                source: new Phaser.Geom.Rectangle(-700, -400, 1400, 800),
+                quantity: 2,
+            } as Phaser.Types.GameObjects.Particles.ParticleEmitterRandomZoneConfig,
+        });
+        this.leafEmitter_.setDepth(7);
+
+        // Subscribe to wind gusts
+        windSystem.on('gust', () => {
+            if (!this.leafEmitter_) return;
+            this.leafEmitter_.emitParticle(14);
+        });
+    }
+
+    private updateParticleFollow_(): void {
+        if (!this.dustEmitter_ || !this.fireflyEmitter_ || !this.leafEmitter_) return;
+        const cam = this.cameras.main;
+        const cx = cam.scrollX + cam.width / 2;
+        const cy = cam.scrollY + cam.height / 2;
+        this.dustEmitter_.setPosition(cx, cy);
+        this.fireflyEmitter_.setPosition(cx, cy);
+        this.leafEmitter_.setPosition(cx, cy);
+
+        // Fireflies only active at night; dust tapers at night.
+        const starfield = timeOfDay.palette.starfieldAlpha;
+        if (starfield > 0.4 && !this.fireflyEmitter_.emitting) {
+            this.fireflyEmitter_.start();
+        } else if (starfield < 0.2 && this.fireflyEmitter_.emitting) {
+            this.fireflyEmitter_.stop();
+        }
+        this.dustEmitter_.frequency = 110 + starfield * 400;
     }
 
     private updateCameraPolish(): void {

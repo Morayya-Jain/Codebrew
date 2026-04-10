@@ -74,26 +74,117 @@ export const TIME_OF_DAY_PALETTES: Record<TimeOfDayState, TimeOfDayPalette> = {
 };
 
 /**
- * Global time-of-day state. Subscribe via .on('change', (state, palette) => ...)
- * from any scene or system that needs to react to lighting/color shifts.
+ * Global time-of-day state.
  *
- * Phase 1: static state, defaults to GoldenHour. Phase 6 adds animated cycling.
+ * The cycle runs Golden → Dusk → Night → Dawn → Morning → Golden. Default
+ * cycle length is 8 minutes of wall-clock time. Starts frozen on GoldenHour
+ * until `start()` is called — keeping the opening scene at the designed
+ * lighting for the first minute or two of play.
+ *
+ * Call `tick(deltaMs)` each frame. The `palette` getter always returns the
+ * current interpolated palette (between two adjacent states).
  */
+
+const CYCLE_ORDER: readonly TimeOfDayState[] = [
+    TimeOfDayState.GoldenHour,
+    TimeOfDayState.Dusk,
+    TimeOfDayState.Night,
+    TimeOfDayState.Dawn,
+    TimeOfDayState.Morning,
+];
+
+const DEFAULT_CYCLE_MS = 8 * 60 * 1000; // 8 min full loop
+const HOLD_BEFORE_CYCLE_MS = 90 * 1000; // hold golden hour for 90s on entry
+
+function lerp(a: number, b: number, t: number): number {
+    return a + (b - a) * t;
+}
+
+function lerpRgbHex(a: number, b: number, t: number): number {
+    const ar = (a >> 16) & 0xff;
+    const ag = (a >> 8) & 0xff;
+    const ab = a & 0xff;
+    const br = (b >> 16) & 0xff;
+    const bg = (b >> 8) & 0xff;
+    const bb = b & 0xff;
+    const r = Math.round(lerp(ar, br, t));
+    const g = Math.round(lerp(ag, bg, t));
+    const bl = Math.round(lerp(ab, bb, t));
+    return (r << 16) | (g << 8) | bl;
+}
+
+function lerpPalette(a: TimeOfDayPalette, b: TimeOfDayPalette, t: number): TimeOfDayPalette {
+    return {
+        ambientTint: [
+            lerp(a.ambientTint[0], b.ambientTint[0], t),
+            lerp(a.ambientTint[1], b.ambientTint[1], t),
+            lerp(a.ambientTint[2], b.ambientTint[2], t),
+        ],
+        warmLift: [
+            lerp(a.warmLift[0], b.warmLift[0], t),
+            lerp(a.warmLift[1], b.warmLift[1], t),
+            lerp(a.warmLift[2], b.warmLift[2], t),
+        ],
+        directionalColor: lerpRgbHex(a.directionalColor, b.directionalColor, t),
+        sunAngle: lerp(a.sunAngle, b.sunAngle, t),
+        starfieldAlpha: lerp(a.starfieldAlpha, b.starfieldAlpha, t),
+        bloomStrength: lerp(a.bloomStrength, b.bloomStrength, t),
+        letterboxColor: lerpRgbHex(a.letterboxColor, b.letterboxColor, t),
+    };
+}
+
 class TimeOfDayManager extends Phaser.Events.EventEmitter {
-    private current_: TimeOfDayState = TimeOfDayState.GoldenHour;
+    private running_ = false;
+    private cycleMs_ = DEFAULT_CYCLE_MS;
+    private elapsedMs_ = 0;
+    private holdRemainingMs_ = HOLD_BEFORE_CYCLE_MS;
+    private cachedPalette_: TimeOfDayPalette = TIME_OF_DAY_PALETTES[TimeOfDayState.GoldenHour];
+    private cachedState_: TimeOfDayState = TimeOfDayState.GoldenHour;
 
     get state(): TimeOfDayState {
-        return this.current_;
+        return this.cachedState_;
     }
 
     get palette(): TimeOfDayPalette {
-        return TIME_OF_DAY_PALETTES[this.current_];
+        return this.cachedPalette_;
     }
 
+    /** Start the cycle. Call once after the player's first input (Phase 2 audio gate is a good place). */
+    start(): void {
+        this.running_ = true;
+    }
+
+    /** Reset to a given state and stop cycling. */
     setState(state: TimeOfDayState): void {
-        if (state === this.current_) return;
-        this.current_ = state;
-        this.emit('change', state, this.palette);
+        this.cachedState_ = state;
+        this.cachedPalette_ = TIME_OF_DAY_PALETTES[state];
+        this.running_ = false;
+        this.emit('change', state, this.cachedPalette_);
+    }
+
+    /** Called every frame from GameScene. Advances the cycle + interpolates the palette. */
+    tick(deltaMs: number): void {
+        if (!this.running_) return;
+        if (this.holdRemainingMs_ > 0) {
+            this.holdRemainingMs_ -= deltaMs;
+            return;
+        }
+        this.elapsedMs_ = (this.elapsedMs_ + deltaMs) % this.cycleMs_;
+        const segments = CYCLE_ORDER.length;
+        const segmentMs = this.cycleMs_ / segments;
+        const segIndex = Math.floor(this.elapsedMs_ / segmentMs);
+        const segT = (this.elapsedMs_ - segIndex * segmentMs) / segmentMs;
+        const currentState = CYCLE_ORDER[segIndex];
+        const nextState = CYCLE_ORDER[(segIndex + 1) % segments];
+        this.cachedState_ = currentState;
+        this.cachedPalette_ = lerpPalette(
+            TIME_OF_DAY_PALETTES[currentState],
+            TIME_OF_DAY_PALETTES[nextState],
+            segT,
+        );
+        // Emit change events only on state transitions, not every frame.
+        // Interpolation clients poll `palette` each frame directly.
+        this.emit('tick', this.cachedPalette_);
     }
 }
 

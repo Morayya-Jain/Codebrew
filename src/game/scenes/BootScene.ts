@@ -26,7 +26,51 @@ export class BootScene extends Scene {
         this.generateBarkFlake();
         this.generateEucalyptTrees();
         this.generateFaunaSprites();
+        this.generateParticleTextures();
         this.scene.start('TitleScene');
+    }
+
+    /**
+     * Bake small particle textures used by the Phase 6 emitters:
+     * a soft circle (for smoke/dust/fireflies), a small ember, a leaf.
+     */
+    private generateParticleTextures(): void {
+        // Soft circle — white, 16×16, radial alpha falloff via concentric discs
+        {
+            const gfx = this.add.graphics();
+            for (let r = 8; r > 0; r--) {
+                gfx.fillStyle(0xffffff, (9 - r) / 9 * 0.18);
+                gfx.fillCircle(8, 8, r);
+            }
+            gfx.generateTexture('particle-soft', 16, 16);
+            gfx.destroy();
+        }
+        // Ember — warm orange core
+        {
+            const gfx = this.add.graphics();
+            gfx.fillStyle(0xffcc44, 0.85);
+            gfx.fillCircle(4, 4, 3);
+            gfx.fillStyle(0xff6624, 0.9);
+            gfx.fillCircle(4, 4, 2);
+            gfx.fillStyle(0xffffff, 0.8);
+            gfx.fillCircle(4, 4, 1);
+            gfx.generateTexture('particle-ember', 8, 8);
+            gfx.destroy();
+        }
+        // Leaf — small eucalypt silhouette
+        {
+            const gfx = this.add.graphics();
+            gfx.fillStyle(0x6a4a28, 1);
+            const pts = [
+                new Phaser.Math.Vector2(6, 1),
+                new Phaser.Math.Vector2(10, 6),
+                new Phaser.Math.Vector2(6, 11),
+                new Phaser.Math.Vector2(2, 6),
+            ];
+            gfx.fillPoints(pts, true);
+            gfx.generateTexture('particle-leaf', 12, 12);
+            gfx.destroy();
+        }
     }
 
     /**
