@@ -24,7 +24,307 @@ export class BootScene extends Scene {
         this.generateGroundTiles();
         this.generateGrassTuft();
         this.generateBarkFlake();
+        this.generateEucalyptTrees();
+        this.generateFaunaSprites();
         this.scene.start('TitleScene');
+    }
+
+    /**
+     * Bake four eucalypt variants in 3/4 perspective — trunk at the bottom,
+     * canopy above. Trunk origin at (cx, h - 6) so when placed by world y,
+     * the base of the tree sits on that y-value and depth-sorts naturally.
+     *
+     * River red gum / yellow box / manna gum / dead snag — four visual moods.
+     */
+    private generateEucalyptTrees(): void {
+        const configs: Array<{
+            key: string;
+            trunkColor: number;
+            trunkHighlight: number;
+            canopyColor: number;
+            canopyShadow: number;
+            canopyHighlight: number;
+            leafClusters: number;
+            dead: boolean;
+        }> = [
+            {
+                key: 'tree-redgum',
+                trunkColor: 0x6a5a44,
+                trunkHighlight: 0x9a8a70,
+                canopyColor: 0x4a6a28,
+                canopyShadow: 0x2a3e14,
+                canopyHighlight: 0x6a8a32,
+                leafClusters: 7,
+                dead: false,
+            },
+            {
+                key: 'tree-yellowbox',
+                trunkColor: 0x8a7050,
+                trunkHighlight: 0xb8a078,
+                canopyColor: 0x5a7028,
+                canopyShadow: 0x2e4014,
+                canopyHighlight: 0x7a9030,
+                leafClusters: 6,
+                dead: false,
+            },
+            {
+                key: 'tree-mannagum',
+                trunkColor: 0x7a6a50,
+                trunkHighlight: 0xa89870,
+                canopyColor: 0x3a5a20,
+                canopyShadow: 0x1e3010,
+                canopyHighlight: 0x547a26,
+                leafClusters: 8,
+                dead: false,
+            },
+            {
+                key: 'tree-snag',
+                trunkColor: 0x5a4a38,
+                trunkHighlight: 0x8a7858,
+                canopyColor: 0x2a2010,
+                canopyShadow: 0x0e0a04,
+                canopyHighlight: 0x3a2810,
+                leafClusters: 0,
+                dead: true,
+            },
+        ];
+
+        const w = 200;
+        const h = 300;
+        const cx = w / 2;
+        const groundY = h - 8;
+
+        for (const cfg of configs) {
+            const gfx = this.add.graphics();
+
+            // Ground shadow ellipse (soft, offset to the east to match sun angle)
+            gfx.fillStyle(0x000000, 0.32);
+            gfx.fillEllipse(cx + 14, groundY, 140, 30);
+            gfx.fillStyle(0x000000, 0.18);
+            gfx.fillEllipse(cx + 14, groundY, 180, 42);
+
+            // Trunk — slightly curved, a bit taller than the shadow
+            const trunkTop = cfg.dead ? h * 0.35 : h * 0.45;
+            const trunkBaseW = 22;
+            const trunkTopW = 10;
+            const lean = cfg.dead ? -8 : 2;
+            const trunkPts: Phaser.Math.Vector2[] = [
+                new Phaser.Math.Vector2(cx - trunkBaseW / 2, groundY - 2),
+                new Phaser.Math.Vector2(cx - trunkTopW / 2 + lean, trunkTop),
+                new Phaser.Math.Vector2(cx + trunkTopW / 2 + lean, trunkTop),
+                new Phaser.Math.Vector2(cx + trunkBaseW / 2, groundY - 2),
+            ];
+            gfx.fillStyle(cfg.trunkColor, 1);
+            gfx.fillPoints(trunkPts, true);
+
+            // Trunk highlight stripe (lit side)
+            gfx.fillStyle(cfg.trunkHighlight, 0.5);
+            const hiPts: Phaser.Math.Vector2[] = [
+                new Phaser.Math.Vector2(cx - trunkBaseW / 2 + 3, groundY - 6),
+                new Phaser.Math.Vector2(cx - trunkTopW / 2 + lean + 2, trunkTop + 4),
+                new Phaser.Math.Vector2(cx - trunkTopW / 2 + lean + 5, trunkTop + 4),
+                new Phaser.Math.Vector2(cx - trunkBaseW / 2 + 7, groundY - 6),
+            ];
+            gfx.fillPoints(hiPts, true);
+
+            // Bark texture lines
+            gfx.lineStyle(1, 0x2a1a10, 0.4);
+            for (let k = 0; k < 5; k++) {
+                const y = groundY - 20 - k * 30;
+                gfx.lineBetween(cx - 8, y, cx + 8, y - 3);
+            }
+
+            // Branches — 3 branches for live trees, 5 for dead snag
+            const branchCount = cfg.dead ? 5 : 3;
+            gfx.lineStyle(4, cfg.trunkColor, 1);
+            for (let k = 0; k < branchCount; k++) {
+                const side = k % 2 === 0 ? 1 : -1;
+                const startY = trunkTop + 10 + k * 12;
+                const endX = cx + side * (40 + k * 10);
+                const endY = trunkTop - 30 - k * 18;
+                gfx.lineBetween(cx + (cfg.dead ? lean : 0), startY, endX, endY);
+            }
+
+            if (cfg.dead) {
+                // Bare branch texture: thin forked stubs
+                gfx.lineStyle(2, cfg.trunkColor, 0.9);
+                gfx.lineBetween(cx - 30, trunkTop - 10, cx - 48, trunkTop - 60);
+                gfx.lineBetween(cx - 48, trunkTop - 60, cx - 55, trunkTop - 90);
+                gfx.lineBetween(cx + 25, trunkTop - 14, cx + 55, trunkTop - 50);
+                gfx.lineBetween(cx + 55, trunkTop - 50, cx + 65, trunkTop - 80);
+            } else {
+                // Canopy: multiple overlapping clusters with shadow/mid/highlight
+                const canopyCY = trunkTop - 30;
+                const canopyRX = 90;
+                const canopyRY = 70;
+                // Shadow layer (back)
+                gfx.fillStyle(cfg.canopyShadow, 0.85);
+                gfx.fillEllipse(cx + 8, canopyCY + 8, canopyRX * 2, canopyRY * 2);
+                // Mid
+                gfx.fillStyle(cfg.canopyColor, 0.92);
+                gfx.fillEllipse(cx, canopyCY, canopyRX * 1.85, canopyRY * 1.85);
+                // Highlight (sunlit top-left)
+                gfx.fillStyle(cfg.canopyHighlight, 0.75);
+                gfx.fillEllipse(cx - 20, canopyCY - 18, canopyRX * 1.3, canopyRY * 1.2);
+
+                // Random leaf clusters for silhouette irregularity
+                for (let k = 0; k < cfg.leafClusters; k++) {
+                    const a = (k / cfg.leafClusters) * Math.PI * 2;
+                    const rr = canopyRX * 0.8;
+                    const lx = cx + Math.cos(a) * rr;
+                    const ly = canopyCY + Math.sin(a) * canopyRY * 0.7;
+                    gfx.fillStyle(cfg.canopyColor, 0.6);
+                    gfx.fillEllipse(lx, ly, 42, 32);
+                    gfx.fillStyle(cfg.canopyHighlight, 0.4);
+                    gfx.fillEllipse(lx - 5, ly - 5, 22, 18);
+                }
+            }
+
+            gfx.generateTexture(cfg.key, w, h);
+            gfx.destroy();
+        }
+    }
+
+    /**
+     * Bake small fauna silhouettes for ambient life: kangaroo, emu, cockatoo.
+     * Two separate textures per animal (frame-0 and frame-1) so we can drive
+     * a cheap setTexture-based idle animation from a scene timer without
+     * registering Phaser anims (which want spritesheets, not plain textures).
+     */
+    private generateFaunaSprites(): void {
+        // Kangaroo — 2 frames, 80x72 each, side profile
+        {
+            const w = 80;
+            const h = 72;
+            for (let f = 0; f < 2; f++) {
+                const gfx = this.add.graphics();
+                const xo = 0;
+                const bodyY = f === 0 ? 0 : -2;
+                // Shadow
+                gfx.fillStyle(0x000000, 0.3);
+                gfx.fillEllipse(xo + 40, h - 4, 46, 8);
+                // Tail
+                gfx.lineStyle(6, 0x6a4a2a, 1);
+                gfx.lineBetween(xo + 14, h - 16 + bodyY, xo + 26, h - 22 + bodyY);
+                // Body
+                gfx.fillStyle(0x7a5630, 1);
+                gfx.fillEllipse(xo + 38, h - 28 + bodyY, 46, 26);
+                // Chest (lighter)
+                gfx.fillStyle(0x9a7040, 0.85);
+                gfx.fillEllipse(xo + 46, h - 24 + bodyY, 20, 18);
+                // Legs (bent hind)
+                gfx.lineStyle(5, 0x5a3e20, 1);
+                gfx.lineBetween(xo + 30, h - 22 + bodyY, xo + 24, h - 8);
+                gfx.lineBetween(xo + 36, h - 20 + bodyY, xo + 30, h - 8);
+                // Front paws
+                gfx.lineStyle(3, 0x6a4a2a, 1);
+                gfx.lineBetween(xo + 54, h - 26 + bodyY, xo + 58, h - 16 + bodyY);
+                gfx.lineBetween(xo + 56, h - 26 + bodyY, xo + 60, h - 16 + bodyY);
+                // Head
+                gfx.fillStyle(0x7a5630, 1);
+                gfx.fillEllipse(xo + 58, h - 40 + bodyY, 18, 14);
+                // Ears
+                gfx.fillStyle(0x5a3a20, 1);
+                gfx.fillTriangle(
+                    xo + 56, h - 46 + bodyY,
+                    xo + 54, h - 52 + bodyY,
+                    xo + 60, h - 47 + bodyY,
+                );
+                gfx.fillTriangle(
+                    xo + 60, h - 46 + bodyY,
+                    xo + 58, h - 52 + bodyY,
+                    xo + 64, h - 47 + bodyY,
+                );
+                // Eye
+                gfx.fillStyle(0x000000, 1);
+                gfx.fillCircle(xo + 62, h - 40 + bodyY, 1.2);
+                gfx.generateTexture(`fauna-kangaroo-${f}`, w, h);
+                gfx.destroy();
+            }
+        }
+
+        // Emu — tall bird, 60x100 (2 frames)
+        {
+            const w = 60;
+            const h = 100;
+            for (let f = 0; f < 2; f++) {
+                const gfx = this.add.graphics();
+                const xo = 0;
+                const legShift = f === 0 ? 0 : 3;
+                // Shadow
+                gfx.fillStyle(0x000000, 0.3);
+                gfx.fillEllipse(xo + 30, h - 3, 34, 6);
+                // Legs
+                gfx.lineStyle(3, 0x3a2a14, 1);
+                gfx.lineBetween(xo + 26, h - 40, xo + 22 + legShift, h - 5);
+                gfx.lineBetween(xo + 32, h - 40, xo + 34 - legShift, h - 5);
+                // Body — fluffy feather shape
+                gfx.fillStyle(0x4a3a28, 1);
+                gfx.fillEllipse(xo + 30, h - 50, 38, 32);
+                gfx.fillStyle(0x6a4e30, 0.7);
+                gfx.fillEllipse(xo + 26, h - 56, 24, 18);
+                // Feather scraggle
+                gfx.fillStyle(0x3a2a18, 0.8);
+                gfx.fillCircle(xo + 42, h - 46, 3);
+                gfx.fillCircle(xo + 44, h - 50, 2.5);
+                gfx.fillCircle(xo + 40, h - 54, 2);
+                // Neck
+                gfx.lineStyle(5, 0x4a3a28, 1);
+                gfx.lineBetween(xo + 22, h - 60, xo + 18, h - 82);
+                // Head
+                gfx.fillStyle(0x4a3a28, 1);
+                gfx.fillEllipse(xo + 18, h - 85, 12, 10);
+                // Beak
+                gfx.fillStyle(0x2a1a10, 1);
+                gfx.fillTriangle(xo + 12, h - 85, xo + 6, h - 84, xo + 12, h - 82);
+                // Eye
+                gfx.fillStyle(0xffffff, 1);
+                gfx.fillCircle(xo + 18, h - 86, 1.5);
+                gfx.fillStyle(0x000000, 1);
+                gfx.fillCircle(xo + 18, h - 86, 0.8);
+                gfx.generateTexture(`fauna-emu-${f}`, w, h);
+                gfx.destroy();
+            }
+        }
+
+        // Cockatoo — small white bird, 40x40 (2 frames)
+        {
+            const w = 40;
+            const h = 40;
+            for (let f = 0; f < 2; f++) {
+                const gfx = this.add.graphics();
+                const xo = 0;
+                const wingLift = f === 0 ? 0 : -2;
+                // Body
+                gfx.fillStyle(0xf0ecdc, 1);
+                gfx.fillEllipse(xo + 20, h - 18, 22, 18);
+                // Wing
+                gfx.fillStyle(0xd8d0b8, 1);
+                gfx.fillEllipse(xo + 16, h - 18 + wingLift, 14, 10);
+                // Head
+                gfx.fillStyle(0xf0ecdc, 1);
+                gfx.fillCircle(xo + 26, h - 26, 7);
+                // Crest (yellow)
+                gfx.fillStyle(0xf0c848, 1);
+                gfx.fillTriangle(xo + 26, h - 32, xo + 22, h - 38, xo + 24, h - 32);
+                gfx.fillTriangle(xo + 26, h - 32, xo + 28, h - 38, xo + 30, h - 32);
+                // Beak
+                gfx.fillStyle(0x4a3a1a, 1);
+                gfx.fillTriangle(xo + 30, h - 26, xo + 34, h - 24, xo + 30, h - 22);
+                // Eye
+                gfx.fillStyle(0x000000, 1);
+                gfx.fillCircle(xo + 28, h - 27, 1);
+                // Feet
+                gfx.lineStyle(2, 0x3a2a14, 1);
+                gfx.lineBetween(xo + 18, h - 10, xo + 16, h - 3);
+                gfx.lineBetween(xo + 22, h - 10, xo + 24, h - 3);
+                // Shadow
+                gfx.fillStyle(0x000000, 0.25);
+                gfx.fillEllipse(xo + 20, h - 2, 18, 4);
+                gfx.generateTexture(`fauna-cockatoo-${f}`, w, h);
+                gfx.destroy();
+            }
+        }
     }
 
     /**

@@ -45,6 +45,8 @@ export class GameScene extends Scene {
     private grassTufts_: Phaser.GameObjects.Image[] = [];
     private riverShimmers_: Phaser.GameObjects.Graphics[] = [];
     private riverShimmerPhase_ = 0;
+    private treeSprites_: Phaser.GameObjects.Image[] = [];
+    private faunaSprites_: Phaser.GameObjects.Image[] = [];
 
     constructor() {
         super('GameScene');
@@ -72,6 +74,7 @@ export class GameScene extends Scene {
         this.createRiverCollisions();
         this.createBoundaryFade(WORLD_WIDTH, WORLD_HEIGHT);
         this.createGrassField(WORLD_WIDTH, WORLD_HEIGHT);
+        this.createFauna(WORLD_WIDTH, WORLD_HEIGHT);
 
         // Ambient particles (fireflies/dust)
         this.particleGraphics = this.add.graphics();
@@ -164,6 +167,8 @@ export class GameScene extends Scene {
         windSystem.tick(delta);
         this.updateAmbientParticles(delta);
         this.updateGrassWind_();
+        this.updateTreesWind_();
+        this.updateFauna_(delta);
         this.updateRiverShimmer_(delta);
         this.updateCameraPolish();
         this.audio_?.update(this.player.x, this.player.y, delta);
@@ -766,12 +771,6 @@ export class GameScene extends Scene {
     // =========================================================================
 
     private createTrees(width: number, height: number): void {
-        const gfx = this.add.graphics();
-        gfx.setDepth(6);
-
-        const treeShadowGfx = this.add.graphics();
-        treeShadowGfx.setDepth(2);
-
         const rng = this.createSeededRandom(123);
 
         // Landmark positions to avoid (with clearance radius)
@@ -782,53 +781,156 @@ export class GameScene extends Scene {
             { x: 6800, y: 3800 },
         ];
 
-        const clearance = 160;
-        const treeCount = 80;
+        const treeVariants = ['tree-redgum', 'tree-yellowbox', 'tree-mannagum', 'tree-snag'] as const;
+
+        const clearance = 180;
+        const treeCount = 95;
         let placed = 0;
         let attempts = 0;
 
         while (placed < treeCount && attempts < treeCount * 4) {
             attempts++;
-            const tx = 150 + rng() * (width - 300);
-            const ty = 150 + rng() * (height - 300);
-            const treeSize = 22 + rng() * 16;
+            const tx = 160 + rng() * (width - 320);
+            const ty = 220 + rng() * (height - 380);
 
             // Check clearance from landmarks
             const tooClose = landmarkZones.some(
-                lz => Math.abs(tx - lz.x) < clearance && Math.abs(ty - lz.y) < clearance
+                lz => Math.abs(tx - lz.x) < clearance && Math.abs(ty - lz.y) < clearance,
             );
             if (tooClose) continue;
 
-            this.drawTopDownTree(gfx, treeShadowGfx, tx, ty, treeSize);
-            this.addBarrier({ x: tx, y: ty, width: 0, height: 0, isCircle: true, radius: treeSize * 0.5 });
+            const variantIdx = rng() < 0.08
+                ? 3 // snag (dead tree) 8% of the time
+                : Math.floor(rng() * 3);
+            const key = treeVariants[variantIdx];
+            const scale = 0.7 + rng() * 0.55;
+            const flipX = rng() < 0.5;
+
+            const sprite = this.add.image(tx, ty, key);
+            sprite.setOrigin(0.5, 0.97); // base of trunk sits at (tx, ty)
+            sprite.setScale(scale);
+            sprite.setFlipX(flipX);
+            // Depth-sort by world Y so foreground trees draw over player + bg trees.
+            sprite.setDepth(ty * 0.001 + 4);
+            sprite.setData('windPhase', rng() * Math.PI * 2);
+            sprite.setData('baseRot', 0);
+            this.treeSprites_.push(sprite);
+
+            // Collision at the trunk base
+            const trunkRadius = 14 * scale;
+            this.addBarrier({
+                x: tx,
+                y: ty - trunkRadius * 0.3,
+                width: 0,
+                height: 0,
+                isCircle: true,
+                radius: trunkRadius,
+            });
             placed++;
         }
     }
 
-    private drawTopDownTree(
-        canopyGfx: Phaser.GameObjects.Graphics,
-        shadowGfx: Phaser.GameObjects.Graphics,
-        x: number, y: number, size: number
-    ): void {
-        // Cast shadow (SE offset)
-        shadowGfx.fillStyle(0x000000, 0.12);
-        shadowGfx.fillEllipse(x + 8, y + 10, size * 2.2, size * 1.6);
+    private createFauna(width: number, height: number): void {
+        const rng = this.createSeededRandom(881);
 
-        // Outer canopy (wider than tall for isometric feel)
-        canopyGfx.fillStyle(0x1a3a16, 0.75);
-        canopyGfx.fillEllipse(x, y, size * 2, size * 1.6);
+        const landmarkZones = [
+            { x: 4000, y: 3200 }, { x: 1400, y: 1800 }, { x: 6600, y: 1400 },
+            { x: 6400, y: 5000 }, { x: 1600, y: 4800 }, { x: 4000, y: 800 },
+            { x: 2800, y: 600 }, { x: 5600, y: 2800 }, { x: 3200, y: 5600 },
+            { x: 6800, y: 3800 },
+        ];
 
-        // Mid canopy + highlight combined
-        canopyGfx.fillStyle(0x2a4a22, 0.6);
-        canopyGfx.fillEllipse(x - size * 0.15, y - size * 0.12, size * 1.4, size * 1.1);
+        const spec: Array<{ key: string; count: number; fleeSpeed: number }> = [
+            { key: 'fauna-kangaroo', count: 5, fleeSpeed: 160 },
+            { key: 'fauna-emu', count: 3, fleeSpeed: 180 },
+            { key: 'fauna-cockatoo', count: 7, fleeSpeed: 80 },
+        ];
 
-        // NW highlight
-        canopyGfx.fillStyle(0x3a6a2a, 0.4);
-        canopyGfx.fillEllipse(x - size * 0.3, y - size * 0.25, size * 0.8, size * 0.6);
+        for (const s of spec) {
+            for (let i = 0; i < s.count; i++) {
+                let x = 0, y = 0;
+                for (let attempt = 0; attempt < 30; attempt++) {
+                    x = 400 + rng() * (width - 800);
+                    y = 400 + rng() * (height - 800);
+                    const ok = !landmarkZones.some(
+                        lz => Math.abs(x - lz.x) < 260 && Math.abs(y - lz.y) < 260,
+                    );
+                    if (ok) break;
+                }
+                const sprite = this.add.image(x, y, `${s.key}-0`);
+                sprite.setOrigin(0.5, 0.95);
+                sprite.setDepth(y * 0.001 + 3.5);
+                sprite.setData('animKey', s.key);
+                sprite.setData('frame', 0);
+                sprite.setData('frameTimer', rng() * 1000);
+                sprite.setData('homeX', x);
+                sprite.setData('homeY', y);
+                sprite.setData('fleeSpeed', s.fleeSpeed);
+                sprite.setData('state', 'idle');
+                sprite.setFlipX(rng() < 0.5);
+                this.faunaSprites_.push(sprite);
+            }
+        }
+    }
 
-        // Trunk center dot
-        canopyGfx.fillStyle(0x2a1a10, 0.5);
-        canopyGfx.fillCircle(x, y, size * 0.15);
+    private updateTreesWind_(): void {
+        if (this.treeSprites_.length === 0) return;
+        const { value, isGusting } = windSystem.sample();
+        const t = this.time.now / 1000;
+        const magnitude = isGusting ? 0.045 : 0.018;
+        for (let i = 0; i < this.treeSprites_.length; i++) {
+            const tree = this.treeSprites_[i];
+            const phase = (tree.getData('windPhase') as number) ?? 0;
+            tree.rotation = Math.sin(t * 1.3 + phase) * magnitude * value;
+        }
+    }
+
+    private updateFauna_(deltaMs: number): void {
+        if (this.faunaSprites_.length === 0) return;
+        const px = this.player.x;
+        const py = this.player.y;
+        for (let i = 0; i < this.faunaSprites_.length; i++) {
+            const sprite = this.faunaSprites_[i];
+            const animKey = sprite.getData('animKey') as string;
+            let timer = (sprite.getData('frameTimer') as number) + deltaMs;
+            const currentFrame = sprite.getData('frame') as number;
+            if (timer > 520) {
+                timer = 0;
+                const next = currentFrame === 0 ? 1 : 0;
+                sprite.setTexture(`${animKey}-${next}`);
+                sprite.setData('frame', next);
+            }
+            sprite.setData('frameTimer', timer);
+
+            // Flee when player gets close.
+            const dx = sprite.x - px;
+            const dy = sprite.y - py;
+            const dist = Math.hypot(dx, dy);
+            const fleeRadius = 240;
+            const state = sprite.getData('state') as string;
+            if (dist < fleeRadius && state === 'idle') {
+                sprite.setData('state', 'flee');
+            }
+            if (state === 'flee') {
+                const speed = sprite.getData('fleeSpeed') as number;
+                if (dist < 1) continue;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                sprite.x += nx * speed * (deltaMs / 1000);
+                sprite.y += ny * speed * (deltaMs / 1000);
+                sprite.setFlipX(nx < 0);
+                sprite.setDepth(sprite.y * 0.001 + 3.5);
+                // Resume idle once comfortably far away.
+                if (dist > fleeRadius * 1.8) {
+                    sprite.setData('state', 'idle');
+                    sprite.setData('homeX', sprite.x);
+                    sprite.setData('homeY', sprite.y);
+                }
+                // World bounds clamp
+                sprite.x = Math.max(80, Math.min(CONSTANTS.WORLD_WIDTH - 80, sprite.x));
+                sprite.y = Math.max(80, Math.min(CONSTANTS.WORLD_HEIGHT - 80, sprite.y));
+            }
+        }
     }
 
     private createRocks(width: number, height: number): void {
