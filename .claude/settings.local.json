@@ -12,7 +12,10 @@
       "Bash(curl -s http://localhost:8080/)",
       "Bash(curl -s http://localhost:8080/src/game/main.ts)",
       "Bash(grep -E \"\\\\.\\(ts|js|json\\)$\")",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   },
   "disabledMcpjsonServers": [
