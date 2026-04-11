@@ -1,4 +1,4 @@
-# Walking Through Country
+# Indigenous Australia : The Journey
 
 An interactive 2D exploration game that teaches Aboriginal Australian culture and heritage through landmark discovery and storytelling. Set on the lands of the Kulin Nation in Victoria, players walk through a procedurally generated landscape, encounter sacred sites and gathering places, and read rich cultural narratives about each location.
 

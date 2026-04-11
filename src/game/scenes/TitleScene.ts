@@ -54,7 +54,7 @@ export class TitleScene extends Scene {
         });
 
         // Title - larger, slower fade-in for reverent museum pacing.
-        const title = this.add.text(centerX, height / 2 - 110, 'Walking Through\nCountry', {
+        const title = this.add.text(centerX, height / 2 - 110, 'Indigenous Australia\nThe Journey', {
             fontFamily: '"Crimson Text", Georgia, serif',
             fontSize: '58px',
             color: '#e8c170',
@@ -63,25 +63,6 @@ export class TitleScene extends Scene {
             fontStyle: 'bold',
         }).setOrigin(0.5);
         title.setAlpha(0);
-
-        // Subtitle - positioned beneath the concentric motif.
-        const subtitle = this.add.text(centerX, height / 2 + 20, 'An invitation to Country', {
-            fontFamily: '"Crimson Text", Georgia, serif',
-            fontSize: '22px',
-            color: '#a0886a',
-            align: 'center',
-            fontStyle: 'italic',
-        }).setOrigin(0.5);
-        subtitle.setAlpha(0);
-
-        // Region text
-        const region = this.add.text(centerX, height / 2 + 55, 'Victoria  \u2022  Aboriginal Australia', {
-            fontFamily: '"Crimson Text", Georgia, serif',
-            fontSize: '16px',
-            color: '#8a7a6a',
-            align: 'center',
-        }).setOrigin(0.5);
-        region.setAlpha(0);
 
         // Acknowledgement block - larger type, more weight, sits well above
         // the bottom edge so it reads as the centrepiece it deserves to be.
@@ -119,18 +100,16 @@ export class TitleScene extends Scene {
         // Animate elements in with reverent timing. Total fade-in sequence
         // runs to ~4.5s (2000ms title + 2500ms worth of cascading delays).
         this.tweens.add({ targets: title, alpha: 1, duration: 2000, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: subtitle, alpha: 0.9, duration: 1400, delay: 1000, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: region, alpha: 0.7, duration: 1200, delay: 1400, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: ackHeading, alpha: 0.8, duration: 1200, delay: 2200, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: ack, alpha: 0.85, duration: 1400, delay: 2600, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: startText, alpha: 0.9, duration: 1000, delay: 4200, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: ackHeading, alpha: 0.8, duration: 1200, delay: 1200, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: ack, alpha: 0.85, duration: 1400, delay: 1600, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: startText, alpha: 0.9, duration: 1000, delay: 3200, ease: 'Quad.easeOut' });
 
         // Pulsing start text - slower and gentler than before.
         this.tweens.add({
             targets: startText,
             alpha: 0.35,
             duration: 1800,
-            delay: 5200,
+            delay: 4200,
             ease: 'Sine.easeInOut',
             yoyo: true,
             repeat: -1,

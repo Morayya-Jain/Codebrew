@@ -99,12 +99,12 @@ void main() {
 `;
 
 export class PostFxPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
-    private ambientTint_: [number, number, number] = [1.08, 1.0, 0.88];
-    private warmLift_: [number, number, number] = [0.07, 0.03, -0.01];
-    private bloomStrength_ = 1.4;
+    private ambientTint_: [number, number, number] = [1.02, 1.0, 0.96];
+    private warmLift_: [number, number, number] = [0.02, 0.01, 0.0];
+    private bloomStrength_ = 0.6;
     private bloomThreshold_ = 0.42;
-    private grainStrength_ = 0.012;
-    private vignetteStrength_ = 0.28;
+    private grainStrength_ = 0.004;
+    private vignetteStrength_ = 0.10;
     private saturation_ = 1.05;
 
     constructor(game: Phaser.Game) {

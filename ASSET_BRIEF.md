@@ -1,4 +1,4 @@
-# Walking Through Country - Painted Asset Brief
+# Indigenous Australia : The Journey - Painted Asset Brief
 
 This document describes the painted PNG assets that can optionally replace
 the procedural Phaser Graphics fallback in the game.

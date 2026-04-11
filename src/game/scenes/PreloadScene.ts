@@ -18,7 +18,7 @@ export class PreloadScene extends Scene {
         const centerX = this.cameras.main.width / 2;
         const centerY = this.cameras.main.height / 2;
 
-        this.add.text(centerX, centerY - 60, 'Walking Through Country', {
+        this.add.text(centerX, centerY - 60, 'Indigenous Australia : The Journey', {
             fontFamily: '"Crimson Text", Georgia, serif',
             fontSize: '36px',
             color: '#e8c170',

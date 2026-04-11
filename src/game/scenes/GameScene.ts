@@ -553,7 +553,7 @@ export class GameScene extends Scene {
             const scale = 0.7 + rng() * 0.75;
             tuft.setOrigin(0.5, 0.9);
             tuft.setScale(scale);
-            tuft.setAlpha(0.8 + rng() * 0.15);
+            tuft.setAlpha(1.0);
             // Foreground tufts share the Y-sort scheme with a slight positive
             // tiebreak so they draw ABOVE the player at the same Y (player
             // walks "through" the grass). Background tufts stay at 1.2 so
@@ -575,7 +575,7 @@ export class GameScene extends Scene {
             const flake = this.add.image(x, y, 'bark-flake');
             flake.setOrigin(0.5, 0.8);
             flake.setRotation(rng() * Math.PI * 2);
-            flake.setAlpha(0.7);
+            flake.setAlpha(0.9);
             flake.setDepth(1.1);
         }
     }
@@ -602,7 +602,7 @@ export class GameScene extends Scene {
         for (let i = 0; i < this.riverShimmers_.length; i++) {
             const g = this.riverShimmers_[i];
             const a = 0.25 + 0.2 * Math.sin(this.riverShimmerPhase_ * 1.7 + i * 0.6);
-            g.setAlpha(Math.max(0.1, Math.min(0.55, a)));
+            g.setAlpha(Math.max(0.3, Math.min(0.75, a)));
         }
     }
 

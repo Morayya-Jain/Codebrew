@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Walking Through Country** — a Phaser 3 + TypeScript educational exploration game about Aboriginal Australian culture across Victoria. Players walk through a 2D landscape, discover 20 real-world cultural landmarks, and read cultural narratives. Each landmark has a procedural icon and an optional hero photograph loaded from `public/assets/landmarks/Victoria/`.
+**Indigenous Australia : The Journey** — a Phaser 3 + TypeScript educational exploration game about Aboriginal Australian culture across Victoria. Players walk through a 2D landscape, discover 20 real-world cultural landmarks, and read cultural narratives. Each landmark has a procedural icon and an optional hero photograph loaded from `public/assets/landmarks/Victoria/`.
 
 ## Quick Reference
 

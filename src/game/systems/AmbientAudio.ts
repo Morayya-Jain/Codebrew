@@ -59,7 +59,7 @@ const MASTER_FADE_SEC = 1.8;
 const FIRE_RANGE = 650;
 const WATER_RANGE = 900;
 
-const MUTE_STORAGE_KEY = 'walking-through-country:muted';
+const MUTE_STORAGE_KEY = 'indigenous-australia:muted';
 
 export class AmbientAudio {
     private ctx_: AudioContext | null = null;

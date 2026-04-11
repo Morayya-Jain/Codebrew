@@ -172,7 +172,7 @@ export class Landmark extends GameObjects.Container {
         if (state === this.lastGlowState) return;
         this.lastGlowState = state;
 
-        const targetAlpha = state === 'near' ? 0.4 : state === 'mid' ? 0.2 : 0;
+        const targetAlpha = state === 'near' ? 0.6 : state === 'mid' ? 0.35 : 0;
 
         this.scene.tweens.add({
             targets: this.glowGraphics,

@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS: SettingsState = {
     volume: 70,
 };
 
-const STORAGE_KEY = 'walking-through-country:settings';
+const STORAGE_KEY = 'indigenous-australia:settings';
 
 export class SettingsMenu {
     private readonly overlay: HTMLElement;
