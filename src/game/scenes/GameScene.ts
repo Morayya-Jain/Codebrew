@@ -2,11 +2,22 @@ import { Scene } from 'phaser';
 import { Player, PLAYER_EVENTS } from '../entities/Player';
 import { Landmark, LANDMARK_EVENTS } from '../entities/Landmark';
 import { CONSTANTS } from '../types';
-import type { LandmarkData, LandmarksFile } from '../types';
+import type {
+    ChaptersFile,
+    ChapterPhase,
+    LandmarkData,
+    LandmarksFile,
+    Waypoint,
+    WeatherKind,
+} from '../types';
 import { PostFxPipeline } from '../fx/PostFxPipeline';
 import { timeOfDay } from '../systems/TimeOfDay';
 import { AmbientAudio } from '../systems/AmbientAudio';
 import { windSystem } from '../systems/WindSystem';
+import { ChapterSystem, CHAPTER_EVENTS } from '../systems/ChapterSystem';
+import { WeatherSystem } from '../systems/WeatherSystem';
+import { applySeasonPreset } from '../systems/SeasonPreset';
+import { IdleKiosk, IDLE_KIOSK_EVENTS } from '../systems/IdleKiosk';
 
 interface AmbientParticle {
     x: number;
@@ -52,9 +63,28 @@ export class GameScene extends Scene {
     private dustEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     private fireflyEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     private leafEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    private chapterSystem_: ChapterSystem | null = null;
+    private chapterStarted_ = false;
+    // The landmark whose StoryCard was most recently opened, so the resume
+    // handler can decide whether to advance the chapter (only when closing a
+    // primary active waypoint's card).
+    private lastOpenedLandmarkId_: string | null = null;
+    private weatherSystem_: WeatherSystem | null = null;
+    private chaptersData_: ChaptersFile | null = null;
+    private idleKiosk_: IdleKiosk | null = null;
 
     constructor() {
         super('GameScene');
+    }
+
+    // Public accessor so UIScene can subscribe to chapter events.
+    getChapterSystem(): ChapterSystem | null {
+        return this.chapterSystem_;
+    }
+
+    // Public accessor so UIScene's SettingsMenu can toggle audio mute.
+    getAmbientAudio(): AmbientAudio | null {
+        return this.audio_;
     }
 
     create(): void {
@@ -101,21 +131,59 @@ export class GameScene extends Scene {
         // Register and attach the post-FX pipeline (WebGL only; graceful skip on Canvas)
         this.attachPostFxPipeline();
 
-        // Load landmarks from JSON
+        // Load landmarks and chapters from JSON. Both files loaded in
+        // PreloadScene; chapters.json drives the multi-chapter picker flow.
         const landmarksData = this.cache.json.get('landmarks') as LandmarksFile | null;
+        this.chaptersData_ = this.cache.json.get('chapters') as ChaptersFile | null;
+
+        // Chapter system is created up-front. It stays empty (no chapter
+        // loaded) until the player picks one from the ChapterPicker. If
+        // chapters.json is missing, the system remains empty and the game
+        // falls back to free-exploration mode (E works on every landmark).
+        this.chapterSystem_ = new ChapterSystem();
+
+        // Spawn ALL landmarks every session. The chapter system drives elder
+        // dialogue for the 2 active waypoints; landmarks outside the chapter
+        // are still visible and readable via E, just without elder guidance.
         if (landmarksData) {
             this.landmarks = landmarksData.landmarks.map(
-                (data: LandmarkData) => new Landmark(this, data)
+                (data: LandmarkData) => new Landmark(this, data, 'primary')
             );
             this.landmarkPositions = landmarksData.landmarks.map(d => ({
                 x: d.position.x, y: d.position.y, id: d.id, iconColor: d.iconColor,
             }));
         }
 
+        // Chapter flow - phase changes drive player.canMove and a couple of
+        // housekeeping hooks. See ChapterSystem for the full state machine.
+        this.wireChapterSystem_();
+
         // Phase 6 particle emitters (smoke, embers, dust, fireflies, wind leaves)
-        // — created AFTER landmarks so the smoke/ember emitters can anchor to
+        // - created AFTER landmarks so the smoke/ember emitters can anchor to
         // the real campfire position from landmarks.json.
         this.createParticleSystems_();
+
+        // Chapter-driven weather (mist, heat-shimmer). Starts in 'clear' state
+        // and only activates once applySeasonPreset_() fires after a chapter
+        // is picked.
+        this.weatherSystem_ = new WeatherSystem(this);
+
+        // Museum idle detection. Fires staged events that UIScene picks up
+        // (soft prompt at 60s) and GameScene handles (reset at 180s).
+        this.idleKiosk_ = new IdleKiosk(this);
+        this.idleKiosk_.on(IDLE_KIOSK_EVENTS.SOFT_PROMPT, () => {
+            this.events.emit('idleSoftPrompt');
+        });
+        this.idleKiosk_.on(IDLE_KIOSK_EVENTS.RESET, () => {
+            this.resetToAttract_();
+        });
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.weatherSystem_?.destroy();
+            this.weatherSystem_ = null;
+            this.idleKiosk_?.destroy();
+            this.idleKiosk_ = null;
+        });
 
         // Interaction key
         if (this.input.keyboard) {
@@ -136,9 +204,11 @@ export class GameScene extends Scene {
 
         // Start audio + time-of-day cycling on the first user input
         // (autoplay policy compliant, plus the opening scene holds golden hour).
+        // Also kick off the chapter flow (title card → welcome → hub → walking).
         const onFirstInput = (): void => {
             this.audio_?.start();
             timeOfDay.start();
+            this.startChapterIfReady_();
         };
         this.input.keyboard?.once('keydown', onFirstInput);
         this.input.once('pointerdown', onFirstInput);
@@ -158,7 +228,7 @@ export class GameScene extends Scene {
         // steady at 1.08 during the framing (a single bilinear resample, not
         // oscillated every frame) so it doesn't create the blur the removed
         // breathing did.
-        this.events.on(LANDMARK_EVENTS.NEAR_ENTER, () => {
+        this.events.on(LANDMARK_EVENTS.NEAR_ENTER, (landmark: Landmark) => {
             this.tweens.killTweensOf(this.cameras.main);
             this.tweens.add({
                 targets: this.cameras.main,
@@ -166,6 +236,9 @@ export class GameScene extends Scene {
                 duration: 900,
                 ease: 'Sine.easeInOut',
             });
+            // Let the chapter system know — if this landmark is the active
+            // waypoint, its elder dialogue queue will fire.
+            this.chapterSystem_?.onWaypointNear(landmark.data_.id);
         });
         this.events.on(LANDMARK_EVENTS.NEAR_LEAVE, () => {
             this.tweens.killTweensOf(this.cameras.main);
@@ -186,11 +259,25 @@ export class GameScene extends Scene {
         // Launch UI scene as overlay
         this.scene.launch('UIScene');
 
-        // Listen for resume event — add cooldown to prevent E key retriggering
+        // Listen for resume event - add cooldown to prevent E key retriggering.
+        // Also: if the player just closed the active primary waypoint's story
+        // card, advance the chapter. Reading a non-primary (or already passed)
+        // waypoint's card is fine, it just won't advance.
         this.events.on('resume', () => {
             this.time.delayedCall(200, () => {
                 this.isPaused = false;
             });
+            const sys = this.chapterSystem_;
+            const opened = this.lastOpenedLandmarkId_;
+            this.lastOpenedLandmarkId_ = null;
+            if (sys?.phase === 'walking' && opened) {
+                const wp = sys.activeWaypoint;
+                if (wp?.role === 'primary'
+                    && wp.landmarkId === opened
+                    && sys.isWaypointArrived(wp.id)) {
+                    sys.advanceWaypoint();
+                }
+            }
         });
 
         // Fade in
@@ -214,6 +301,7 @@ export class GameScene extends Scene {
         this.updateFauna_(delta);
         this.updateRiverShimmer_(delta);
         this.updateParticleFollow_();
+        this.updateWeather_();
         this.updateCameraPolish();
         this.audio_?.update(this.player.x, this.player.y, delta);
 
@@ -236,10 +324,38 @@ export class GameScene extends Scene {
             }
         });
 
-        // Handle interaction
-        if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey) && this.nearestLandmark) {
-            this.openStoryCard(this.nearestLandmark.data_);
+        // Handle interaction. E opens the StoryCard only for a primary
+        // landmark that the chapter has actually arrived at and whose elder
+        // dialogue has finished — so the visitor can't interrupt the Elder
+        // mid-sentence, and can't read the primary story out of order.
+        // (Annotated explicitly: TS control-flow narrows the field to `null`
+        // after the forEach callback assignment above, which would otherwise
+        // make `near.data_` infer as `never`.)
+        const near: Landmark | null = this.nearestLandmark;
+        if (near && this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+            if (this.canInteractWithLandmark_(near)) {
+                this.openStoryCard(near.data_);
+            }
         }
+    }
+
+    private canInteractWithLandmark_(landmark: Landmark): boolean {
+        const sys = this.chapterSystem_;
+        // If there's no chapter loaded, free-exploration mode: any landmark.
+        if (!sys || !sys.chapter) return true;
+        // Don't let the visitor interrupt the Elder mid-sentence.
+        if (sys.elderVoice.isSpeaking) return false;
+        // Is this landmark one of the chapter's waypoints?
+        const chapterWp = sys.chapter.waypoints.find(
+            wp => wp.landmarkId === landmark.data_.id,
+        );
+        if (chapterWp) {
+            // Chapter landmark: only readable after arrival (can't skip ahead).
+            return sys.isWaypointArrived(chapterWp.id);
+        }
+        // Non-chapter landmark: always readable. The elder won't comment, but
+        // the visitor can still explore the world freely.
+        return true;
     }
 
     // Public getters for UIScene / MiniMap
@@ -255,6 +371,7 @@ export class GameScene extends Scene {
     private openStoryCard(data: LandmarkData): void {
         this.isPaused = true;
         this.player.setVelocity(0, 0);
+        this.lastOpenedLandmarkId_ = data.id;
 
         const uiScene = this.scene.get('UIScene');
         uiScene.events.emit('openStoryCard', data);
@@ -287,6 +404,135 @@ export class GameScene extends Scene {
         // also kill listeners registered by other scenes in later phases.
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             timeOfDay.off('change', handlePaletteChange);
+        });
+    }
+
+    // =========================================================================
+    // CHAPTER / NARRATIVE WIRING
+    // =========================================================================
+
+    private wireChapterSystem_(): void {
+        const sys = this.chapterSystem_;
+        if (!sys) return;
+
+        // Gate player movement by chapter phase.
+        sys.on(CHAPTER_EVENTS.PHASE_CHANGED, (phase: ChapterPhase) => {
+            const frozenPhases: ReadonlySet<ChapterPhase> = new Set([
+                'attract', 'welcome', 'close', 'farewell',
+            ]);
+            if (this.player) {
+                this.player.canMove = !frozenPhases.has(phase);
+            }
+            // Race-safe: when walking begins, the player may already be
+            // standing inside the active waypoint's NEAR range (they walked
+            // toward it during the hub monologue, which left them free to
+            // roam). NEAR_ENTER only fires on the transition, so we'd miss
+            // the arrival entirely. Re-poll proximity once here.
+            if (phase === 'walking') {
+                this.recheckActiveWaypointProximity_();
+            }
+        });
+
+        // Waypoint activation - emit an event the UI can listen to for hints.
+        // Also re-poll proximity for the new active waypoint, same reason as
+        // above (the player might already be standing on the next stop).
+        sys.on(CHAPTER_EVENTS.WAYPOINT_ACTIVE, (wp: Waypoint) => {
+            this.events.emit('chapterWaypointActive', wp);
+            this.recheckActiveWaypointProximity_();
+        });
+
+        // When the full chapter completes, let the UI show its final card
+        // (ChapterTitleCard "Chapter Complete") and the FarewellScreen modal.
+        sys.on(CHAPTER_EVENTS.CHAPTER_COMPLETE, () => {
+            this.events.emit('chapterComplete', {
+                chapter: sys.chapter,
+                seasonPreset: sys.seasonPreset,
+            });
+        });
+
+        // Farewell dismiss -> reset to attract mode for next visitor.
+        this.events.on('farewellDismissed', () => {
+            this.resetToAttract_();
+        });
+
+        // Player starts frozen until the first input begins the chapter.
+        // (canMove default is true; this explicit set keeps welcome aligned
+        // with the first-input -> beginWelcome transition below.)
+        if (this.player) {
+            this.player.canMove = false;
+        }
+    }
+
+    private recheckActiveWaypointProximity_(): void {
+        const sys = this.chapterSystem_;
+        if (!sys || sys.phase !== 'walking') return;
+        const wp = sys.activeWaypoint;
+        if (!wp || sys.isWaypointArrived(wp.id)) return;
+        const landmark = this.landmarks.find(l => l.data_.id === wp.landmarkId);
+        if (!landmark || !this.player) return;
+        landmark.updateProximity(this.player.x, this.player.y);
+        if (landmark.isNear) {
+            sys.onWaypointNear(landmark.data_.id);
+        }
+    }
+
+    private startChapterIfReady_(): void {
+        if (this.chapterStarted_) return;
+        this.chapterStarted_ = true;
+        const sys = this.chapterSystem_;
+        const data = this.chaptersData_;
+
+        if (!sys || !data || data.chapters.length === 0) {
+            // Free exploration fallback - no chapters to drive the flow.
+            if (this.player) this.player.canMove = true;
+            return;
+        }
+
+        if (data.chapters.length === 1) {
+            // Single chapter - skip picker, auto-load.
+            sys.load(data, data.chapters[0].id);
+            this.applySeasonPreset_();
+            this.emitChapterStart_();
+            return;
+        }
+
+        // Multi-chapter - show picker and wait for selection.
+        if (this.player) this.player.canMove = false;
+        this.events.emit('showChapterPicker', data);
+        this.events.once('chapterSelected', (chapterId: string) => {
+            sys.load(data, chapterId);
+            this.applySeasonPreset_();
+            this.emitChapterStart_();
+        });
+    }
+
+    private applySeasonPreset_(): void {
+        const preset = this.chapterSystem_?.seasonPreset;
+        if (!preset) return;
+        applySeasonPreset(preset, this.audio_);
+        const weather = (preset.weather ?? 'clear') as WeatherKind;
+        this.weatherSystem_?.setWeather(weather);
+    }
+
+    private emitChapterStart_(): void {
+        const chapter = this.chapterSystem_?.chapter;
+        if (!chapter) return;
+        this.events.emit('chapterIntroRequested', chapter);
+        this.time.delayedCall(900, () => this.chapterSystem_?.beginWelcome());
+    }
+
+    /**
+     * Kiosk reset path. Used by IdleKiosk (180s idle) and FarewellScreen
+     * dismiss callback. Fades the camera, stops UIScene and GameScene, then
+     * restarts TitleScene for a clean session for the next visitor.
+     */
+    private resetToAttract_(): void {
+        this.idleKiosk_?.setEnabled(false);
+        this.chapterSystem_?.elderVoice.stop();
+        this.cameras.main.fadeOut(600, 0, 0, 0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.stop('UIScene');
+            this.scene.start('TitleScene');
         });
     }
 
@@ -459,6 +705,14 @@ export class GameScene extends Scene {
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             windSystem.off('gust', gustHandler);
         });
+    }
+
+    private updateWeather_(): void {
+        if (!this.weatherSystem_) return;
+        const cam = this.cameras.main;
+        const cx = cam.scrollX + cam.width / 2;
+        const cy = cam.scrollY + cam.height / 2;
+        this.weatherSystem_.update(cx, cy);
     }
 
     private updateParticleFollow_(): void {

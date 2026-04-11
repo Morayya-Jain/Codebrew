@@ -10,6 +10,13 @@ export class Player extends Physics.Arcade.Sprite {
     private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
     private shiftKey!: Phaser.Input.Keyboard.Key;
     private stepAccum_ = 0;
+    /**
+     * Gate for cinematic moments (chapter welcome, title cards, elder monologues,
+     * close phase). When false, velocity is zeroed and idle animation plays, but
+     * the depth / flip / input-listening wiring remains identical so we don't
+     * regress the existing feel when the flag is true.
+     */
+    canMove = true;
 
     constructor(scene: Scene, x: number, y: number) {
         super(scene, x, y, 'player-frame-0');
@@ -42,6 +49,17 @@ export class Player extends Physics.Arcade.Sprite {
         const speed = isSprinting ? CONSTANTS.SPRINT_SPEED : CONSTANTS.PLAYER_SPEED;
         let vx = 0;
         let vy = 0;
+
+        // Cinematic freeze: input ignored, velocity zeroed, idle animation.
+        if (!this.canMove) {
+            this.setVelocity(0, 0);
+            this.setDepth(2 + this.y * 0.001 + 0.01);
+            if (this.anims.currentAnim?.key !== 'player-idle') {
+                this.play('player-idle', true);
+            }
+            this.stepAccum_ = 0;
+            return;
+        }
 
         const left = this.cursors?.left.isDown || this.wasd?.A.isDown;
         const right = this.cursors?.right.isDown || this.wasd?.D.isDown;

@@ -28,7 +28,27 @@ interface LayerHandle {
     readonly gain: GainNode;
     readonly targetBase: number;
     readonly sources: readonly AudioScheduledSourceNode[];
+    /**
+     * Optional post-gain that sits between the layer's main gain and the
+     * master. Only used for the wind and cicada beds, so SeasonPreset can
+     * multiply them cleanly without touching the base LFO/AM path.
+     */
+    readonly presetGain?: GainNode;
 }
+
+/**
+ * Season-specific ambient bed multipliers, applied to each layer's
+ * `presetGain` node. Keys are the bed IDs from chapters.json -> SeasonPreset.
+ */
+const AMBIENT_BED_PRESETS: Record<string, { wind: number; cicada: number }> = {
+    'default':          { wind: 1.0, cicada: 1.0 },
+    'dusk-cicadas':     { wind: 1.0, cicada: 1.0 },
+    'dawn-birdsong':    { wind: 0.8, cicada: 0.2 },
+    'morning-quiet':    { wind: 0.9, cicada: 0.4 },
+    'evening-crickets': { wind: 0.7, cicada: 0.6 },
+    'midday-cicadas':   { wind: 1.0, cicada: 1.8 },
+    'night-fire':       { wind: 0.4, cicada: 0.1 },
+};
 
 const WIND_BED_GAIN = 0.22;
 const CICADA_BED_GAIN = 0.02;
@@ -57,6 +77,12 @@ export class AmbientAudio {
 
     private points_: PointSource[] = [];
 
+    /**
+     * Remembered between `setPreset()` and `start()` so a preset applied
+     * before the layers have built still lands once they do.
+     */
+    private pendingBedPreset_: { wind: number; cicada: number } | null = null;
+
     constructor(scene: Scene) {
         const manager = scene.sound as Phaser.Sound.WebAudioSoundManager;
         const ctx = manager?.context;
@@ -84,6 +110,12 @@ export class AmbientAudio {
         this.waterLayer_ = this.buildWaterBed_();
 
         this.scheduleNextBird_(2000 + Math.random() * 3000);
+
+        // If a season preset was set before start(), apply it now that the
+        // layers are built.
+        if (this.pendingBedPreset_) {
+            this.applyBedPreset_(this.pendingBedPreset_);
+        }
 
         this.fadeMasterTo_(this.muted_ ? 0 : 0.7, MASTER_FADE_SEC);
     }
@@ -129,6 +161,41 @@ export class AmbientAudio {
 
     addPointSource(x: number, y: number, kind: 'fire' | 'water'): void {
         this.points_.push({ x, y, kind });
+    }
+
+    /**
+     * Apply a season's ambient bed. Looks up multipliers for the named bed
+     * and smoothly ramps the wind + cicada post-gains. Safe to call before
+     * `start()` — the multipliers are remembered and applied when the layers
+     * actually build.
+     */
+    setPreset(bedId: string): void {
+        const preset = AMBIENT_BED_PRESETS[bedId] ?? AMBIENT_BED_PRESETS['default'];
+        this.pendingBedPreset_ = preset;
+        if (this.started_ && this.ctx_) {
+            this.applyBedPreset_(preset);
+        }
+    }
+
+    clearPreset(): void {
+        const neutral = AMBIENT_BED_PRESETS['default'];
+        this.pendingBedPreset_ = neutral;
+        if (this.started_ && this.ctx_) {
+            this.applyBedPreset_(neutral);
+        }
+    }
+
+    private applyBedPreset_(preset: { wind: number; cicada: number }): void {
+        if (!this.ctx_) return;
+        const now = this.ctx_.currentTime;
+        const windPost = this.windLayer_?.presetGain;
+        const cicadaPost = this.cicadaLayer_?.presetGain;
+        if (windPost) {
+            windPost.gain.setTargetAtTime(preset.wind, now, 0.4);
+        }
+        if (cicadaPost) {
+            cicadaPost.gain.setTargetAtTime(preset.cicada, now, 0.4);
+        }
     }
 
     /**
@@ -213,13 +280,17 @@ export class AmbientAudio {
         lfo.connect(lfoGain);
         lfoGain.connect(gain.gain);
 
+        const presetGain = ctx.createGain();
+        presetGain.gain.value = 1.0;
+
         src.connect(lp);
         lp.connect(gain);
-        gain.connect(this.master_);
+        gain.connect(presetGain);
+        presetGain.connect(this.master_);
         src.start();
         lfo.start();
 
-        return { gain, targetBase: WIND_BED_GAIN, sources: [src, lfo] };
+        return { gain, presetGain, targetBase: WIND_BED_GAIN, sources: [src, lfo] };
     }
 
     private buildCicada_(): LayerHandle | null {
@@ -247,13 +318,17 @@ export class AmbientAudio {
         amOsc.connect(amGain);
         amGain.connect(gain.gain);
 
+        const presetGain = ctx.createGain();
+        presetGain.gain.value = 1.0;
+
         osc.connect(bp);
         bp.connect(gain);
-        gain.connect(this.master_);
+        gain.connect(presetGain);
+        presetGain.connect(this.master_);
         osc.start();
         amOsc.start();
 
-        return { gain, targetBase: CICADA_BED_GAIN, sources: [osc, amOsc] };
+        return { gain, presetGain, targetBase: CICADA_BED_GAIN, sources: [osc, amOsc] };
     }
 
     private buildFireCrackle_(): LayerHandle | null {

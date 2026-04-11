@@ -1,0 +1,149 @@
+#chapter-picker-overlay {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at top, rgba(232, 193, 112, 0.06), transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(180, 90, 40, 0.06), transparent 60%),
+        linear-gradient(145deg, #1a120b, #0a0604);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    padding: 4vh 4vw;
+}
+
+#chapter-picker-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.chapter-picker {
+    max-width: 1180px;
+    width: 100%;
+    text-align: center;
+}
+
+.cp__title {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 700;
+    color: #e8c170;
+    margin: 0 0 8px 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+}
+
+.cp__sub {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: clamp(16px, 1.6vw, 22px);
+    color: #a0886a;
+    font-style: italic;
+    margin: 0 0 40px 0;
+}
+
+.cp__hint {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 14px;
+    color: #6a5a4a;
+    margin: 32px 0 0 0;
+    font-style: italic;
+}
+
+.cp__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+@media (max-width: 820px) {
+    .cp__grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+    }
+}
+
+.cp__card {
+    font-family: 'Crimson Text', Georgia, serif;
+    background:
+        radial-gradient(ellipse at top left, rgba(232, 193, 112, 0.05), transparent 60%),
+        linear-gradient(145deg, #2a1f16, #14100c);
+    border: 1px solid rgba(232, 193, 112, 0.32);
+    border-radius: 12px;
+    padding: 24px 20px 22px;
+    cursor: pointer;
+    text-align: left;
+    color: #d4c5b2;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    position: relative;
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    outline: none;
+}
+
+.cp__card::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(232, 193, 112, 0.12);
+    border-radius: 8px;
+    pointer-events: none;
+    transition: border-color 0.25s ease;
+}
+
+.cp__card:hover,
+.cp__card:focus,
+.cp__card.focused {
+    transform: translateY(-2px);
+    border-color: rgba(232, 193, 112, 0.72);
+    box-shadow:
+        0 0 0 1px rgba(40, 22, 10, 0.6),
+        0 0 40px rgba(232, 150, 60, 0.18),
+        0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+.cp__card.focused::before {
+    border-color: rgba(232, 193, 112, 0.42);
+}
+
+.cp__season {
+    font-size: 14px;
+    color: #a0886a;
+    font-style: italic;
+    letter-spacing: 0.4px;
+}
+
+.cp__chapter-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #e8c170;
+    line-height: 1.15;
+    margin: 2px 0 4px 0;
+}
+
+.cp__time {
+    font-size: 13px;
+    color: #8a7a6a;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.cp__time::before {
+    content: '.  ';
+    color: #6a5a4a;
+}
+
+/* Accessibility: respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    #chapter-picker-overlay,
+    .cp__card {
+        transition: none;
+    }
+}

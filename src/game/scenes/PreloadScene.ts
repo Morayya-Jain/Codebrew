@@ -32,6 +32,10 @@ export class PreloadScene extends Scene {
     preload(): void {
         this.load.setPath('assets');
         this.load.json('landmarks', 'landmarks.json');
+        // Chapter data — drives the elder-led narrative flow. Failure to load
+        // is not fatal: GameScene falls back to the old "all landmarks as
+        // primaries" mode, which keeps exploration working without chapters.
+        this.load.json('chapters', 'chapters.json');
 
         // Try to load painted landmark hero scenes if the user has dropped them
         // into public/assets/landmarks/. Missing files just silently fall back
@@ -51,6 +55,12 @@ export class PreloadScene extends Scene {
         this.load.on('loaderror', (file: Phaser.Loader.File) => {
             // Expected: missing hero images. Warn but do not fail.
             if (file.key?.startsWith('landmark-hero-')) {
+                return;
+            }
+            // Chapters file is optional in Phase 1 — tolerate absence.
+            if (file.key === 'chapters') {
+                // eslint-disable-next-line no-console
+                console.warn('[PreloadScene] chapters.json not found — running in free-exploration fallback');
                 return;
             }
             // eslint-disable-next-line no-console

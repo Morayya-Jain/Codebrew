@@ -1,0 +1,284 @@
+/* Museum polish layers: FarewellScreen, SettingsMenu, soft idle prompt. */
+
+/* ============================================================ */
+/* Farewell screen                                              */
+/* ============================================================ */
+
+#farewell-overlay {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at top, rgba(232, 193, 112, 0.07), transparent 60%),
+        linear-gradient(145deg, #1a120b, #06040a);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.9s ease;
+    padding: 4vh 6vw;
+}
+
+#farewell-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.farewell {
+    max-width: 720px;
+    width: 100%;
+    text-align: center;
+    color: #d4c5b2;
+    font-family: 'Crimson Text', Georgia, serif;
+}
+
+.fw__title {
+    font-size: clamp(28px, 4.2vw, 44px);
+    font-weight: 700;
+    color: #e8c170;
+    margin: 0 0 14px 0;
+    letter-spacing: 0.3px;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+}
+
+.fw__chapter {
+    font-size: clamp(15px, 1.6vw, 19px);
+    color: #a0886a;
+    font-style: italic;
+    margin: 0 0 28px 0;
+}
+
+.fw__divider {
+    width: 80px;
+    height: 1px;
+    background: rgba(232, 193, 112, 0.45);
+    margin: 0 auto 24px auto;
+}
+
+.fw__cite-heading {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a7a6a;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin: 0 0 10px 0;
+}
+
+.fw__citations {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #b0a090;
+}
+
+.fw__citations li {
+    margin: 0 0 6px 0;
+}
+
+.fw__citations a {
+    color: #d4b080;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(212, 176, 128, 0.35);
+}
+
+.fw__citations a:hover {
+    color: #e8c170;
+}
+
+.fw__attribution {
+    font-size: 12px;
+    color: #6a5a4a;
+    font-style: italic;
+    max-width: 520px;
+    line-height: 1.6;
+    margin: 0 auto 24px auto;
+}
+
+.fw__hint {
+    font-size: 13px;
+    color: #8a7a6a;
+    font-style: italic;
+    margin: 20px 0 0 0;
+    opacity: 0.85;
+    animation: fw-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes fw-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.95; }
+}
+
+/* ============================================================ */
+/* Settings menu                                                */
+/* ============================================================ */
+
+#settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 6, 3, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#settings-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.settings {
+    background:
+        radial-gradient(ellipse at top left, rgba(232, 193, 112, 0.05), transparent 60%),
+        linear-gradient(145deg, #2a1f16, #14100c);
+    border: 1px solid rgba(232, 193, 112, 0.42);
+    border-radius: 14px;
+    padding: 28px 32px 24px;
+    width: 92%;
+    max-width: 440px;
+    color: #d4c5b2;
+    font-family: 'Crimson Text', Georgia, serif;
+    position: relative;
+    box-shadow:
+        0 0 0 1px rgba(40, 22, 10, 0.6),
+        0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+.settings__close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #a0886a;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.2s, background 0.2s;
+}
+
+.settings__close:hover {
+    color: #e8c170;
+    background: rgba(232, 193, 112, 0.1);
+}
+
+.settings__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #e8c170;
+    margin: 0 0 18px 0;
+}
+
+.settings__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(232, 193, 112, 0.12);
+    font-size: 16px;
+}
+
+.settings__row:last-of-type {
+    border-bottom: none;
+}
+
+.settings__row label {
+    color: #d4c5b2;
+}
+
+.settings__row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #e8c170;
+    cursor: pointer;
+}
+
+.settings__row select,
+.settings__row input[type="range"] {
+    background: rgba(20, 14, 8, 0.6);
+    border: 1px solid rgba(232, 193, 112, 0.3);
+    color: #d4c5b2;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.settings__row input[type="range"] {
+    padding: 0;
+    width: 140px;
+    accent-color: #e8c170;
+}
+
+.settings__hint {
+    font-size: 12px;
+    color: #6a5a4a;
+    font-style: italic;
+    margin: 16px 0 0 0;
+    text-align: center;
+}
+
+/* ============================================================ */
+/* Soft idle prompt                                             */
+/* ============================================================ */
+
+#soft-prompt-overlay {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+
+#soft-prompt-overlay.visible {
+    opacity: 1;
+}
+
+.soft-prompt {
+    background: linear-gradient(145deg, rgba(42, 31, 22, 0.92), rgba(20, 14, 8, 0.92));
+    border: 1px solid rgba(232, 193, 112, 0.45);
+    border-radius: 999px;
+    padding: 12px 26px;
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 15px;
+    color: #e8c170;
+    font-style: italic;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* Reduced motion - disable all polish animations, keep opacity transitions. */
+@media (prefers-reduced-motion: reduce) {
+    .fw__hint {
+        animation: none;
+        opacity: 0.8;
+    }
+    #farewell-overlay,
+    #settings-overlay,
+    #soft-prompt-overlay {
+        transition-duration: 0.15s;
+    }
+}
+
+/* Body size classes set by SettingsMenu. */
+body.text-small { font-size: 14px; }
+body.text-medium { font-size: 16px; }
+body.text-large { font-size: 19px; }
+
+body.text-large .fw__title { font-size: 52px; }
+body.text-large .fw__chapter { font-size: 22px; }
+body.text-large .fw__citations { font-size: 16px; }
+body.text-small .fw__title { font-size: 32px; }
+body.text-small .fw__chapter { font-size: 15px; }
