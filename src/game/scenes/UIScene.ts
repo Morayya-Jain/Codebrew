@@ -103,7 +103,7 @@ export class UIScene extends Scene {
 
         // HUD hint text (bottom center)
         this.hintText = this.add.text(width / 2, height - 28,
-            'WASD / Arrow Keys to move  ·  Shift to sprint  ·  [ E ] to read',
+            'WASD / Arrow Keys to move  ·  Shift to sprint  ·  [ E ] read  ·  [ Tab ] map',
             {
                 fontFamily: '"Crimson Text", Georgia, serif',
                 fontSize: '14px',
@@ -125,12 +125,39 @@ export class UIScene extends Scene {
         this.settingsMenu_ = new SettingsMenu();
         this.softPromptEl_ = document.getElementById('soft-prompt-overlay');
 
-        this.input.keyboard?.on('keydown-ESC', () => {
+        // Settings menu toggles on P (moved off ESC so ESC can navigate home).
+        this.input.keyboard?.on('keydown-P', () => {
             if (this.settingsMenu_?.isVisible()) {
                 this.settingsMenu_.hide();
             } else {
                 this.settingsMenu_?.show();
             }
+        });
+
+        // Tab toggles the minimap between compact and expanded layouts.
+        // M is already owned by GameScene for audio mute, so we use Tab.
+        // preventDefault is called only on the toggle path so DOM modals
+        // (SettingsMenu form controls) keep native Tab focus navigation.
+        this.input.keyboard?.on('keydown-TAB', (e: KeyboardEvent) => {
+            if (this.settingsMenu_?.isVisible()) return;
+            if (this.isAnyModalOpen_()) return;
+            e.preventDefault?.();
+            this.miniMap?.toggle();
+        });
+
+        // ESC returns to the region picker when no modal is open. DOM modals
+        // (StoryCard, DialogCard, TeaserCard, CompletionCard, SettingsMenu)
+        // each own their own window-level ESC handler, so we no-op here if
+        // any of them are visible. If the minimap is expanded, collapse it
+        // first — Esc is the natural "back out" gesture.
+        this.input.keyboard?.on('keydown-ESC', () => {
+            if (this.isAnyModalOpen_()) return;
+            if (this.miniMap?.isExpanded) {
+                this.miniMap.collapse();
+                return;
+            }
+            const gs = this.scene.get('GameScene');
+            gs?.events.emit('escHome');
         });
 
         // Apply settings changes to the runtime (volume -> audio mute toggle).
@@ -247,6 +274,14 @@ export class UIScene extends Scene {
         const gameScene = this.scene.get('GameScene');
         gameScene.scene.resume();
         gameScene.events.emit('resume');
+    }
+
+    private isAnyModalOpen_(): boolean {
+        return !!document.querySelector(
+            '#story-card-overlay.visible, #dialog-card-overlay.visible, '
+            + '#teaser-card-overlay.visible, #completion-card-overlay.visible, '
+            + '#settings-overlay.visible',
+        );
     }
 
     private showClueBanner_(payload: ClueUpdatePayload): void {

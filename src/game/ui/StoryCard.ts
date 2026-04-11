@@ -32,6 +32,7 @@ export class StoryCard {
     }
 
     show(data: LandmarkData, onClose: () => void): void {
+        this.tts.stop();
         this.onCloseCallback = onClose;
 
         this.titleEl.textContent = data.name;

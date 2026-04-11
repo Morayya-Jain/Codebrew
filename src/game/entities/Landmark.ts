@@ -21,7 +21,6 @@ export class Landmark extends GameObjects.Container {
     readonly role: LandmarkChapterRole;
     private icon: GameObjects.Sprite;
     private heroBg_: GameObjects.Image | null = null;
-    private heroFg_: GameObjects.Image | null = null;
     private glowGraphics: GameObjects.Graphics;
     private label: FloatingLabel;
     private _isNear = false;
@@ -82,7 +81,6 @@ export class Landmark extends GameObjects.Container {
             lineGfx.lineTo(photoX - photoW / 2 - 6, photoY);
             lineGfx.strokePath();
             this.add(lineGfx);
-            this.heroFg_ = lineGfx as unknown as GameObjects.Image;
         }
 
         // Floating label above the icon, pushed higher when photo is present
@@ -195,7 +193,6 @@ export class Landmark extends GameObjects.Container {
         this.glowGraphics.destroy();
         this.label.destroy();
         if (this.heroBg_) this.heroBg_.destroy();
-        if (this.heroFg_) this.heroFg_.destroy();
         super.destroy(fromScene);
     }
 }

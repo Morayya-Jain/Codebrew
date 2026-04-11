@@ -1,3 +1,11 @@
+// Module-level reference to the TTSManager that currently owns the browser's
+// speechSynthesis queue. Web Speech is a single global resource, and before
+// this guard multiple instances (StoryCard / ChapterPicker / ElderVoice) could
+// each think they were speaking at the same time, leading to overlapping
+// voices and stuck UI state. Any speak() from a new instance silences the
+// previous one and becomes the new owner.
+let activeManager: TTSManager | null = null;
+
 export class TTSManager {
     private synth: SpeechSynthesis | null;
     private voice: SpeechSynthesisVoice | null = null;
@@ -21,7 +29,11 @@ export class TTSManager {
     speak(text: string, onEnd?: () => void): void {
         if (!this.synth) return;
 
+        if (activeManager && activeManager !== this) {
+            activeManager.stop();
+        }
         this.stop();
+        activeManager = this;
 
         const utterance = new SpeechSynthesisUtterance(text);
         if (this.voice) {
@@ -32,11 +44,13 @@ export class TTSManager {
 
         utterance.onend = () => {
             this._speaking = false;
+            if (activeManager === this) activeManager = null;
             onEnd?.();
         };
 
         utterance.onerror = () => {
             this._speaking = false;
+            if (activeManager === this) activeManager = null;
         };
 
         this._speaking = true;
@@ -47,6 +61,7 @@ export class TTSManager {
         if (!this.synth) return;
         this.synth.cancel();
         this._speaking = false;
+        if (activeManager === this) activeManager = null;
     }
 
     private initVoice(): void {

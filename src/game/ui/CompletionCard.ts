@@ -47,7 +47,7 @@ export class CompletionCard {
         this.onExit = onExit;
 
         this.titleEl.textContent = 'You have walked the whole path';
-        this.subtitleEl.textContent = `Ten landmarks in ${REGION_LABELS[payload.region]}, followed in order.`;
+        this.subtitleEl.textContent = `${payload.visited.length} landmarks in ${REGION_LABELS[payload.region]}, followed in order.`;
 
         // Build the visited list. Immutable: clear and re-append fresh nodes.
         while (this.listEl.firstChild) {

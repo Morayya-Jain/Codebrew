@@ -2,14 +2,25 @@ import { Scene } from 'phaser';
 import { CONSTANTS } from '../types';
 import type { GameScene } from '../scenes/GameScene';
 
+/**
+ * Bottom-right minimap that can expand to a large centered overlay.
+ *
+ * All visuals (terrain RenderTexture, fog RenderTexture, dot overlays,
+ * gold-accent border) are children of a single Container positioned in
+ * screen space. The container is tweened between its compact and expanded
+ * layouts, which preserves the fog-reveal state (baked into the RenderTexture)
+ * across toggles — no redraw cost.
+ */
 export class MiniMap {
     private scene: Scene;
-    private x: number;
-    private y: number;
+    private compactX: number;
+    private compactY: number;
     private mapWidth: number;
     private mapHeight: number;
     private gameScene: GameScene;
 
+    private rootContainer!: Phaser.GameObjects.Container;
+    private scrim!: Phaser.GameObjects.Graphics;
     private terrainTexture!: Phaser.GameObjects.RenderTexture;
     private fogTexture!: Phaser.GameObjects.RenderTexture;
     private playerDot!: Phaser.GameObjects.Graphics;
@@ -20,17 +31,26 @@ export class MiniMap {
     private lastRevealX = -999;
     private lastRevealY = -999;
 
+    private expanded_ = false;
+    private isTweening_ = false;
+
     constructor(scene: Scene, x: number, y: number, width: number, height: number, gameScene: GameScene) {
         this.scene = scene;
-        this.x = x;
-        this.y = y;
+        this.compactX = x;
+        this.compactY = y;
         this.mapWidth = width;
         this.mapHeight = height;
         this.gameScene = gameScene;
 
+        this.createScrim();
+        this.createRoot();
         this.createTerrain();
         this.createFog();
         this.createOverlayElements();
+    }
+
+    get isExpanded(): boolean {
+        return this.expanded_;
     }
 
     private worldToMap(worldX: number, worldY: number): { mx: number; my: number } {
@@ -40,22 +60,36 @@ export class MiniMap {
         };
     }
 
+    private createScrim(): void {
+        const cam = this.scene.cameras.main;
+        this.scrim = this.scene.add.graphics()
+            .setScrollFactor(0)
+            .setDepth(49);
+        this.scrim.fillStyle(0x000000, 1);
+        this.scrim.fillRect(0, 0, cam.width, cam.height);
+        this.scrim.setAlpha(0);
+        this.scrim.disableInteractive();
+    }
+
+    private createRoot(): void {
+        this.rootContainer = this.scene.add.container(this.compactX, this.compactY)
+            .setScrollFactor(0)
+            .setDepth(50);
+    }
+
     private createTerrain(): void {
-        this.terrainTexture = this.scene.add.renderTexture(
-            this.x, this.y, this.mapWidth, this.mapHeight
-        ).setOrigin(0).setScrollFactor(0).setDepth(50);
+        this.terrainTexture = this.scene.add.renderTexture(0, 0, this.mapWidth, this.mapHeight)
+            .setOrigin(0)
+            .setScrollFactor(0);
 
         const gfx = this.scene.add.graphics();
 
-        // Background
         gfx.fillStyle(0x0a0604, 0.75);
         gfx.fillRect(0, 0, this.mapWidth, this.mapHeight);
 
-        // Base terrain
         gfx.fillStyle(0x2a2218, 1);
         gfx.fillRect(2, 2, this.mapWidth - 4, this.mapHeight - 4);
 
-        // Ground variation
         gfx.fillStyle(0x343020, 0.5);
         const rng = this.createSimpleRng(88);
         for (let i = 0; i < 30; i++) {
@@ -64,7 +98,6 @@ export class MiniMap {
             gfx.fillEllipse(px, py, 15 + rng() * 20, 10 + rng() * 14);
         }
 
-        // Green patches (grass areas)
         gfx.fillStyle(0x2a3a1a, 0.4);
         for (let i = 0; i < 20; i++) {
             const px = rng() * this.mapWidth;
@@ -72,7 +105,6 @@ export class MiniMap {
             gfx.fillEllipse(px, py, 10 + rng() * 18, 8 + rng() * 12);
         }
 
-        // River (simplified as a blue line)
         const riverPoints = [
             { x: 0, y: 2400 }, { x: 800, y: 2560 }, { x: 1600, y: 2680 },
             { x: 2500, y: 2700 }, { x: 3400, y: 2600 }, { x: 4300, y: 2480 },
@@ -90,7 +122,6 @@ export class MiniMap {
         }
         gfx.strokePath();
 
-        // Paths (simplified as faint brown lines)
         const center = this.worldToMap(4000, 3200);
         const pathTargets = [
             { x: 1400, y: 1800 }, { x: 6600, y: 1400 }, { x: 6400, y: 5000 },
@@ -109,70 +140,62 @@ export class MiniMap {
 
         this.terrainTexture.draw(gfx, 0, 0);
         gfx.destroy();
+
+        this.rootContainer.add(this.terrainTexture);
     }
 
     private createFog(): void {
-        this.fogTexture = this.scene.add.renderTexture(
-            this.x, this.y, this.mapWidth, this.mapHeight
-        ).setOrigin(0).setScrollFactor(0).setDepth(51);
-
-        // Fill with black (fully fogged)
+        this.fogTexture = this.scene.add.renderTexture(0, 0, this.mapWidth, this.mapHeight)
+            .setOrigin(0)
+            .setScrollFactor(0);
         this.fogTexture.fill(0x000000, 1);
+        this.rootContainer.add(this.fogTexture);
     }
 
     private createOverlayElements(): void {
-        // Undiscovered landmark dots (below fog — hidden by fog until area revealed)
-        this.undiscoveredDots = this.scene.add.graphics()
-            .setScrollFactor(0).setDepth(50.5);
-
-        // Discovered landmark dots (above fog — always visible)
-        this.landmarkDots = this.scene.add.graphics()
-            .setScrollFactor(0).setDepth(52);
-
-        // Player dot
-        this.playerDot = this.scene.add.graphics()
-            .setScrollFactor(0).setDepth(53);
-
-        // Border
-        this.border = this.scene.add.graphics()
-            .setScrollFactor(0).setDepth(54);
+        this.undiscoveredDots = this.scene.add.graphics().setScrollFactor(0);
+        this.landmarkDots = this.scene.add.graphics().setScrollFactor(0);
+        this.playerDot = this.scene.add.graphics().setScrollFactor(0);
+        this.border = this.scene.add.graphics().setScrollFactor(0);
 
         this.border.lineStyle(1, 0xe8c170, 0.3);
-        this.border.strokeRect(this.x, this.y, this.mapWidth, this.mapHeight);
+        this.border.strokeRect(0, 0, this.mapWidth, this.mapHeight);
 
-        // Corner accents
         const cornerSize = 6;
         this.border.lineStyle(1, 0xe8c170, 0.5);
-        // Top-left
         this.border.beginPath();
-        this.border.moveTo(this.x, this.y + cornerSize);
-        this.border.lineTo(this.x, this.y);
-        this.border.lineTo(this.x + cornerSize, this.y);
+        this.border.moveTo(0, cornerSize);
+        this.border.lineTo(0, 0);
+        this.border.lineTo(cornerSize, 0);
         this.border.strokePath();
-        // Top-right
         this.border.beginPath();
-        this.border.moveTo(this.x + this.mapWidth - cornerSize, this.y);
-        this.border.lineTo(this.x + this.mapWidth, this.y);
-        this.border.lineTo(this.x + this.mapWidth, this.y + cornerSize);
+        this.border.moveTo(this.mapWidth - cornerSize, 0);
+        this.border.lineTo(this.mapWidth, 0);
+        this.border.lineTo(this.mapWidth, cornerSize);
         this.border.strokePath();
-        // Bottom-left
         this.border.beginPath();
-        this.border.moveTo(this.x, this.y + this.mapHeight - cornerSize);
-        this.border.lineTo(this.x, this.y + this.mapHeight);
-        this.border.lineTo(this.x + cornerSize, this.y + this.mapHeight);
+        this.border.moveTo(0, this.mapHeight - cornerSize);
+        this.border.lineTo(0, this.mapHeight);
+        this.border.lineTo(cornerSize, this.mapHeight);
         this.border.strokePath();
-        // Bottom-right
         this.border.beginPath();
-        this.border.moveTo(this.x + this.mapWidth - cornerSize, this.y + this.mapHeight);
-        this.border.lineTo(this.x + this.mapWidth, this.y + this.mapHeight);
-        this.border.lineTo(this.x + this.mapWidth, this.y + this.mapHeight - cornerSize);
+        this.border.moveTo(this.mapWidth - cornerSize, this.mapHeight);
+        this.border.lineTo(this.mapWidth, this.mapHeight);
+        this.border.lineTo(this.mapWidth, this.mapHeight - cornerSize);
         this.border.strokePath();
+
+        // Child order defines draw order inside the container: fog sits above
+        // terrain (added first), undiscovered dots peek through as fog clears,
+        // discovered dots and the player dot sit above fog, border on top.
+        this.rootContainer.add(this.undiscoveredDots);
+        this.rootContainer.add(this.landmarkDots);
+        this.rootContainer.add(this.playerDot);
+        this.rootContainer.add(this.border);
     }
 
     update(playerWorldX: number, playerWorldY: number, discoveredIds: Set<string>): void {
         const { mx, my } = this.worldToMap(playerWorldX, playerWorldY);
 
-        // Reveal fog around player position (debounce: only when moved >2px on minimap)
         const dx = mx - this.lastRevealX;
         const dy = my - this.lastRevealY;
         if (dx * dx + dy * dy > 4) {
@@ -181,15 +204,12 @@ export class MiniMap {
             this.lastRevealY = my;
         }
 
-        // Update player dot
         this.playerDot.clear();
         this.playerDot.fillStyle(0xffffff, 0.9);
-        this.playerDot.fillCircle(this.x + mx, this.y + my, 3);
-        // Outer ring
+        this.playerDot.fillCircle(mx, my, 3);
         this.playerDot.lineStyle(1, 0xffffff, 0.4);
-        this.playerDot.strokeCircle(this.x + mx, this.y + my, 5);
+        this.playerDot.strokeCircle(mx, my, 5);
 
-        // Update landmark dots
         this.landmarkDots.clear();
         this.undiscoveredDots.clear();
         const landmarks = this.gameScene.getLandmarkPositions();
@@ -198,17 +218,86 @@ export class MiniMap {
             const isDiscovered = discoveredIds.has(lm.id);
 
             if (isDiscovered) {
-                // Bright colored dot (above fog — always visible)
                 const color = parseInt(lm.iconColor.replace('#', ''), 16);
                 this.landmarkDots.fillStyle(color, 0.9);
-                this.landmarkDots.fillCircle(this.x + lmPos.mx, this.y + lmPos.my, 4);
+                this.landmarkDots.fillCircle(lmPos.mx, lmPos.my, 4);
                 this.landmarkDots.lineStyle(1, 0xffffff, 0.5);
-                this.landmarkDots.strokeCircle(this.x + lmPos.mx, this.y + lmPos.my, 4);
+                this.landmarkDots.strokeCircle(lmPos.mx, lmPos.my, 4);
             } else {
-                // Dim dot below fog — only visible where fog has been cleared
                 this.undiscoveredDots.fillStyle(0x6a5a4a, 0.4);
-                this.undiscoveredDots.fillCircle(this.x + lmPos.mx, this.y + lmPos.my, 3);
+                this.undiscoveredDots.fillCircle(lmPos.mx, lmPos.my, 3);
             }
+        });
+    }
+
+    toggle(): void {
+        if (this.expanded_) {
+            this.collapse();
+        } else {
+            this.expand();
+        }
+    }
+
+    expand(): void {
+        if (this.expanded_ || this.isTweening_) return;
+        const cam = this.scene.cameras.main;
+
+        // Aspect-correct target size: fit in ~70% width, ~75% height.
+        const aspect = this.mapWidth / this.mapHeight;
+        let targetW = Math.min(cam.width * 0.7, cam.height * 0.75 * aspect);
+        let targetH = targetW / aspect;
+        if (targetH > cam.height * 0.8) {
+            targetH = cam.height * 0.8;
+            targetW = targetH * aspect;
+        }
+
+        const targetScale = targetW / this.mapWidth;
+        const targetX = (cam.width - targetW) / 2;
+        const targetY = (cam.height - targetH) / 2;
+
+        this.isTweening_ = true;
+        this.expanded_ = true;
+        this.scene.tweens.add({
+            targets: this.scrim,
+            alpha: 0.65,
+            duration: 250,
+            ease: 'Quad.easeOut',
+        });
+        this.scene.tweens.add({
+            targets: this.rootContainer,
+            x: targetX,
+            y: targetY,
+            scaleX: targetScale,
+            scaleY: targetScale,
+            duration: 280,
+            ease: 'Cubic.easeOut',
+            onComplete: () => {
+                this.isTweening_ = false;
+            },
+        });
+    }
+
+    collapse(): void {
+        if (!this.expanded_ || this.isTweening_) return;
+        this.isTweening_ = true;
+        this.expanded_ = false;
+        this.scene.tweens.add({
+            targets: this.scrim,
+            alpha: 0,
+            duration: 220,
+            ease: 'Quad.easeIn',
+        });
+        this.scene.tweens.add({
+            targets: this.rootContainer,
+            x: this.compactX,
+            y: this.compactY,
+            scaleX: 1,
+            scaleY: 1,
+            duration: 260,
+            ease: 'Cubic.easeIn',
+            onComplete: () => {
+                this.isTweening_ = false;
+            },
         });
     }
 
