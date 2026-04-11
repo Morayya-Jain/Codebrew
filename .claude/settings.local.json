@@ -45,7 +45,18 @@
       "Bash(BASE=http://localhost:8080 node verify-phase-a.js)",
       "Bash(BASE=http://localhost:8080 node verify-phase-b.js)",
       "Bash(BASE=http://localhost:8080 node verify-phase-c.js)",
-      "Bash(BASE=http://localhost:8080 node verify-full.js)"
+      "Bash(BASE=http://localhost:8080 node verify-full.js)",
+      "Bash(mkdir -p /Users/morayyajain/Developer/Codebrew/public/assets/landmarks/NSW)",
+      "Bash(cp \"Baiame Cave.png\" \"Berry Island Reserve - Gadyan Track.png\" \"Blue mountains national park.png\" \"Bournda National Park.png\" \"Brewarrina Fish Traps.png\" \"bulgandry engraving site.png\" \"Georges river.png\" \"Grotto Point Lighthouse.png\" \"Gulaga National Park.png\" \"Ku ring gai.png\" \"La Perouse Aboriginal Site.png\" \"Maiyingu Marragu.png\" \"Manna Mountain.png\" \"Mount grenfell historic site.png\" \"Mount Yengo.png\" \"Mungo National Park.png\" \"Mutawintji National Park.png\" \"Piliga national park.png\" \"Red Hands Cave.png\" \"Ti tree lake.png\" /Users/morayyajain/Developer/Codebrew/public/assets/landmarks/NSW/)",
+      "Bash(node -e \"const d = require\\('/Users/morayyajain/Developer/Codebrew/public/assets/landmarks.json'\\); const vic = d.landmarks.filter\\(l => l.region === 'victoria'\\); const nsw = d.landmarks.filter\\(l => l.region === 'nsw'\\); console.log\\('total:', d.landmarks.length, 'VIC:', vic.length, 'NSW:', nsw.length\\); const missingClue = d.landmarks.filter\\(l => !l.clueText\\); const missingTeaser = d.landmarks.filter\\(l => !l.teaserLine\\); const missingHero = d.landmarks.filter\\(l => !l.heroImageFile\\); console.log\\('missing clueText:', missingClue.length, 'missing teaserLine:', missingTeaser.length, 'missing heroImageFile:', missingHero.length\\); console.log\\('IDs dup:', d.landmarks.length - new Set\\(d.landmarks.map\\(l=>l.id\\)\\).size\\);\")",
+      "Bash(node -e \"let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\); console.log\\('total:',j.landmarks.length,'vic:',j.landmarks.filter\\(l=>l.region==='victoria'\\).length,'nsw:',j.landmarks.filter\\(l=>l.region==='nsw'\\).length\\);}\\);\")",
+      "Bash(node -e \"const d = require\\('/Users/morayyajain/Developer/Codebrew/src/game/data/landmarks.json'\\); console.log\\(JSON.stringify\\(d.landmarks.filter\\(l=>l.region==='nsw'\\).map\\(l=>\\({id:l.id,pos:l.position,icon:l.iconColor,illustration:l.illustrationColor,hero:l.heroImageFile}\\)\\), null, 2\\)\\);\")",
+      "Bash(node -e ':*)",
+      "Bash(node:*)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(grep -n \"addEventListener\\\\|removeEventListener\" /Users/morayyajain/Developer/Codebrew/src/game/ui/*.ts)",
+      "Bash(cat)",
+      "Read(//tmp/**)"
     ]
   },
   "disabledMcpjsonServers": [

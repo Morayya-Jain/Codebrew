@@ -331,6 +331,7 @@ export class GameScene extends Scene {
         // (back to the title acknowledgement) after a completed hunt.
         this.events.on('huntRestart', () => this.resetToRegionPicker_());
         this.events.on('huntExit', () => this.resetToAttract_());
+        this.events.on('escHome', () => this.resetToRegionPicker_());
 
         // Fade in
         this.cameras.main.fadeIn(800, 10, 6, 3);

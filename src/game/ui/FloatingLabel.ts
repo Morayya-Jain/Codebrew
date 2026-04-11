@@ -22,13 +22,15 @@ export class FloatingLabel extends GameObjects.Container {
         this.bg = scene.add.graphics();
         this.add(this.bg);
 
+        const textResolution = Math.max(2, window.devicePixelRatio || 1);
+
         this.nameText = scene.add.text(0, 0, name, {
             fontFamily: '"Crimson Text", Georgia, serif',
             fontSize: '18px',
             color: '#f5e6d3',
             align: 'center',
             fontStyle: 'bold',
-        }).setOrigin(0.5, 0.5);
+        }).setResolution(textResolution).setOrigin(0.5, 0.5);
         this.add(this.nameText);
 
         this.descText = scene.add.text(0, 24, shortDescription, {
@@ -37,7 +39,7 @@ export class FloatingLabel extends GameObjects.Container {
             color: '#d4c5b2',
             align: 'center',
             wordWrap: { width: 220 },
-        }).setOrigin(0.5, 0);
+        }).setResolution(textResolution).setOrigin(0.5, 0);
         this.descText.setAlpha(0);
         this.add(this.descText);
 
@@ -47,7 +49,7 @@ export class FloatingLabel extends GameObjects.Container {
             color: '#e8c170',
             align: 'center',
             fontStyle: 'bold',
-        }).setOrigin(0.5, 0);
+        }).setResolution(textResolution).setOrigin(0.5, 0);
         this.promptText.setAlpha(0);
         this.add(this.promptText);
 
@@ -124,15 +126,6 @@ export class FloatingLabel extends GameObjects.Container {
             scale: 1,
             duration: 300,
             ease: 'Quad.easeOut',
-        });
-
-        this.addTween({
-            targets: this,
-            scale: 1.04,
-            duration: 800,
-            ease: 'Sine.easeInOut',
-            yoyo: true,
-            repeat: -1,
         });
 
         this.drawBackground(160, 40);

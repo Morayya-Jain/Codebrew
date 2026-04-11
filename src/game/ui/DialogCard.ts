@@ -13,6 +13,7 @@ export class DialogCard {
     private textEl: HTMLElement;
     private portraitInitialEl: HTMLElement;
     private nextButton: HTMLButtonElement;
+    private skipButton: HTMLButtonElement;
     private closeButton: HTMLButtonElement;
 
     private onCloseCallback: (() => void) | null = null;
@@ -29,10 +30,12 @@ export class DialogCard {
         this.textEl = this.overlay.querySelector('.dialog-card__text')!;
         this.portraitInitialEl = this.overlay.querySelector('.dialog-card__portrait-initial')!;
         this.nextButton = this.overlay.querySelector('.dialog-card__next-btn') as HTMLButtonElement;
+        this.skipButton = this.overlay.querySelector('.dialog-card__skip-btn') as HTMLButtonElement;
         this.closeButton = this.overlay.querySelector('.dialog-card__close-btn') as HTMLButtonElement;
 
         this.closeButton.addEventListener('click', () => this.hide());
         this.nextButton.addEventListener('click', () => this.advance_());
+        this.skipButton.addEventListener('click', () => this.hide());
     }
 
     show(data: NpcData, onClose: () => void): void {

@@ -146,15 +146,12 @@ export class TitleScene extends Scene {
         }));
         this.particleGraphics = this.add.graphics();
 
-        // Reverent pacing: 5s input lock so the Acknowledgement of Country
-        // has time to fade in fully and be read before the visitor can
-        // advance. Museum context favours a slower welcome over quick entry.
-        this.time.delayedCall(5000, () => {
-            this.input.once('pointerdown', () => this.startGame());
-            if (this.input.keyboard) {
-                this.input.keyboard.once('keydown', () => this.startGame());
-            }
-        });
+        // Any input starts the game immediately. Players who want to sit with
+        // the Acknowledgement can simply wait; those who are ready to walk
+        // shouldn't be forced to.
+        const begin = (): void => this.startGame();
+        this.input.once('pointerdown', begin);
+        this.input.keyboard?.once('keydown', begin);
     }
 
     update(): void {

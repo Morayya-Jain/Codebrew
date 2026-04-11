@@ -137,3 +137,22 @@
 .dialog-card__next-btn:active {
     transform: translateY(0);
 }
+
+.dialog-card__skip-btn {
+    background: transparent;
+    color: #a0886a;
+    border: 1px solid rgba(160, 136, 106, 0.4);
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.dialog-card__skip-btn:hover {
+    color: #e8c170;
+    border-color: rgba(232, 193, 112, 0.5);
+    background: rgba(232, 193, 112, 0.06);
+}
