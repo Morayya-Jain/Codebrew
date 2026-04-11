@@ -10,7 +10,7 @@ export class UIScene extends Scene {
     private progressText!: Phaser.GameObjects.Text;
     private hintText!: Phaser.GameObjects.Text;
     private discoveredIds: Set<string> = new Set();
-    private totalLandmarks = 10;
+    private totalLandmarks = 20;
     private progressDotsGfx!: Phaser.GameObjects.Graphics;
 
     constructor() {

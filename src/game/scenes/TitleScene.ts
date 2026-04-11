@@ -75,7 +75,7 @@ export class TitleScene extends Scene {
         subtitle.setAlpha(0);
 
         // Region text
-        const region = this.add.text(centerX, height / 2 + 55, 'Kulin Nation  \u2022  Victoria', {
+        const region = this.add.text(centerX, height / 2 + 55, 'Victoria  \u2022  Aboriginal Australia', {
             fontFamily: '"Crimson Text", Georgia, serif',
             fontSize: '16px',
             color: '#8a7a6a',

@@ -33,19 +33,32 @@ export class PreloadScene extends Scene {
         this.load.setPath('assets');
         this.load.json('landmarks', 'landmarks.json');
 
-        // Try to load painted landmark hero scenes if the user has dropped them
-        // into public/assets/landmarks/. Missing files just silently fall back
-        // to the procedural icons baked in BootScene — the loader continues
-        // past individual file errors rather than failing the whole scene.
-        const landmarkIds = [
-            'campfire', 'waterhole', 'rock_art', 'corroboree_ground',
-            'bush_tucker', 'songline', 'ancestor_tree', 'grinding_stones',
-            'emu_dreaming', 'possum_cloak',
+        // Load hero photographs for each landmark from public/assets/landmarks/Victoria/.
+        // Missing files silently fall back to the procedural icons baked in BootScene.
+        const heroImages: Array<{ id: string; file: string }> = [
+            { id: 'budj-bim', file: 'budj_bim.jpg' },
+            { id: 'mount-eccles', file: 'mount_eccels.jpg' },
+            { id: 'tyrendarra', file: 'tyrendarra.jpg' },
+            { id: 'lake-condah', file: 'lake_condah_mission.jpg' },
+            { id: 'kurtonitj', file: 'kurtonitj.jpg' },
+            { id: 'brambuk', file: 'brambuk_nationalpark.jpeg' },
+            { id: 'bunjil-shelter', file: 'bunjil_shelter.jpg' },
+            { id: 'gulgurn-manja', file: 'gulgurn_manja.jpg' },
+            { id: 'ngamadjidj', file: 'ngamadjidj.jpg' },
+            { id: 'billimina', file: 'billimina_shelter.jpg' },
+            { id: 'mudadgadjiin', file: 'mudadgadjiin_shelter.jpg' },
+            { id: 'djab-wurrung', file: 'djab_wurrung.jpg' },
+            { id: 'mount-william', file: 'mount_william.jpg' },
+            { id: 'wurdi-youang', file: 'wurdi_youang.jpg' },
+            { id: 'kow-swamp', file: 'kow_swamp.jpg' },
+            { id: 'scarred-trees', file: 'scarred_trees.png' },
+            { id: 'buchan-caves', file: 'buchan_caves.jpeg' },
+            { id: 'gippsland-lakes', file: 'gippsland_lakes.jpg' },
+            { id: 'tarra-bulga', file: 'tarra_bulga.jpg' },
+            { id: 'point-nepean', file: 'point_nepean.jpg' },
         ];
-        for (const id of landmarkIds) {
-            this.load.image(`landmark-hero-${id}`, `landmarks/${id}.png`);
-            this.load.image(`landmark-hero-${id}-bg`, `landmarks/${id}_bg.png`);
-            this.load.image(`landmark-hero-${id}-fg`, `landmarks/${id}_fg.png`);
+        for (const { id, file } of heroImages) {
+            this.load.image(`landmark-hero-${id}`, `landmarks/Victoria/${file}`);
         }
 
         this.load.on('loaderror', (file: Phaser.Loader.File) => {

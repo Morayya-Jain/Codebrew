@@ -87,7 +87,7 @@ export class GameScene extends Scene {
         this.particleGraphics.setDepth(8);
         this.initAmbientParticles(WORLD_WIDTH, WORLD_HEIGHT);
 
-        // Create player near center campfire
+        // Create player near center of world
         this.player = new Player(this, 4000, 3400);
 
         // Register collider AFTER player exists
@@ -114,7 +114,7 @@ export class GameScene extends Scene {
 
         // Phase 6 particle emitters (smoke, embers, dust, fireflies, wind leaves)
         // — created AFTER landmarks so the smoke/ember emitters can anchor to
-        // the real campfire position from landmarks.json.
+        // the real Brambuk position from landmarks.json.
         this.createParticleSystems_();
 
         // Interaction key
@@ -126,7 +126,7 @@ export class GameScene extends Scene {
         this.audio_ = new AmbientAudio(this);
         // Register a point source per landmark so nearby ones drive biome bed.
         for (const p of this.landmarkPositions) {
-            if (p.id === 'campfire') this.audio_.addPointSource(p.x, p.y, 'fire');
+            if (p.id === 'brambuk') this.audio_.addPointSource(p.x, p.y, 'fire');
         }
         // River positional source — sample a handful of midpoints from the meander.
         const riverSamples: Array<readonly [number, number]> = [
@@ -301,9 +301,9 @@ export class GameScene extends Scene {
             const y = rng() * height;
 
             // Avoid placing on paths/river/landmarks by staying clear of the
-            // central campfire clearing radius.
-            const cdx = x - 4000;
-            const cdy = y - 3200;
+            // central Brambuk clearing radius.
+            const cdx = x - 2200;
+            const cdy = y - 3800;
             if (cdx * cdx + cdy * cdy < 180 * 180) continue;
 
             const tuft = this.add.image(x, y, 'grass-tuft');
@@ -364,10 +364,10 @@ export class GameScene extends Scene {
     }
 
     private createParticleSystems_(): void {
-        // Campfire smoke + ember emitters, anchored to the campfire landmark.
-        const campfire = this.landmarkPositions.find(l => l.id === 'campfire');
-        const fireX = campfire?.x ?? 4000;
-        const fireY = campfire?.y ?? 3200;
+        // Smoke + ember emitters, anchored to the Brambuk cultural centre.
+        const fireLandmark = this.landmarkPositions.find(l => l.id === 'brambuk');
+        const fireX = fireLandmark?.x ?? 2200;
+        const fireY = fireLandmark?.y ?? 3800;
 
         this.smokeEmitter_ = this.add.particles(fireX, fireY - 10, 'particle-soft', {
             frequency: 130,
@@ -650,21 +650,21 @@ export class GameScene extends Scene {
             { x: 800, y: 2560 },
             { x: 1200, y: 2620 },
             { x: 1600, y: 2680 },
-            // CROSSING 1: near waterhole path area (~1900)
+            // CROSSING 1: near Mutawintji path area (~1900)
             { x: 2100, y: 2720 },
             { x: 2500, y: 2700 },
             { x: 2900, y: 2660 },
-            // CROSSING 2: west of campfire (~3200)
+            // CROSSING 2: west of Brambuk (~3200)
             { x: 3400, y: 2600 },
             { x: 3800, y: 2540 },
-            // CROSSING 3: near campfire (~4100)
+            // CROSSING 3: near Pilliga (~4100)
             { x: 4300, y: 2480 },
             { x: 4700, y: 2440 },
             { x: 5100, y: 2400 },
             // CROSSING 4: east of center (~5300)
             { x: 5500, y: 2350 },
             { x: 5900, y: 2280 },
-            // CROSSING 5: near grinding stones (~6200)
+            // CROSSING 5: near Blue Mountains (~6200)
             { x: 6400, y: 2200 },
             { x: 6800, y: 2140 },
             // CROSSING 6: far east (~7100)
@@ -774,44 +774,51 @@ export class GameScene extends Scene {
         const gfx = this.add.graphics();
         gfx.setDepth(1);
 
-        // Center campfire position
-        const center = { x: 4000, y: 3200 };
+        // Brambuk cultural centre as the hub
+        const center = { x: 2200, y: 3800 };
 
-        // Paths from center to each landmark
-        const pathTargets = [
-            { x: 1400, y: 1800 },   // Waterhole (NW)
-            { x: 6600, y: 1400 },   // Rock Art (NE)
-            { x: 6400, y: 5000 },   // Corroboree (SE)
-            { x: 1600, y: 4800 },   // Bush Tucker (SW)
-            { x: 4000, y: 800 },    // Songline (N)
-            { x: 2800, y: 600 },    // Ancestor Tree (NW-N)
-            { x: 5600, y: 2800 },   // Grinding Stones (E)
-            { x: 3200, y: 5600 },   // Emu Dreaming (S)
-            { x: 6800, y: 3800 },   // Possum Cloak (Far E)
+        // Paths from Brambuk hub to nearby Grampians & western landmarks
+        const hubTargets = [
+            { x: 2600, y: 3400 },   // Bunjil's Shelter
+            { x: 2000, y: 3000 },   // Ngamadjidj
+            { x: 1000, y: 4800 },   // Budj Bim
+            { x: 3800, y: 3800 },   // Djab Wurrung
         ];
-
-        pathTargets.forEach(target => {
+        hubTargets.forEach(target => {
             this.drawDotPath(gfx, center.x, center.y, target.x, target.y);
         });
 
-        // Connecting paths between nearby landmarks
-        this.drawDotPath(gfx, 1400, 1800, 2800, 600);     // Waterhole -> Ancestor Tree
-        this.drawDotPath(gfx, 2800, 600, 4000, 800);       // Ancestor Tree -> Songline
-        this.drawDotPath(gfx, 4000, 800, 6600, 1400);      // Songline -> Rock Art
-        this.drawDotPath(gfx, 6600, 1400, 5600, 2800);     // Rock Art -> Grinding Stones
-        this.drawDotPath(gfx, 5600, 2800, 6800, 3800);     // Grinding Stones -> Possum Cloak
-        this.drawDotPath(gfx, 6800, 3800, 6400, 5000);     // Possum Cloak -> Corroboree
-        this.drawDotPath(gfx, 1600, 4800, 3200, 5600);     // Bush Tucker -> Emu Dreaming
-        this.drawDotPath(gfx, 3200, 5600, 6400, 5000);     // Emu Dreaming -> Corroboree
-        this.drawDotPath(gfx, 1400, 1800, 1600, 4800);     // Waterhole -> Bush Tucker
+        // Gunditjmara country connections (SW cluster)
+        this.drawDotPath(gfx, 1000, 4800, 1400, 4200);     // Budj Bim -> Mount Eccles
+        this.drawDotPath(gfx, 1000, 4800, 800, 5400);      // Budj Bim -> Tyrendarra
+        this.drawDotPath(gfx, 1000, 4800, 1600, 5800);     // Budj Bim -> Lake Condah
+        this.drawDotPath(gfx, 1600, 5800, 1200, 6000);     // Lake Condah -> Kurtonitj
 
-        // Central clearing around campfire
+        // Grampians art shelters (NW cluster)
+        this.drawDotPath(gfx, 2600, 3400, 3400, 2800);     // Bunjil's Shelter -> Gulgurn Manja
+        this.drawDotPath(gfx, 2000, 3000, 2800, 2400);     // Ngamadjidj -> Billimina
+        this.drawDotPath(gfx, 3400, 2800, 2800, 2400);     // Gulgurn Manja -> Billimina
+
+        // Central corridor
+        this.drawDotPath(gfx, 3800, 3800, 4200, 2000);     // Djab Wurrung -> Mount William
+        this.drawDotPath(gfx, 4200, 2000, 3400, 1200);     // Mount William -> Kow Swamp
+        this.drawDotPath(gfx, 3400, 1200, 4600, 800);      // Kow Swamp -> Scarred Trees
+        this.drawDotPath(gfx, 3800, 3800, 4400, 4800);     // Djab Wurrung -> Wurdi Youang
+        this.drawDotPath(gfx, 4200, 2000, 5200, 2400);     // Mount William -> Mudadgadjiin
+
+        // Gippsland connections (east)
+        this.drawDotPath(gfx, 5200, 2400, 5800, 3600);     // Mudadgadjiin -> Tarra-Bulga
+        this.drawDotPath(gfx, 5800, 3600, 6800, 3200);     // Tarra-Bulga -> Buchan Caves
+        this.drawDotPath(gfx, 5800, 3600, 6200, 4200);     // Tarra-Bulga -> Gippsland Lakes
+        this.drawDotPath(gfx, 4400, 4800, 5400, 5400);     // Wurdi Youang -> Point Nepean
+
+        // Central clearing around Brambuk cultural centre
         gfx.fillStyle(0x4a3a28, 0.3);
         gfx.fillCircle(center.x, center.y, 100);
         gfx.fillStyle(0x5a4a38, 0.2);
         gfx.fillCircle(center.x, center.y, 65);
 
-        // Dot-art ring around center
+        // Dot-art ring around centre
         gfx.fillStyle(0xe8c170, 0.12);
         for (let a = 0; a < 32; a++) {
             const angle = (a / 32) * Math.PI * 2;
@@ -937,10 +944,13 @@ export class GameScene extends Scene {
 
         // Landmark positions to avoid (with clearance radius)
         const landmarkZones = [
-            { x: 4000, y: 3200 }, { x: 1400, y: 1800 }, { x: 6600, y: 1400 },
-            { x: 6400, y: 5000 }, { x: 1600, y: 4800 }, { x: 4000, y: 800 },
-            { x: 2800, y: 600 }, { x: 5600, y: 2800 }, { x: 3200, y: 5600 },
-            { x: 6800, y: 3800 },
+            { x: 1000, y: 4800 }, { x: 1400, y: 4200 }, { x: 800, y: 5400 },
+            { x: 1600, y: 5800 }, { x: 1200, y: 6000 }, { x: 2200, y: 3800 },
+            { x: 2600, y: 3400 }, { x: 3400, y: 2800 }, { x: 2000, y: 3000 },
+            { x: 2800, y: 2400 }, { x: 5200, y: 2400 }, { x: 3800, y: 3800 },
+            { x: 4200, y: 2000 }, { x: 4400, y: 4800 }, { x: 3400, y: 1200 },
+            { x: 4600, y: 800 }, { x: 6800, y: 3200 }, { x: 6200, y: 4200 },
+            { x: 5800, y: 3600 }, { x: 5400, y: 5400 },
         ];
 
         const treeVariants = ['tree-redgum', 'tree-yellowbox', 'tree-mannagum', 'tree-snag'] as const;
@@ -997,10 +1007,13 @@ export class GameScene extends Scene {
         const rng = this.createSeededRandom(881);
 
         const landmarkZones = [
-            { x: 4000, y: 3200 }, { x: 1400, y: 1800 }, { x: 6600, y: 1400 },
-            { x: 6400, y: 5000 }, { x: 1600, y: 4800 }, { x: 4000, y: 800 },
-            { x: 2800, y: 600 }, { x: 5600, y: 2800 }, { x: 3200, y: 5600 },
-            { x: 6800, y: 3800 },
+            { x: 1000, y: 4800 }, { x: 1400, y: 4200 }, { x: 800, y: 5400 },
+            { x: 1600, y: 5800 }, { x: 1200, y: 6000 }, { x: 2200, y: 3800 },
+            { x: 2600, y: 3400 }, { x: 3400, y: 2800 }, { x: 2000, y: 3000 },
+            { x: 2800, y: 2400 }, { x: 5200, y: 2400 }, { x: 3800, y: 3800 },
+            { x: 4200, y: 2000 }, { x: 4400, y: 4800 }, { x: 3400, y: 1200 },
+            { x: 4600, y: 800 }, { x: 6800, y: 3200 }, { x: 6200, y: 4200 },
+            { x: 5800, y: 3600 }, { x: 5400, y: 5400 },
         ];
 
         const spec: Array<{ key: string; count: number; fleeSpeed: number }> = [
@@ -1104,10 +1117,13 @@ export class GameScene extends Scene {
         const rng = this.createSeededRandom(456);
 
         const landmarkZones = [
-            { x: 4000, y: 3200 }, { x: 1400, y: 1800 }, { x: 6600, y: 1400 },
-            { x: 6400, y: 5000 }, { x: 1600, y: 4800 }, { x: 4000, y: 800 },
-            { x: 2800, y: 600 }, { x: 5600, y: 2800 }, { x: 3200, y: 5600 },
-            { x: 6800, y: 3800 },
+            { x: 1000, y: 4800 }, { x: 1400, y: 4200 }, { x: 800, y: 5400 },
+            { x: 1600, y: 5800 }, { x: 1200, y: 6000 }, { x: 2200, y: 3800 },
+            { x: 2600, y: 3400 }, { x: 3400, y: 2800 }, { x: 2000, y: 3000 },
+            { x: 2800, y: 2400 }, { x: 5200, y: 2400 }, { x: 3800, y: 3800 },
+            { x: 4200, y: 2000 }, { x: 4400, y: 4800 }, { x: 3400, y: 1200 },
+            { x: 4600, y: 800 }, { x: 6800, y: 3200 }, { x: 6200, y: 4200 },
+            { x: 5800, y: 3600 }, { x: 5400, y: 5400 },
         ];
 
         const clearance = 140;

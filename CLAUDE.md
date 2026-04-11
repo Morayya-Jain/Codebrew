@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Walking Through Country** — a Phaser 3 + TypeScript educational exploration game about Aboriginal Australian culture on the Kulin Nation lands. Players walk through a 2D landscape, discover 6 landmarks, and read cultural narratives.
+**Walking Through Country** — a Phaser 3 + TypeScript educational exploration game about Aboriginal Australian culture across Victoria. Players walk through a 2D landscape, discover 20 real-world cultural landmarks, and read cultural narratives. Each landmark has a procedural icon and an optional hero photograph loaded from `public/assets/landmarks/Victoria/`.
 
 ## Quick Reference
 
@@ -23,7 +23,7 @@ BootScene → PreloadScene → TitleScene → GameScene + UIScene (overlay)
 - **BootScene** (`src/game/scenes/BootScene.ts`) — procedurally generates ALL visual assets (player sprites, landmark icons) using Phaser Graphics. No external image files are loaded.
 - **PreloadScene** (`src/game/scenes/PreloadScene.ts`) — loads `landmarks.json`, creates sprite animations, shows loading bar.
 - **TitleScene** (`src/game/scenes/TitleScene.ts`) — animated title with cultural acknowledgement. 2-second input delay to prevent accidental skip.
-- **GameScene** (`src/game/scenes/GameScene.ts`) — **main scene**. Creates the world (sky, hills, trees, path, rocks, grass), spawns Player + 6 Landmarks, handles E-key interaction to open story cards. Camera follows player.
+- **GameScene** (`src/game/scenes/GameScene.ts`) — **main scene**. Creates the world (sky, hills, trees, path, rocks, grass), spawns Player + 20 Landmarks, handles E-key interaction to open story cards. Camera follows player.
 - **UIScene** (`src/game/scenes/UIScene.ts`) — runs in parallel with GameScene as an overlay. Manages progress dots (top-right), hint text, and pause/resume when story cards are open.
 
 ### Key Entities
@@ -47,7 +47,7 @@ All in `src/game/types.ts`:
 
 ### Data
 
-- `src/game/data/landmarks.json` — authoritative source for all 6 landmarks (id, name, descriptions, story text, position, colors)
+- `src/game/data/landmarks.json` — authoritative source for all 20 landmarks (id, name, descriptions, story text, position, colors)
 - `public/assets/landmarks.json` — copy served statically (loaded at runtime by PreloadScene)
 - **Keep both files in sync** when editing landmark data
 
@@ -57,7 +57,7 @@ All in `src/game/types.ts`:
 1. Add entry to `src/game/data/landmarks.json` (and `public/assets/landmarks.json`)
 2. BootScene auto-generates icon textures for all landmarks in the JSON — no code changes needed there
 3. GameScene reads from the loaded JSON and spawns landmarks dynamically
-4. Update UIScene progress count if the total changes (currently hardcoded to 6 in a few places)
+4. Update UIScene progress count if the total changes (currently hardcoded to 20)
 
 ### Modifying proximity behavior
 - Thresholds are in `CONSTANTS` (`src/game/types.ts`)
@@ -74,12 +74,12 @@ All in `src/game/types.ts`:
 
 ## Gotchas
 
-- **No external image assets** — everything is procedurally generated in BootScene. Don't look for sprite sheets or image files.
+- **Hero images are optional** — procedural icons are generated in BootScene as fallbacks. Photographs in `public/assets/landmarks/Victoria/` are loaded by PreloadScene and used when available.
 - **Two copies of landmarks.json** — `src/game/data/` and `public/assets/`. The runtime loads from `public/assets/`. Both must stay in sync.
 - **StoryCard is DOM-based**, not Phaser — it creates HTML elements directly. Styling is in a separate CSS file, not in the Phaser render pipeline.
 - **UIScene runs as a parallel overlay** on top of GameScene, not as a sequential scene. It uses Phaser's `scene.launch()` pattern.
 - **TitleScene has a 2-second input lock** — intentional UX choice to prevent skipping the cultural acknowledgement.
-- **Progress tracking is hardcoded to 6** in UIScene — if you add landmarks, search for the number 6 in UIScene and update accordingly.
+- **Progress tracking is hardcoded to 20** in UIScene — if you add landmarks, search for `totalLandmarks` in UIScene and update accordingly.
 
 ## Tech Stack
 
