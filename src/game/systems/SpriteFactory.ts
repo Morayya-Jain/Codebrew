@@ -4,17 +4,17 @@ import { Scene } from 'phaser';
  * Drop-in upgrade helper for painted PNG assets.
  *
  * The game's visual assets are all generated procedurally by BootScene as a
- * fallback. When a painter delivers PNG replacements (trees, rocks, fauna,
- * player, ground tiles, parallax backgrounds), they are loaded optionally
- * by PreloadScene. If the PNG exists, it lands in the scene's texture
- * cache under the SAME key the procedural version uses. SpriteFactory lets
- * caller code ask "do we have a painted version for this key?" and pick
- * the right source without if/else noise.
+ * fallback. When a painter delivers PNG replacements, PreloadScene loads
+ * them under a parallel `painted-*` key namespace (e.g. `painted-tree-redgum`).
+ * This file asks "is a painted version available for this procedural key?"
+ * and returns the correct key to use.
  *
- * The `width > 1` check is important: Phaser creates a tiny fallback
- * texture when an image fails to load (size 1x1). Without this check,
- * SpriteFactory would mistakenly return the broken 1x1 as if it were a
- * real painted asset.
+ * Using distinct painted-* keys (rather than overwriting the procedural key)
+ * keeps the fallback path airtight: if a PNG load fails, the procedural
+ * texture is untouched and usable, no texture manager race conditions.
+ *
+ * The `width > 1` check guards against Phaser's phantom 1x1 placeholder
+ * texture that can appear when a load fails part-way.
  */
 export class SpriteFactory {
     private readonly scene: Scene;
@@ -24,23 +24,28 @@ export class SpriteFactory {
     }
 
     /**
-     * Returns `key` if a real PNG was loaded under that key, otherwise
-     * `fallbackKey` (or `key` again if no fallback was given).
+     * Given a procedural key (e.g. 'tree-redgum'), return the painted key
+     * if one was loaded, otherwise the procedural key. Callers never need
+     * to know whether the texture is painted or not.
      *
-     * Usage:
      *   this.add.image(x, y, factory.textureFor('tree-redgum'))
      */
-    textureFor(key: string, fallbackKey?: string): string {
-        if (this.hasPainted(key)) return key;
-        return fallbackKey ?? key;
+    textureFor(proceduralKey: string): string {
+        const paintedKey = `painted-${proceduralKey}`;
+        if (this.isValid_(paintedKey)) return paintedKey;
+        return proceduralKey;
     }
 
     /**
-     * True if a real PNG exists in the texture cache under this key.
-     * False if the key is missing OR if the texture is the phantom 1x1
-     * placeholder Phaser creates when a load fails.
+     * True if a real painted PNG is available for this procedural key.
+     * Used by post-FX tuning to soften grain/bloom when painted assets
+     * land in the scene.
      */
-    hasPainted(key: string): boolean {
+    hasPainted(proceduralKey: string): boolean {
+        return this.isValid_(`painted-${proceduralKey}`);
+    }
+
+    private isValid_(key: string): boolean {
         if (!this.scene.textures.exists(key)) return false;
         const tex = this.scene.textures.get(key);
         const source = tex.source?.[0];

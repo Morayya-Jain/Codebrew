@@ -137,7 +137,7 @@ export class Landmark extends GameObjects.Container {
             this.scene.events.emit(LANDMARK_EVENTS.NEAR_LEAVE, this);
         }
 
-        this.label.setState(state);
+        this.label.setProximityState(state);
         this.updateGlow(state, dist);
     }
 

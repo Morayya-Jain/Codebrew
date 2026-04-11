@@ -3,7 +3,6 @@ import type { LandmarkData } from '../types';
 
 export class StoryCard {
     private overlay: HTMLElement;
-    private card: HTMLElement;
     private titleEl: HTMLElement;
     private illustrationEl: HTMLElement;
     private storyTextEl: HTMLElement;
@@ -16,7 +15,6 @@ export class StoryCard {
     constructor() {
         this.tts = new TTSManager();
         this.overlay = document.getElementById('story-card-overlay')!;
-        this.card = this.overlay.querySelector('.story-card')!;
         this.titleEl = this.overlay.querySelector('.story-card__title')!;
         this.illustrationEl = this.overlay.querySelector('.story-card__illustration')!;
         this.storyTextEl = this.overlay.querySelector('.story-card__text')!;

@@ -18,6 +18,8 @@ import { ChapterSystem, CHAPTER_EVENTS } from '../systems/ChapterSystem';
 import { WeatherSystem } from '../systems/WeatherSystem';
 import { applySeasonPreset } from '../systems/SeasonPreset';
 import { IdleKiosk, IDLE_KIOSK_EVENTS } from '../systems/IdleKiosk';
+import { SpriteFactory } from '../systems/SpriteFactory';
+import { ParallaxSystem } from '../systems/ParallaxSystem';
 
 interface AmbientParticle {
     x: number;
@@ -44,7 +46,6 @@ export class GameScene extends Scene {
     private landmarks: Landmark[] = [];
     private barriers!: Phaser.Physics.Arcade.StaticGroup;
     private interactKey!: Phaser.Input.Keyboard.Key;
-    private nearestLandmark: Landmark | null = null;
     private isPaused = false;
     private ambientParticles: AmbientParticle[] = [];
     private particleGraphics!: Phaser.GameObjects.Graphics;
@@ -72,6 +73,8 @@ export class GameScene extends Scene {
     private weatherSystem_: WeatherSystem | null = null;
     private chaptersData_: ChaptersFile | null = null;
     private idleKiosk_: IdleKiosk | null = null;
+    private spriteFactory_: SpriteFactory | null = null;
+    private parallax_: ParallaxSystem | null = null;
 
     constructor() {
         super('GameScene');
@@ -89,6 +92,14 @@ export class GameScene extends Scene {
 
     create(): void {
         const { WORLD_WIDTH, WORLD_HEIGHT } = CONSTANTS;
+
+        // SpriteFactory resolves procedural vs painted PNG keys per asset.
+        // Created before world generation so createTrees/createFauna/createRocks
+        // can use it when spawning sprites.
+        this.spriteFactory_ = new SpriteFactory(this);
+        // Parallax background container - stays empty until a chapter is
+        // selected and its painted BG layers are loaded.
+        this.parallax_ = new ParallaxSystem(this);
 
         this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
@@ -183,6 +194,8 @@ export class GameScene extends Scene {
             this.weatherSystem_ = null;
             this.idleKiosk_?.destroy();
             this.idleKiosk_ = null;
+            this.parallax_?.destroy();
+            this.parallax_ = null;
         });
 
         // Interaction key
@@ -305,36 +318,33 @@ export class GameScene extends Scene {
         this.updateCameraPolish();
         this.audio_?.update(this.player.x, this.player.y, delta);
 
-        // Update landmark proximity
-        this.nearestLandmark = null;
+        // Update landmark proximity. Use a local binding so TS's control-flow
+        // analyser can narrow it after the loop (a class field written from
+        // inside a forEach closure gets narrowed to `null` forever, which
+        // breaks the `nearest.data_` access downstream).
+        let nearestCandidate: Landmark | null = null;
         let nearestDist = Infinity;
 
-        this.landmarks.forEach(landmark => {
+        for (const landmark of this.landmarks) {
             landmark.updateProximity(this.player.x, this.player.y);
-
-            if (landmark.isNear) {
-                const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y,
-                    landmark.data_.position.x, landmark.data_.position.y
-                );
-                if (dist < nearestDist) {
-                    nearestDist = dist;
-                    this.nearestLandmark = landmark;
-                }
+            if (!landmark.isNear) continue;
+            const dist = Phaser.Math.Distance.Between(
+                this.player.x, this.player.y,
+                landmark.data_.position.x, landmark.data_.position.y,
+            );
+            if (dist < nearestDist) {
+                nearestDist = dist;
+                nearestCandidate = landmark;
             }
-        });
+        }
 
         // Handle interaction. E opens the StoryCard only for a primary
         // landmark that the chapter has actually arrived at and whose elder
-        // dialogue has finished — so the visitor can't interrupt the Elder
+        // dialogue has finished - so the visitor can't interrupt the Elder
         // mid-sentence, and can't read the primary story out of order.
-        // (Annotated explicitly: TS control-flow narrows the field to `null`
-        // after the forEach callback assignment above, which would otherwise
-        // make `near.data_` infer as `never`.)
-        const near: Landmark | null = this.nearestLandmark;
-        if (near && this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
-            if (this.canInteractWithLandmark_(near)) {
-                this.openStoryCard(near.data_);
+        if (nearestCandidate && this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+            if (this.canInteractWithLandmark_(nearestCandidate)) {
+                this.openStoryCard(nearestCandidate.data_);
             }
         }
     }
@@ -508,10 +518,15 @@ export class GameScene extends Scene {
 
     private applySeasonPreset_(): void {
         const preset = this.chapterSystem_?.seasonPreset;
+        const chapter = this.chapterSystem_?.chapter;
         if (!preset) return;
         applySeasonPreset(preset, this.audio_);
         const weather = (preset.weather ?? 'clear') as WeatherKind;
         this.weatherSystem_?.setWeather(weather);
+        // Swap parallax painted backgrounds for this chapter if they exist.
+        if (chapter) {
+            this.parallax_?.switchChapter(chapter.id, CONSTANTS.WORLD_WIDTH, CONSTANTS.WORLD_HEIGHT);
+        }
     }
 
     private emitChapterStart_(): void {
@@ -1218,7 +1233,10 @@ export class GameScene extends Scene {
             const variantIdx = rng() < 0.08
                 ? 3 // snag (dead tree) 8% of the time
                 : Math.floor(rng() * 3);
-            const key = treeVariants[variantIdx];
+            const proceduralKey = treeVariants[variantIdx];
+            // Upgrade to painted PNG if one was loaded in PreloadScene,
+            // otherwise fall back to the procedural BootScene texture.
+            const key = this.spriteFactory_?.textureFor(proceduralKey) ?? proceduralKey;
             const scale = 0.7 + rng() * 0.55;
             const flipX = rng() < 0.5;
 
@@ -1274,7 +1292,9 @@ export class GameScene extends Scene {
                     );
                     if (ok) break;
                 }
-                const sprite = this.add.image(x, y, `${s.key}-0`);
+                // Upgrade to painted fauna frame if PNG loaded, else procedural.
+                const frameKey = this.spriteFactory_?.textureFor(`${s.key}-0`) ?? `${s.key}-0`;
+                const sprite = this.add.image(x, y, frameKey);
                 sprite.setOrigin(0.5, 0.95);
                 sprite.setDepth(2 + y * 0.001);
                 sprite.setData('animKey', s.key);
@@ -1314,7 +1334,8 @@ export class GameScene extends Scene {
             if (timer > 520) {
                 timer = 0;
                 const next = currentFrame === 0 ? 1 : 0;
-                sprite.setTexture(`${animKey}-${next}`);
+                const nextKey = this.spriteFactory_?.textureFor(`${animKey}-${next}`) ?? `${animKey}-${next}`;
+                sprite.setTexture(nextKey);
                 sprite.setData('frame', next);
             }
             sprite.setData('frameTimer', timer);
@@ -1352,6 +1373,73 @@ export class GameScene extends Scene {
     }
 
     private createRocks(width: number, height: number): void {
+        // Sprite path - used when any painted rock PNG is available. Collision
+        // bodies are created identically regardless of visual path so the
+        // world physics stays the same if PNGs land later.
+        const usePainted = this.spriteFactory_?.hasPainted('rock-1')
+            || this.spriteFactory_?.hasPainted('rock-2')
+            || this.spriteFactory_?.hasPainted('rock-3');
+        if (usePainted) {
+            this.createRocksSprites_(width, height);
+        } else {
+            this.createRocksGraphics_(width, height);
+        }
+    }
+
+    /**
+     * Painted-PNG rock path. Spawns `rock-{1..3}` sprites with Y-sorted depth
+     * using the same scheme as trees. Called only when SpriteFactory detects
+     * at least one painted rock variant.
+     */
+    private createRocksSprites_(width: number, height: number): void {
+        const rng = this.createSeededRandom(456);
+        const landmarkZones = [
+            { x: 4000, y: 3200 }, { x: 1400, y: 1800 }, { x: 6600, y: 1400 },
+            { x: 6400, y: 5000 }, { x: 1600, y: 4800 }, { x: 4000, y: 800 },
+            { x: 2800, y: 600 }, { x: 5600, y: 2800 }, { x: 3200, y: 5600 },
+            { x: 6800, y: 3800 },
+        ];
+        const clearance = 140;
+        const rockTarget = 30;
+        let placed = 0;
+        let attempts = 0;
+
+        while (placed < rockTarget && attempts < rockTarget * 4) {
+            attempts++;
+            const cx = 200 + rng() * (width - 400);
+            const cy = 200 + rng() * (height - 400);
+            const tooClose = landmarkZones.some(
+                lz => Math.abs(cx - lz.x) < clearance && Math.abs(cy - lz.y) < clearance
+            );
+            if (tooClose) continue;
+            placed++;
+
+            const clusterCount = 1 + Math.floor(rng() * 3);
+            for (let r = 0; r < clusterCount; r++) {
+                const rx = cx + (rng() - 0.5) * 40;
+                const ry = cy + (rng() - 0.5) * 30;
+                const variant = `rock-${1 + Math.floor(rng() * 3)}`;
+                const key = this.spriteFactory_?.textureFor(variant) ?? variant;
+                const scale = 0.7 + rng() * 0.5;
+
+                const sprite = this.add.image(rx, ry, key);
+                sprite.setOrigin(0.5, 0.85);
+                sprite.setScale(scale);
+                sprite.setFlipX(rng() < 0.5);
+                sprite.setDepth(2 + ry * 0.001);
+
+                // Collision body
+                const radius = 22 * scale;
+                this.addBarrier({ x: rx, y: ry, width: radius * 2, height: radius * 1.2 });
+            }
+        }
+    }
+
+    /**
+     * Procedural Graphics rock path - the original Phase 1 implementation.
+     * Kept intact as the fallback when no painted rocks are available.
+     */
+    private createRocksGraphics_(width: number, height: number): void {
         const gfx = this.add.graphics();
         gfx.setDepth(3);
 
@@ -1395,11 +1483,11 @@ export class GameScene extends Scene {
                 gfx.fillStyle(0x5a4a38, 0.75);
                 gfx.fillEllipse(rx, ry, rw, rh);
 
-                // Light side (NW — upper-left)
+                // Light side (NW - upper-left)
                 gfx.fillStyle(0x8a7a68, 0.35);
                 gfx.fillEllipse(rx - rw * 0.18, ry - rh * 0.18, rw * 0.55, rh * 0.5);
 
-                // Dark side (SE — lower-right)
+                // Dark side (SE - lower-right)
                 gfx.fillStyle(0x3a2a1a, 0.25);
                 gfx.fillEllipse(rx + rw * 0.15, ry + rh * 0.15, rw * 0.5, rh * 0.45);
 

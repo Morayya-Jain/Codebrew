@@ -19,7 +19,14 @@ export class Player extends Physics.Arcade.Sprite {
     canMove = true;
 
     constructor(scene: Scene, x: number, y: number) {
-        super(scene, x, y, 'player-frame-0');
+        // Pick initial texture key - painted sprite sheet if it loaded,
+        // otherwise fall back to the first procedural frame from BootScene.
+        // Animations are already configured in PreloadScene to use whichever
+        // source exists, so the body just needs a valid starting texture.
+        const hasPaintedSheet = scene.textures.exists('painted-player-walk')
+            && scene.textures.get('painted-player-walk').source[0]?.width > 1;
+        const initialKey = hasPaintedSheet ? 'painted-player-walk' : 'player-frame-0';
+        super(scene, x, y, initialKey);
 
         scene.add.existing(this);
         scene.physics.add.existing(this);

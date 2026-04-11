@@ -43,7 +43,9 @@
       "Bash(./node_modules/.bin/tsc --noEmit)",
       "Bash(./node_modules/.bin/vite build:*)",
       "Bash(BASE=http://localhost:8080 node verify-phase-a.js)",
-      "Bash(BASE=http://localhost:8080 node verify-phase-b.js)"
+      "Bash(BASE=http://localhost:8080 node verify-phase-b.js)",
+      "Bash(BASE=http://localhost:8080 node verify-phase-c.js)",
+      "Bash(BASE=http://localhost:8080 node verify-full.js)"
     ]
   },
   "disabledMcpjsonServers": [
