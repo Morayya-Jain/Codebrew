@@ -39,59 +39,70 @@ export class Landmark extends GameObjects.Container {
         this.glowGraphics.setAlpha(0);
         this.glowGraphics.setDepth(1);
 
-        // Prefer a user-provided painted hero scene (see public/assets/landmarks/)
-        // Falls back to the procedural icon baked in BootScene.
-        const heroKey = `landmark-hero-${data.id}`;
-        const heroBgKey = `landmark-hero-${data.id}-bg`;
-        const heroFgKey = `landmark-hero-${data.id}-fg`;
+        // Always show the procedural icon as the landmark marker
+        this.icon = scene.add.sprite(0, 0, `landmark-${data.id}`);
+        this.icon.setDisplaySize(72, 72);
+        this.add(this.icon);
 
+        // If a hero photograph exists, show it offset to the side in a frame
+        const heroKey = `landmark-hero-${data.id}`;
         if (scene.textures.exists(heroKey)) {
             this.usingHero_ = true;
-            if (scene.textures.exists(heroBgKey)) {
-                const bg = scene.add.image(0, 0, heroBgKey);
-                bg.setDisplaySize(260, 260);
-                bg.setOrigin(0.5, 0.9);
-                this.add(bg);
-                this.heroBg_ = bg;
-            }
-            this.icon = scene.add.sprite(0, 0, heroKey);
-            this.icon.setDisplaySize(220, 220);
-            this.icon.setOrigin(0.5, 0.9);
-            this.add(this.icon);
-            if (scene.textures.exists(heroFgKey)) {
-                const fg = scene.add.image(0, 0, heroFgKey);
-                fg.setDisplaySize(240, 240);
-                fg.setOrigin(0.5, 0.9);
-                this.add(fg);
-                this.heroFg_ = fg;
-            }
-        } else {
-            this.icon = scene.add.sprite(0, 0, `landmark-${data.id}`);
-            this.icon.setDisplaySize(72, 72);
-            this.add(this.icon);
+            const photoX = 130;
+            const photoY = -70;
+            const photoW = 160;
+            const photoH = 120;
+
+            // Photo frame background
+            const frameBg = scene.add.graphics();
+            frameBg.fillStyle(0x1a1210, 0.9);
+            frameBg.fillRoundedRect(
+                photoX - photoW / 2 - 6, photoY - photoH / 2 - 6,
+                photoW + 12, photoH + 12, 8
+            );
+            frameBg.lineStyle(1.5, 0xe8c170, 0.5);
+            frameBg.strokeRoundedRect(
+                photoX - photoW / 2 - 6, photoY - photoH / 2 - 6,
+                photoW + 12, photoH + 12, 8
+            );
+            this.add(frameBg);
+
+            const heroImg = scene.add.image(photoX, photoY, heroKey);
+            heroImg.setDisplaySize(photoW, photoH);
+            heroImg.setOrigin(0.5, 0.5);
+            this.add(heroImg);
+            this.heroBg_ = heroImg;
+
+            // Connecting line from icon to photo frame
+            const lineGfx = scene.add.graphics();
+            lineGfx.lineStyle(1, 0xe8c170, 0.3);
+            lineGfx.beginPath();
+            lineGfx.moveTo(36, -10);
+            lineGfx.lineTo(photoX - photoW / 2 - 6, photoY);
+            lineGfx.strokePath();
+            this.add(lineGfx);
+            this.heroFg_ = lineGfx as unknown as GameObjects.Image;
         }
 
-        // Floating label positioned above the icon
+        // Floating label above the icon, pushed higher when photo is present
+        const labelOffsetY = this.usingHero_ ? -100 : -60;
         this.label = new FloatingLabel(
             scene,
             data.position.x,
-            data.position.y - 60,
+            data.position.y + labelOffsetY,
             data.name,
             data.shortDescription
         );
 
-        // Gentle bob animation — procedural icons bob, hero scenes hold still
-        // (a painted scene bobbing looks weird).
-        if (!this.usingHero_) {
-            scene.tweens.add({
-                targets: this.icon,
-                y: -6,
-                duration: 1500 + Math.random() * 500,
-                ease: 'Sine.easeInOut',
-                yoyo: true,
-                repeat: -1,
-            });
-        }
+        // Gentle bob animation on the procedural icon
+        scene.tweens.add({
+            targets: this.icon,
+            y: -6,
+            duration: 1500 + Math.random() * 500,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1,
+        });
 
         // Y-sorted depth (shared scheme with trees/player/fauna). +0.02 tiebreak
         // so landmarks sit above trees/player/fauna at the same Y, making the
