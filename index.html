@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/src/styles/story-card.css">
+    <link rel="stylesheet" href="/src/styles/dialog-card.css">
     <link rel="stylesheet" href="/src/styles/chapter-picker.css">
     <link rel="stylesheet" href="/src/styles/museum.css">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -29,6 +30,23 @@
                     <button class="story-card__tts-btn">Read Aloud</button>
                 </div>
                 <p class="story-card__text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialog-card-overlay" aria-hidden="true">
+        <div class="dialog-card" role="dialog" aria-labelledby="dc-name">
+            <button class="dialog-card__close-btn" aria-label="Close">&times;</button>
+            <div class="dialog-card__portrait">
+                <span class="dialog-card__portrait-initial"></span>
+            </div>
+            <div class="dialog-card__content">
+                <h3 id="dc-name" class="dialog-card__name"></h3>
+                <p class="dialog-card__role"></p>
+                <p class="dialog-card__text"></p>
+                <div class="dialog-card__actions">
+                    <button class="dialog-card__next-btn">Next</button>
+                </div>
             </div>
         </div>
     </div>

@@ -1,12 +1,15 @@
 import { Scene } from 'phaser';
 import { Player, PLAYER_EVENTS } from '../entities/Player';
 import { Landmark, LANDMARK_EVENTS } from '../entities/Landmark';
+import { Npc } from '../entities/Npc';
 import { CONSTANTS } from '../types';
 import type {
     ChaptersFile,
     ChapterPhase,
     LandmarkData,
     LandmarksFile,
+    NpcData,
+    NpcsFile,
     Waypoint,
     WeatherKind,
 } from '../types';
@@ -59,6 +62,7 @@ export class GameScene extends Scene {
     private riverShimmerPhase_ = 0;
     private treeSprites_: Phaser.GameObjects.Image[] = [];
     private faunaSprites_: Phaser.GameObjects.Image[] = [];
+    private npcs_: Npc[] = [];
     private smokeEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     private emberEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     private dustEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
@@ -163,6 +167,14 @@ export class GameScene extends Scene {
             this.landmarkPositions = landmarksData.landmarks.map(d => ({
                 x: d.position.x, y: d.position.y, id: d.id, iconColor: d.iconColor,
             }));
+        }
+
+        // Roaming NPCs - spawned after landmarks so spawn placement can
+        // honour the landmark positions as "keep-away" zones. Optional:
+        // if npcs.json failed to load, the scene runs without NPCs.
+        const npcsData = this.cache.json.get('npcs') as NpcsFile | null;
+        if (npcsData && npcsData.npcs.length > 0) {
+            this.createNpcs_(npcsData.npcs);
         }
 
         // Chapter flow - phase changes drive player.canMove and a couple of
@@ -338,13 +350,40 @@ export class GameScene extends Scene {
             }
         }
 
+        // NPC proximity pass. Landmarks always win the interaction tie-break:
+        // if any landmark is in NEAR state we don't even consider NPCs.
+        let nearestNpc: Npc | null = null;
+        if (this.npcs_.length > 0) {
+            let nearestNpcDist = Infinity;
+            for (const npc of this.npcs_) {
+                npc.updateWander(delta, this.player.x, this.player.y);
+                npc.updateProximity(this.player.x, this.player.y);
+                if (!npc.isNear) continue;
+                const d = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, npc.x, npc.y,
+                );
+                if (d < nearestNpcDist) {
+                    nearestNpcDist = d;
+                    nearestNpc = npc;
+                }
+            }
+        }
+
         // Handle interaction. E opens the StoryCard only for a primary
         // landmark that the chapter has actually arrived at and whose elder
         // dialogue has finished - so the visitor can't interrupt the Elder
         // mid-sentence, and can't read the primary story out of order.
-        if (nearestCandidate && this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
-            if (this.canInteractWithLandmark_(nearestCandidate)) {
-                this.openStoryCard(nearestCandidate.data_);
+        if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+            if (nearestCandidate) {
+                if (this.canInteractWithLandmark_(nearestCandidate)) {
+                    this.openStoryCard(nearestCandidate.data_);
+                }
+            } else if (nearestNpc) {
+                // Only trigger NPC dialog when no landmark is in range, so
+                // landmark reading always takes precedence.
+                if (!this.chapterSystem_?.elderVoice?.isSpeaking) {
+                    this.openDialogCard_(nearestNpc.data_);
+                }
             }
         }
     }
@@ -385,6 +424,21 @@ export class GameScene extends Scene {
 
         const uiScene = this.scene.get('UIScene');
         uiScene.events.emit('openStoryCard', data);
+
+        this.scene.pause();
+    }
+
+    /**
+     * Open an NPC conversation. Mirrors openStoryCard: pause the scene,
+     * emit to UIScene which owns the DialogCard DOM modal. UIScene emits
+     * 'dialogCardClosed' back when the card closes so we can resume.
+     */
+    private openDialogCard_(data: NpcData): void {
+        this.isPaused = true;
+        this.player.setVelocity(0, 0);
+
+        const uiScene = this.scene.get('UIScene');
+        uiScene.events.emit('openDialogCard', data);
 
         this.scene.pause();
     }
@@ -1276,7 +1330,9 @@ export class GameScene extends Scene {
     }
 
     private createFauna(width: number, height: number): void {
-        const rng = this.createSeededRandom(881);
+        // Non-deterministic (session-random) so fauna shuffle each playthrough
+        // without touching the seeded terrain. Math.random is intentional.
+        const rng = Math.random;
 
         const landmarkZones = [
             { x: 1000, y: 4800 }, { x: 1400, y: 4200 }, { x: 800, y: 5400 },
@@ -1288,10 +1344,15 @@ export class GameScene extends Scene {
             { x: 5800, y: 3600 }, { x: 5400, y: 5400 },
         ];
 
-        const spec: Array<{ key: string; count: number; fleeSpeed: number }> = [
-            { key: 'fauna-kangaroo', count: 5, fleeSpeed: 160 },
-            { key: 'fauna-emu', count: 3, fleeSpeed: 180 },
-            { key: 'fauna-cockatoo', count: 7, fleeSpeed: 80 },
+        // wanderSpeed 0 = perched / stays put (cockatoo). Others take a slow
+        // random walk inside a ~300px home radius so the world feels alive.
+        const spec: Array<{ key: string; count: number; fleeSpeed: number; wanderSpeed: number }> = [
+            { key: 'fauna-kangaroo', count: 10, fleeSpeed: 160, wanderSpeed: 28 },
+            { key: 'fauna-wallaby',  count: 6,  fleeSpeed: 150, wanderSpeed: 32 },
+            { key: 'fauna-wombat',   count: 4,  fleeSpeed: 60,  wanderSpeed: 14 },
+            { key: 'fauna-emu',      count: 5,  fleeSpeed: 180, wanderSpeed: 22 },
+            { key: 'fauna-cockatoo', count: 10, fleeSpeed: 80,  wanderSpeed: 0 },
+            { key: 'fauna-goanna',   count: 4,  fleeSpeed: 90,  wanderSpeed: 10 },
         ];
 
         for (const s of spec) {
@@ -1316,10 +1377,75 @@ export class GameScene extends Scene {
                 sprite.setData('homeX', x);
                 sprite.setData('homeY', y);
                 sprite.setData('fleeSpeed', s.fleeSpeed);
+                sprite.setData('wanderSpeed', s.wanderSpeed);
+                sprite.setData('wanderTargetX', x);
+                sprite.setData('wanderTargetY', y);
+                sprite.setData('wanderPauseMs', 1000 + rng() * 3000);
                 sprite.setData('state', 'idle');
                 sprite.setFlipX(rng() < 0.5);
                 this.faunaSprites_.push(sprite);
             }
+        }
+    }
+
+    /**
+     * Spawn the roaming NPCs at random positions, avoiding landmarks, the
+     * river corridor, and each other. Non-deterministic so each playthrough
+     * places them differently.
+     */
+    private createNpcs_(npcsData: ReadonlyArray<NpcData>): void {
+        const { WORLD_WIDTH, WORLD_HEIGHT } = CONSTANTS;
+        const landmarkClearance = 360;
+        const npcClearance = 600;
+        const margin = 500;
+
+        const chosen: Array<{ x: number; y: number }> = [];
+
+        for (const data of npcsData) {
+            let sx = WORLD_WIDTH / 2;
+            let sy = WORLD_HEIGHT / 2;
+            let placed = false;
+
+            for (let attempt = 0; attempt < 40; attempt++) {
+                const x = margin + Math.random() * (WORLD_WIDTH - margin * 2);
+                const y = margin + Math.random() * (WORLD_HEIGHT - margin * 2);
+
+                const tooCloseToLandmark = this.landmarkPositions.some(
+                    lp => Math.hypot(lp.x - x, lp.y - y) < landmarkClearance,
+                );
+                if (tooCloseToLandmark) continue;
+
+                const tooCloseToNpc = chosen.some(
+                    c => Math.hypot(c.x - x, c.y - y) < npcClearance,
+                );
+                if (tooCloseToNpc) continue;
+
+                sx = x;
+                sy = y;
+                placed = true;
+                break;
+            }
+
+            if (!placed) {
+                // Fall back to something plausible rather than skipping the
+                // NPC entirely - a random position with landmark clearance only.
+                for (let attempt = 0; attempt < 20; attempt++) {
+                    const x = margin + Math.random() * (WORLD_WIDTH - margin * 2);
+                    const y = margin + Math.random() * (WORLD_HEIGHT - margin * 2);
+                    const blocked = this.landmarkPositions.some(
+                        lp => Math.hypot(lp.x - x, lp.y - y) < landmarkClearance,
+                    );
+                    if (!blocked) {
+                        sx = x;
+                        sy = y;
+                        break;
+                    }
+                }
+            }
+
+            chosen.push({ x: sx, y: sy });
+            const npc = new Npc(this, data, sx, sy);
+            this.npcs_.push(npc);
         }
     }
 
@@ -1339,6 +1465,8 @@ export class GameScene extends Scene {
         if (this.faunaSprites_.length === 0) return;
         const px = this.player.x;
         const py = this.player.y;
+        const fleeRadius = 240;
+
         for (let i = 0; i < this.faunaSprites_.length; i++) {
             const sprite = this.faunaSprites_[i];
             const animKey = sprite.getData('animKey') as string;
@@ -1353,15 +1481,18 @@ export class GameScene extends Scene {
             }
             sprite.setData('frameTimer', timer);
 
-            // Flee when player gets close.
+            // Distance to player drives flee triggers.
             const dx = sprite.x - px;
             const dy = sprite.y - py;
             const dist = Math.hypot(dx, dy);
-            const fleeRadius = 240;
-            const state = sprite.getData('state') as string;
-            if (dist < fleeRadius && state === 'idle') {
+            let state = sprite.getData('state') as string;
+
+            // Flee overrides idle or wander. Birds with wanderSpeed 0 still flee.
+            if (dist < fleeRadius && (state === 'idle' || state === 'wander')) {
+                state = 'flee';
                 sprite.setData('state', 'flee');
             }
+
             if (state === 'flee') {
                 const speed = sprite.getData('fleeSpeed') as number;
                 if (dist < 1) continue;
@@ -1370,16 +1501,65 @@ export class GameScene extends Scene {
                 sprite.x += nx * speed * (deltaMs / 1000);
                 sprite.y += ny * speed * (deltaMs / 1000);
                 sprite.setFlipX(nx < 0);
-                sprite.setDepth(sprite.y * 0.001 + 3.5);
-                // Resume idle once comfortably far away.
+                // Resume idle once comfortably far away. Reset home so the
+                // next wander cycle roams around the new safe spot.
                 if (dist > fleeRadius * 1.8) {
                     sprite.setData('state', 'idle');
                     sprite.setData('homeX', sprite.x);
                     sprite.setData('homeY', sprite.y);
+                    sprite.setData('wanderPauseMs', 1200 + Math.random() * 2000);
                 }
                 // World bounds clamp
                 sprite.x = Math.max(80, Math.min(CONSTANTS.WORLD_WIDTH - 80, sprite.x));
                 sprite.y = Math.max(80, Math.min(CONSTANTS.WORLD_HEIGHT - 80, sprite.y));
+                sprite.setDepth(2 + sprite.y * 0.001);
+                continue;
+            }
+
+            // Wander FSM. Birds with wanderSpeed 0 skip it entirely.
+            const wanderSpeed = (sprite.getData('wanderSpeed') as number | undefined) ?? 0;
+            if (wanderSpeed <= 0) continue;
+
+            if (state === 'idle') {
+                const pauseMs = ((sprite.getData('wanderPauseMs') as number) ?? 0) - deltaMs;
+                if (pauseMs <= 0) {
+                    // Pick a new target within +-220px of home, clamped to world.
+                    const homeX = sprite.getData('homeX') as number;
+                    const homeY = sprite.getData('homeY') as number;
+                    const tx = Phaser.Math.Clamp(
+                        homeX + (Math.random() - 0.5) * 440,
+                        120, CONSTANTS.WORLD_WIDTH - 120,
+                    );
+                    const ty = Phaser.Math.Clamp(
+                        homeY + (Math.random() - 0.5) * 440,
+                        120, CONSTANTS.WORLD_HEIGHT - 120,
+                    );
+                    sprite.setData('wanderTargetX', tx);
+                    sprite.setData('wanderTargetY', ty);
+                    sprite.setData('state', 'wander');
+                } else {
+                    sprite.setData('wanderPauseMs', pauseMs);
+                }
+                continue;
+            }
+
+            if (state === 'wander') {
+                const tx = sprite.getData('wanderTargetX') as number;
+                const ty = sprite.getData('wanderTargetY') as number;
+                const vx = tx - sprite.x;
+                const vy = ty - sprite.y;
+                const vdist = Math.hypot(vx, vy);
+                if (vdist < 4) {
+                    sprite.setData('state', 'idle');
+                    sprite.setData('wanderPauseMs', 2000 + Math.random() * 4000);
+                    continue;
+                }
+                const step = wanderSpeed * (deltaMs / 1000);
+                const nx = vx / vdist;
+                const ny = vy / vdist;
+                sprite.x += nx * step;
+                sprite.y += ny * step;
+                sprite.setFlipX(nx < 0);
                 sprite.setDepth(2 + sprite.y * 0.001);
             }
         }

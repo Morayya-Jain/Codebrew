@@ -1,17 +1,19 @@
 import { Scene } from 'phaser';
 import { StoryCard } from '../ui/StoryCard';
+import { DialogCard } from '../ui/DialogCard';
 import { MiniMap } from '../ui/MiniMap';
 import { ElderDialogue } from '../ui/ElderDialogue';
 import { ChapterTitleCard } from '../ui/ChapterTitleCard';
 import { ChapterPicker } from '../ui/ChapterPicker';
 import { FarewellScreen } from '../ui/FarewellScreen';
 import { SettingsMenu } from '../ui/SettingsMenu';
-import type { ChapterData, ChaptersFile, LandmarkData, SeasonPresetData } from '../types';
+import type { ChapterData, ChaptersFile, LandmarkData, NpcData, SeasonPresetData } from '../types';
 import type { GameScene } from './GameScene';
 import { CHAPTER_EVENTS, type ChapterSystem } from '../systems/ChapterSystem';
 
 export class UIScene extends Scene {
     private storyCard!: StoryCard;
+    private dialogCard!: DialogCard;
     private miniMap!: MiniMap;
     private progressText!: Phaser.GameObjects.Text;
     private hintText!: Phaser.GameObjects.Text;
@@ -32,6 +34,7 @@ export class UIScene extends Scene {
 
     create(): void {
         this.storyCard = new StoryCard();
+        this.dialogCard = new DialogCard();
         const { width, height } = this.cameras.main;
 
         // Progress tracker (top right) — in Phase 1 this shows "Waypoint n of m"
@@ -150,6 +153,13 @@ export class UIScene extends Scene {
             this.storyCard.show(data, () => this.closeStoryCard());
         });
 
+        // NPC dialog flow, mirrors the story card lifecycle. NPCs don't
+        // contribute to the landmark progress tracker, so there's no
+        // refreshProgressUi_ call on open.
+        this.events.on('openDialogCard', (data: NpcData) => {
+            this.dialogCard.show(data, () => this.closeDialogCard_());
+        });
+
         // Initialize mini-map (bottom-right)
         this.miniMap = new MiniMap(this, width - 236, height - 192, 220, 176, gameScene);
 
@@ -166,6 +176,12 @@ export class UIScene extends Scene {
     }
 
     private closeStoryCard(): void {
+        const gameScene = this.scene.get('GameScene');
+        gameScene.scene.resume();
+        gameScene.events.emit('resume');
+    }
+
+    private closeDialogCard_(): void {
         const gameScene = this.scene.get('GameScene');
         gameScene.scene.resume();
         gameScene.events.emit('resume');

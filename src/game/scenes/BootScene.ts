@@ -26,6 +26,7 @@ export class BootScene extends Scene {
         this.generateBarkFlake();
         this.generateEucalyptTrees();
         this.generateFaunaSprites();
+        this.generateNpcSprites();
         this.generateParticleTextures();
         this.scene.start('TitleScene');
     }
@@ -368,6 +369,170 @@ export class BootScene extends Scene {
                 gfx.generateTexture(`fauna-cockatoo-${f}`, w, h);
                 gfx.destroy();
             }
+        }
+
+        // Wombat - squat low body, 64x44 (2 frames)
+        {
+            const w = 64;
+            const h = 44;
+            for (let f = 0; f < 2; f++) {
+                const gfx = this.add.graphics();
+                const bodyY = f === 0 ? 0 : -1;
+                // Shadow
+                gfx.fillStyle(0x000000, 0.3);
+                gfx.fillEllipse(32, h - 3, 44, 6);
+                // Body
+                gfx.fillStyle(0x6a4e30, 1);
+                gfx.fillEllipse(32, h - 18 + bodyY, 46, 22);
+                // Back lighter
+                gfx.fillStyle(0x8a6840, 0.6);
+                gfx.fillEllipse(30, h - 22 + bodyY, 30, 10);
+                // Legs
+                gfx.lineStyle(4, 0x3a2a18, 1);
+                gfx.lineBetween(18, h - 12 + bodyY, 16, h - 4);
+                gfx.lineBetween(28, h - 12 + bodyY, 26, h - 4);
+                gfx.lineBetween(38, h - 12 + bodyY, 40, h - 4);
+                gfx.lineBetween(46, h - 12 + bodyY, 48, h - 4);
+                // Head
+                gfx.fillStyle(0x6a4e30, 1);
+                gfx.fillEllipse(50, h - 22 + bodyY, 18, 16);
+                // Ear
+                gfx.fillStyle(0x4a3220, 1);
+                gfx.fillCircle(52, h - 30 + bodyY, 3);
+                // Eye
+                gfx.fillStyle(0x000000, 1);
+                gfx.fillCircle(54, h - 22 + bodyY, 1.2);
+                // Snout
+                gfx.fillStyle(0x2a1a10, 1);
+                gfx.fillCircle(58, h - 20 + bodyY, 1.6);
+                gfx.generateTexture(`fauna-wombat-${f}`, w, h);
+                gfx.destroy();
+            }
+        }
+
+        // Wallaby - smaller reddish kangaroo, 60x56 (2 frames)
+        {
+            const w = 60;
+            const h = 56;
+            for (let f = 0; f < 2; f++) {
+                const gfx = this.add.graphics();
+                const bodyY = f === 0 ? 0 : -2;
+                // Shadow
+                gfx.fillStyle(0x000000, 0.3);
+                gfx.fillEllipse(30, h - 3, 36, 6);
+                // Tail
+                gfx.lineStyle(5, 0x8a4020, 1);
+                gfx.lineBetween(10, h - 12 + bodyY, 20, h - 18 + bodyY);
+                // Body
+                gfx.fillStyle(0x9a5030, 1);
+                gfx.fillEllipse(28, h - 22 + bodyY, 34, 20);
+                // Chest
+                gfx.fillStyle(0xba6848, 0.85);
+                gfx.fillEllipse(34, h - 20 + bodyY, 16, 14);
+                // Hind legs
+                gfx.lineStyle(4, 0x6a3018, 1);
+                gfx.lineBetween(22, h - 16 + bodyY, 18, h - 4);
+                gfx.lineBetween(28, h - 14 + bodyY, 24, h - 4);
+                // Front paws
+                gfx.lineStyle(2.5, 0x8a4020, 1);
+                gfx.lineBetween(40, h - 20 + bodyY, 42, h - 12 + bodyY);
+                // Head
+                gfx.fillStyle(0x9a5030, 1);
+                gfx.fillEllipse(44, h - 32 + bodyY, 14, 12);
+                // Ears
+                gfx.fillStyle(0x6a3018, 1);
+                gfx.fillTriangle(43, h - 36 + bodyY, 41, h - 42 + bodyY, 46, h - 37 + bodyY);
+                gfx.fillTriangle(46, h - 36 + bodyY, 44, h - 42 + bodyY, 48, h - 37 + bodyY);
+                // Eye
+                gfx.fillStyle(0x000000, 1);
+                gfx.fillCircle(47, h - 32 + bodyY, 1);
+                gfx.generateTexture(`fauna-wallaby-${f}`, w, h);
+                gfx.destroy();
+            }
+        }
+
+        // Goanna - long low lizard, 88x28 (2 frames)
+        {
+            const w = 88;
+            const h = 28;
+            for (let f = 0; f < 2; f++) {
+                const gfx = this.add.graphics();
+                const bend = f === 0 ? 0 : 1;
+                // Shadow
+                gfx.fillStyle(0x000000, 0.25);
+                gfx.fillEllipse(44, h - 3, 60, 4);
+                // Tail
+                gfx.lineStyle(5, 0x4a5030, 1);
+                gfx.lineBetween(2, h - 10, 20, h - 12 + bend);
+                // Body
+                gfx.fillStyle(0x5a6038, 1);
+                gfx.fillEllipse(42, h - 12, 46, 10);
+                // Back stripes
+                gfx.fillStyle(0x3a4020, 0.8);
+                gfx.fillEllipse(34, h - 13, 6, 3);
+                gfx.fillEllipse(44, h - 13, 6, 3);
+                gfx.fillEllipse(52, h - 13, 6, 3);
+                // Legs
+                gfx.lineStyle(3, 0x3a4020, 1);
+                gfx.lineBetween(30, h - 10, 28 + bend, h - 4);
+                gfx.lineBetween(38, h - 10, 40 - bend, h - 4);
+                gfx.lineBetween(50, h - 10, 48 + bend, h - 4);
+                gfx.lineBetween(58, h - 10, 60 - bend, h - 4);
+                // Head
+                gfx.fillStyle(0x5a6038, 1);
+                gfx.fillEllipse(68, h - 14, 14, 8);
+                // Eye
+                gfx.fillStyle(0x000000, 1);
+                gfx.fillCircle(72, h - 16, 0.9);
+                // Tongue flick (frame 1)
+                if (f === 1) {
+                    gfx.lineStyle(1, 0xaa2020, 1);
+                    gfx.lineBetween(76, h - 14, 82, h - 14);
+                }
+                gfx.generateTexture(`fauna-goanna-${f}`, w, h);
+                gfx.destroy();
+            }
+        }
+    }
+
+    /**
+     * Bake a neutral humanoid silhouette used as a placeholder for NPC
+     * sprites when hand-drawn painted-npc-*.png assets are not yet present.
+     * Deliberately abstract - no facial or skin-tone detail - so the
+     * placeholder itself never conveys identity. The real art ships later
+     * via SpriteFactory's painted-* upgrade path.
+     */
+    private generateNpcSprites(): void {
+        const w = 48;
+        const h = 80;
+        for (let f = 0; f < 2; f++) {
+            const gfx = this.add.graphics();
+            const stride = f === 0 ? 0 : 2;
+            // Shadow
+            gfx.fillStyle(0x000000, 0.3);
+            gfx.fillEllipse(24, h - 4, 28, 6);
+            // Legs
+            gfx.lineStyle(5, 0x2a1a10, 1);
+            gfx.lineBetween(20, h - 36, 18 - stride, h - 6);
+            gfx.lineBetween(28, h - 36, 30 + stride, h - 6);
+            // Body / torso
+            gfx.fillStyle(0x4a3020, 1);
+            gfx.fillEllipse(24, h - 46, 22, 26);
+            // Upper body highlight
+            gfx.fillStyle(0x6a4430, 0.6);
+            gfx.fillEllipse(22, h - 52, 14, 10);
+            // Arms
+            gfx.lineStyle(4, 0x2a1a10, 1);
+            gfx.lineBetween(14, h - 48, 12 + stride, h - 30);
+            gfx.lineBetween(34, h - 48, 36 - stride, h - 30);
+            // Neck
+            gfx.lineStyle(3, 0x2a1a10, 1);
+            gfx.lineBetween(24, h - 60, 24, h - 64);
+            // Head (neutral silhouette - no features)
+            gfx.fillStyle(0x2a1a10, 1);
+            gfx.fillCircle(24, h - 68, 8);
+            gfx.generateTexture(`npc-default-${f}`, w, h);
+            gfx.destroy();
         }
     }
 

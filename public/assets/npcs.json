@@ -1,0 +1,60 @@
+{
+  "npcs": [
+    {
+      "id": "aunty-marjorie",
+      "name": "Aunty Marjorie",
+      "role": "Storyteller",
+      "greeting": "Welcome, traveller. Sit a while.",
+      "lines": [
+        "This Country has held our songs for many thousands of years.",
+        "Listen to the wind through the river red gums. That is language too.",
+        "Every hill, every waterhole, every stone has a story waiting to be heard."
+      ],
+      "farewell": "Walk softly on Country. Carry what you learned with care.",
+      "spriteKey": "npc-aunty-marjorie",
+      "homeRadius": 600
+    },
+    {
+      "id": "ranger-david",
+      "name": "Ranger David",
+      "role": "Country Ranger",
+      "greeting": "G'day. Out walking the tracks today?",
+      "lines": [
+        "We look after this Country together, old ways and new ways side by side.",
+        "Watch for the small things. A fresh track, a scarred tree, a bent reed.",
+        "When you see kangaroos resting in the shade, you are reading the weather."
+      ],
+      "farewell": "Stay on the paths, and enjoy your walk.",
+      "spriteKey": "npc-ranger-david",
+      "homeRadius": 700
+    },
+    {
+      "id": "young-fisher",
+      "name": "Jarrah",
+      "role": "Young Fisher",
+      "greeting": "Hey! Quiet around the water, eh?",
+      "lines": [
+        "My grandfather taught me to read the river before I cast a line.",
+        "We only take what we need. The rest belongs to tomorrow.",
+        "The eel traps at Budj Bim are older than most things you've heard of."
+      ],
+      "farewell": "If the fish aren't biting, just enjoy the sound of the water.",
+      "spriteKey": "npc-young-fisher",
+      "homeRadius": 550
+    },
+    {
+      "id": "weaver-nan",
+      "name": "Nan Rosie",
+      "role": "Weaver",
+      "greeting": "Come closer, love. Let me show you what my hands are doing.",
+      "lines": [
+        "I weave with reeds from the wetlands. Each basket remembers the place it came from.",
+        "My grandmother taught me. Her grandmother taught her. That's how we stay connected.",
+        "When you make something slowly, you put a piece of Country into it."
+      ],
+      "farewell": "Take your time out there. Country rewards the patient eye.",
+      "spriteKey": "npc-weaver-nan",
+      "homeRadius": 500
+    }
+  ]
+}

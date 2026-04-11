@@ -1,0 +1,139 @@
+#dialog-card-overlay {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 24px 20px 32px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+#dialog-card-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.dialog-card {
+    position: relative;
+    width: min(620px, 94%);
+    padding: 20px 24px 22px;
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 18px;
+    align-items: start;
+    color: #f5e6d3;
+    font-family: "Crimson Text", Georgia, serif;
+
+    background:
+        radial-gradient(ellipse at top left, rgba(232, 193, 112, 0.08), transparent 60%),
+        linear-gradient(145deg, #3a281a, #1c120a);
+    border: 1px solid rgba(232, 193, 112, 0.38);
+    border-radius: 14px;
+    box-shadow:
+        0 18px 48px rgba(0, 0, 0, 0.55),
+        inset 0 0 0 1px rgba(232, 193, 112, 0.12);
+
+    transform: translateY(24px) scale(0.98);
+    transition: transform 0.3s ease;
+}
+
+#dialog-card-overlay.visible .dialog-card {
+    transform: translateY(0) scale(1);
+}
+
+.dialog-card__close-btn {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #a0886a;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s ease;
+}
+
+.dialog-card__close-btn:hover {
+    color: #e8c170;
+}
+
+.dialog-card__portrait {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #6a4a2a, #2a1a10);
+    border: 2px solid rgba(232, 193, 112, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.dialog-card__portrait-initial {
+    color: #e8c170;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.dialog-card__content {
+    min-width: 0;
+}
+
+.dialog-card__name {
+    margin: 0 0 2px;
+    font-size: 20px;
+    color: #e8c170;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.dialog-card__role {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #a0886a;
+    font-style: italic;
+}
+
+.dialog-card__text {
+    margin: 0 0 14px;
+    font-size: 16px;
+    line-height: 1.55;
+    color: #f0e2cc;
+    min-height: 48px;
+}
+
+.dialog-card__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.dialog-card__next-btn {
+    background: rgba(232, 193, 112, 0.1);
+    color: #e8c170;
+    border: 1px solid rgba(232, 193, 112, 0.5);
+    padding: 8px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.dialog-card__next-btn:hover {
+    background: rgba(232, 193, 112, 0.2);
+    transform: translateY(-1px);
+}
+
+.dialog-card__next-btn:active {
+    transform: translateY(0);
+}

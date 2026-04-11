@@ -9,7 +9,14 @@ export class FloatingLabel extends GameObjects.Container {
     private currentState: ProximityState = 'hidden';
     private activeTweens: Phaser.Tweens.Tween[] = [];
 
-    constructor(scene: Scene, x: number, y: number, name: string, shortDescription: string) {
+    constructor(
+        scene: Scene,
+        x: number,
+        y: number,
+        name: string,
+        shortDescription: string,
+        promptLabel: string = '[ E ] Read Story',
+    ) {
         super(scene, x, y);
 
         this.bg = scene.add.graphics();
@@ -34,7 +41,7 @@ export class FloatingLabel extends GameObjects.Container {
         this.descText.setAlpha(0);
         this.add(this.descText);
 
-        this.promptText = scene.add.text(0, 0, '[ E ] Read Story', {
+        this.promptText = scene.add.text(0, 0, promptLabel, {
             fontFamily: '"Crimson Text", Georgia, serif',
             fontSize: '13px',
             color: '#e8c170',

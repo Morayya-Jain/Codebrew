@@ -12,6 +12,21 @@ export interface LandmarksFile {
     landmarks: ReadonlyArray<LandmarkData>;
 }
 
+export interface NpcData {
+    id: string;
+    name: string;
+    role: string;
+    greeting: string;
+    lines: ReadonlyArray<string>;
+    farewell: string;
+    spriteKey: string;
+    homeRadius: number;
+}
+
+export interface NpcsFile {
+    npcs: ReadonlyArray<NpcData>;
+}
+
 export type ProximityState = 'hidden' | 'far' | 'mid' | 'near';
 
 export interface GameConstants {

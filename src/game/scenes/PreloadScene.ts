@@ -36,6 +36,10 @@ export class PreloadScene extends Scene {
         // is not fatal: GameScene falls back to the old "all landmarks as
         // primaries" mode, which keeps exploration working without chapters.
         this.load.json('chapters', 'chapters.json');
+        // NPC dialogue data - four scripted Aboriginal characters the player
+        // can walk up to and talk with. Failure to load is handled at the
+        // GameScene consumer side (no NPCs spawn).
+        this.load.json('npcs', 'npcs.json');
 
         // Load hero photographs for each landmark from public/assets/landmarks/Victoria/.
         // Missing files silently fall back to the procedural icons baked in BootScene.
@@ -80,10 +84,19 @@ export class PreloadScene extends Scene {
             this.load.image(`painted-rock-${variant}`, `rocks/rock_${variant}.png`);
         }
 
-        // Fauna: 3 species, 2 frames each
-        for (const species of ['kangaroo', 'emu', 'cockatoo']) {
+        // Fauna: 6 species, 2 frames each. All optional - procedural fallbacks
+        // ship from BootScene.generateFaunaSprites.
+        for (const species of ['kangaroo', 'emu', 'cockatoo', 'wombat', 'wallaby', 'goanna']) {
             for (let f = 0; f < 2; f++) {
                 this.load.image(`painted-fauna-${species}-${f}`, `fauna/fauna_${species}_${f}.png`);
+            }
+        }
+
+        // NPCs: 4 characters, 2 frames each. All optional - procedural
+        // silhouette fallback ships from BootScene.generateNpcSprites.
+        for (const id of ['aunty-marjorie', 'ranger-david', 'young-fisher', 'weaver-nan']) {
+            for (let f = 0; f < 2; f++) {
+                this.load.image(`painted-npc-${id}-${f}`, `npcs/npc_${id.replace(/-/g, '_')}_${f}.png`);
             }
         }
 
@@ -121,6 +134,13 @@ export class PreloadScene extends Scene {
             if (key === 'chapters') {
                 // eslint-disable-next-line no-console
                 console.warn('[PreloadScene] chapters.json not found - running in free-exploration fallback');
+                return;
+            }
+            // npcs.json is optional. Without it, no NPCs spawn but gameplay
+            // continues normally.
+            if (key === 'npcs') {
+                // eslint-disable-next-line no-console
+                console.warn('[PreloadScene] npcs.json not found - NPCs disabled');
                 return;
             }
             // eslint-disable-next-line no-console
