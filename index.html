@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/src/styles/story-card.css">
+    <link rel="stylesheet" href="/src/styles/chapter-picker.css">
+    <link rel="stylesheet" href="/src/styles/museum.css">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <title>Walking Through Country</title>
 </head>
@@ -28,6 +30,60 @@
                 </div>
                 <p class="story-card__text"></p>
             </div>
+        </div>
+    </div>
+
+    <div id="chapter-picker-overlay" aria-hidden="true">
+        <div class="chapter-picker" role="dialog" aria-labelledby="cp-title">
+            <h1 id="cp-title" class="cp__title">An Invitation to Country</h1>
+            <p class="cp__sub">Choose a season to walk through</p>
+            <div id="cp-grid" class="cp__grid"></div>
+            <p class="cp__hint">Arrow keys to navigate  .  Enter to begin</p>
+        </div>
+    </div>
+
+    <div id="farewell-overlay" aria-hidden="true">
+        <div class="farewell" role="dialog" aria-labelledby="fw-title">
+            <h1 id="fw-title" class="fw__title">Thank you for walking with me.</h1>
+            <p class="fw__chapter"></p>
+            <div class="fw__divider"></div>
+            <h2 class="fw__cite-heading">Sources</h2>
+            <ul class="fw__citations"></ul>
+            <p class="fw__attribution">
+                Cultural information drawn from publicly available educational resources.
+                We acknowledge the Kulin Nations as the Traditional Owners of this Country.
+            </p>
+            <p class="fw__hint">Press any key to begin again</p>
+        </div>
+    </div>
+
+    <div id="settings-overlay" aria-hidden="true">
+        <div class="settings" role="dialog" aria-labelledby="sm-title">
+            <button class="settings__close" aria-label="Close settings">&times;</button>
+            <h2 id="sm-title" class="settings__title">Settings</h2>
+            <div class="settings__row">
+                <label for="sm-reduced-motion">Reduced motion</label>
+                <input type="checkbox" id="sm-reduced-motion" />
+            </div>
+            <div class="settings__row">
+                <label for="sm-text-size">Text size</label>
+                <select id="sm-text-size">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
+            <div class="settings__row">
+                <label for="sm-volume">Volume</label>
+                <input type="range" id="sm-volume" min="0" max="100" value="70" />
+            </div>
+            <p class="settings__hint">Esc to close</p>
+        </div>
+    </div>
+
+    <div id="soft-prompt-overlay" aria-hidden="true">
+        <div class="soft-prompt">
+            <p>Still there? Touch anywhere to keep walking.</p>
         </div>
     </div>
 

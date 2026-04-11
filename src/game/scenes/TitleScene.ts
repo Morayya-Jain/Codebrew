@@ -53,21 +53,21 @@ export class TitleScene extends Scene {
             }
         });
 
-        // Title
-        const title = this.add.text(centerX, height / 2 - 80, 'Walking Through\nCountry', {
+        // Title - larger, slower fade-in for reverent museum pacing.
+        const title = this.add.text(centerX, height / 2 - 110, 'Walking Through\nCountry', {
             fontFamily: '"Crimson Text", Georgia, serif',
-            fontSize: '56px',
+            fontSize: '58px',
             color: '#e8c170',
             align: 'center',
-            lineSpacing: 8,
+            lineSpacing: 10,
             fontStyle: 'bold',
         }).setOrigin(0.5);
         title.setAlpha(0);
 
-        // Subtitle
-        const subtitle = this.add.text(centerX, height / 2 + 20, 'An exploration of Aboriginal Australian culture', {
+        // Subtitle - positioned beneath the concentric motif.
+        const subtitle = this.add.text(centerX, height / 2 + 20, 'An invitation to Country', {
             fontFamily: '"Crimson Text", Georgia, serif',
-            fontSize: '20px',
+            fontSize: '22px',
             color: '#a0886a',
             align: 'center',
             fontStyle: 'italic',
@@ -83,39 +83,54 @@ export class TitleScene extends Scene {
         }).setOrigin(0.5);
         region.setAlpha(0);
 
-        // Start prompt
-        const startText = this.add.text(centerX, height / 2 + 130, 'Press any key or click to begin', {
-            fontFamily: '"Crimson Text", Georgia, serif',
-            fontSize: '18px',
-            color: '#e8c170',
-            align: 'center',
-        }).setOrigin(0.5);
-        startText.setAlpha(0);
-
-        // Acknowledgement
-        const ack = this.add.text(centerX, height - 40,
-            'We acknowledge the Traditional Owners of the land and pay respect to Elders past, present, and emerging.', {
+        // Acknowledgement block - larger type, more weight, sits well above
+        // the bottom edge so it reads as the centrepiece it deserves to be.
+        const ackHeading = this.add.text(centerX, height - 120,
+            'Acknowledgement of Country', {
                 fontFamily: '"Crimson Text", Georgia, serif',
-                fontSize: '13px',
-                color: '#6a5a4a',
+                fontSize: '14px',
+                color: '#8a7a6a',
                 align: 'center',
+                fontStyle: 'italic',
+            }).setOrigin(0.5);
+        ackHeading.setAlpha(0);
+
+        const ack = this.add.text(centerX, height - 86,
+            'We acknowledge the Traditional Owners of the land and pay respect\nto Elders past, present, and emerging.', {
+                fontFamily: '"Crimson Text", Georgia, serif',
+                fontSize: '15px',
+                color: '#a8988a',
+                align: 'center',
+                lineSpacing: 4,
                 wordWrap: { width: width - 80 },
             }).setOrigin(0.5);
         ack.setAlpha(0);
 
-        // Animate elements in
-        this.tweens.add({ targets: title, alpha: 1, duration: 1200, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: subtitle, alpha: 0.9, duration: 1000, delay: 600, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: region, alpha: 0.7, duration: 1000, delay: 900, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: ack, alpha: 0.8, duration: 1000, delay: 1200, ease: 'Quad.easeOut' });
-        this.tweens.add({ targets: startText, alpha: 1, duration: 800, delay: 1800, ease: 'Quad.easeOut' });
+        // Start prompt - moved to the bottom, smaller, less insistent.
+        const startText = this.add.text(centerX, height - 32, 'Press any key or touch to begin', {
+            fontFamily: '"Crimson Text", Georgia, serif',
+            fontSize: '13px',
+            color: '#8a7a6a',
+            align: 'center',
+            fontStyle: 'italic',
+        }).setOrigin(0.5);
+        startText.setAlpha(0);
 
-        // Pulsing start text
+        // Animate elements in with reverent timing. Total fade-in sequence
+        // runs to ~4.5s (2000ms title + 2500ms worth of cascading delays).
+        this.tweens.add({ targets: title, alpha: 1, duration: 2000, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: subtitle, alpha: 0.9, duration: 1400, delay: 1000, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: region, alpha: 0.7, duration: 1200, delay: 1400, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: ackHeading, alpha: 0.8, duration: 1200, delay: 2200, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: ack, alpha: 0.85, duration: 1400, delay: 2600, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: startText, alpha: 0.9, duration: 1000, delay: 4200, ease: 'Quad.easeOut' });
+
+        // Pulsing start text - slower and gentler than before.
         this.tweens.add({
             targets: startText,
-            alpha: 0.4,
-            duration: 1200,
-            delay: 2600,
+            alpha: 0.35,
+            duration: 1800,
+            delay: 5200,
             ease: 'Sine.easeInOut',
             yoyo: true,
             repeat: -1,
@@ -131,8 +146,10 @@ export class TitleScene extends Scene {
         }));
         this.particleGraphics = this.add.graphics();
 
-        // Start on input (delayed to prevent accidental skip)
-        this.time.delayedCall(2000, () => {
+        // Reverent pacing: 5s input lock so the Acknowledgement of Country
+        // has time to fade in fully and be read before the visitor can
+        // advance. Museum context favours a slower welcome over quick entry.
+        this.time.delayedCall(5000, () => {
             this.input.once('pointerdown', () => this.startGame());
             if (this.input.keyboard) {
                 this.input.keyboard.once('keydown', () => this.startGame());

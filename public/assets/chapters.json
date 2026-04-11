@@ -1,0 +1,615 @@
+{
+    "seasonPresets": [
+        {
+            "id": "iuk-dusk",
+            "kulinSeason": "iuk",
+            "displayName": "Iuk  .  Eel Season",
+            "timeOfDay": "golden-hour",
+            "weather": "clear",
+            "windIntensity": 0.35,
+            "ambientBed": "dusk-cicadas",
+            "grassTint": "#c89a5a"
+        },
+        {
+            "id": "waring-dawn",
+            "kulinSeason": "waring",
+            "displayName": "Waring  .  Wombat Season",
+            "timeOfDay": "dawn",
+            "weather": "mist",
+            "windIntensity": 0.2,
+            "ambientBed": "dawn-birdsong",
+            "grassTint": "#7a9a72"
+        },
+        {
+            "id": "guling-morning",
+            "kulinSeason": "guling",
+            "displayName": "Guling  .  Orchid Season",
+            "timeOfDay": "morning",
+            "weather": "clear",
+            "windIntensity": 0.25,
+            "ambientBed": "morning-quiet",
+            "grassTint": "#8a9a62"
+        },
+        {
+            "id": "poorneet-dusk",
+            "kulinSeason": "poorneet",
+            "displayName": "Poorneet  .  Tadpole Season",
+            "timeOfDay": "dusk",
+            "weather": "clear",
+            "windIntensity": 0.3,
+            "ambientBed": "evening-crickets",
+            "grassTint": "#a48a5a"
+        },
+        {
+            "id": "kangaroo-apple-midday",
+            "kulinSeason": "kangaroo-apple",
+            "displayName": "Kangaroo-apple Season",
+            "timeOfDay": "golden-hour",
+            "weather": "heat-shimmer",
+            "windIntensity": 0.45,
+            "ambientBed": "midday-cicadas",
+            "grassTint": "#d4a848"
+        },
+        {
+            "id": "biderap-night",
+            "kulinSeason": "biderap",
+            "displayName": "Biderap  .  Dry Season",
+            "timeOfDay": "night",
+            "weather": "clear",
+            "windIntensity": 0.18,
+            "ambientBed": "night-fire",
+            "grassTint": "#5a4a32"
+        }
+    ],
+    "chapters": [
+        {
+            "id": "the-campfire-welcome",
+            "order": 1,
+            "title": "The Campfire Welcome",
+            "subtitle": "Chapter I  .  Iuk  .  Eel Season",
+            "seasonPresetId": "iuk-dusk",
+            "welcomeLines": [
+                {
+                    "id": "c1-w1",
+                    "text": "Welcome. Walk gently, you are on the land of the Kulin Nation.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                },
+                {
+                    "id": "c1-w2",
+                    "text": "Tonight the fire is warm and the day is leaving. Come, sit with me for a while.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                }
+            ],
+            "hubLines": [
+                {
+                    "id": "c1-h1",
+                    "text": "Before we share a story I want you to see where food comes from on this Country. Walk with me to the bush tucker trail.",
+                    "mood": "teach",
+                    "pauseGameplay": false
+                }
+            ],
+            "waypoints": [
+                {
+                    "id": "c1-wp1",
+                    "landmarkId": "bush-tucker",
+                    "role": "waypoint",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c1-a1",
+                            "text": "Here. Murnong, kangaroo grass, wattle seed. Our people have known these plants for tens of thousands of years.",
+                            "mood": "teach"
+                        },
+                        {
+                            "id": "c1-a2",
+                            "text": "Looking after the land is part of feeding from it. Gentle fire, careful picking. The Country feeds you back.",
+                            "mood": "teach"
+                        }
+                    ],
+                    "observationPrompt": "Listen. Can you hear the cicadas settling for the night?"
+                },
+                {
+                    "id": "c1-wp2",
+                    "landmarkId": "campfire",
+                    "role": "primary",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c1-b1",
+                            "text": "Back at the fire now. This is where the stories live. Sit. Press E to hear the story of the gathering place.",
+                            "mood": "welcome"
+                        }
+                    ]
+                }
+            ],
+            "closeLines": [
+                {
+                    "id": "c1-c1",
+                    "text": "Good. You have walked with me a little way tonight. The fire will remember you.",
+                    "mood": "reflect",
+                    "pauseGameplay": true
+                }
+            ],
+            "farewellLines": [
+                {
+                    "id": "c1-f1",
+                    "text": "Thank you for walking with me. Come back another season.",
+                    "mood": "farewell",
+                    "pauseGameplay": true
+                }
+            ],
+            "citations": [
+                {
+                    "id": "mv-kulin-seasons",
+                    "title": "Kulin Seasonal Calendar",
+                    "publisher": "Museums Victoria  .  Bunjilaka",
+                    "url": "https://museumsvictoria.com.au/bunjilaka/"
+                },
+                {
+                    "id": "bom-iwk-kulin",
+                    "title": "Indigenous Weather Knowledge  .  Kulin Nation",
+                    "publisher": "Bureau of Meteorology",
+                    "url": "http://www.bom.gov.au/iwk/"
+                },
+                {
+                    "id": "gammage-biggest-estate",
+                    "title": "The Biggest Estate on Earth",
+                    "publisher": "Bill Gammage, Allen & Unwin, 2011"
+                }
+            ]
+        },
+        {
+            "id": "following-water",
+            "order": 2,
+            "title": "Following Water",
+            "subtitle": "Chapter II  .  Waring  .  Wombat Season",
+            "seasonPresetId": "waring-dawn",
+            "welcomeLines": [
+                {
+                    "id": "c2-w1",
+                    "text": "Waring is the cool time. The wombat is moving through the grasses in the early morning. Come walk with me.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                },
+                {
+                    "id": "c2-w2",
+                    "text": "The land is quieter now. Listen to how it breathes.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                }
+            ],
+            "hubLines": [
+                {
+                    "id": "c2-h1",
+                    "text": "Walk northwest with me. I want to show you the old waterhole, then a tree that still carries the marks of a long-ago canoe-maker.",
+                    "mood": "teach",
+                    "pauseGameplay": false
+                }
+            ],
+            "waypoints": [
+                {
+                    "id": "c2-wp1",
+                    "landmarkId": "waterhole",
+                    "role": "waypoint",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c2-a1",
+                            "text": "This waterhole has been cared for by many generations. In Kulin stories, the Rainbow Serpent moved across this land in the Dreamtime, and the rivers and waterholes formed in its path.",
+                            "mood": "teach"
+                        },
+                        {
+                            "id": "c2-a2",
+                            "text": "Waterholes were meeting places, not only places to drink. Our people knew which held water all year and which dried up in summer. That knowledge was carried in stories.",
+                            "mood": "teach"
+                        }
+                    ],
+                    "observationPrompt": "Listen to the water. Notice what other creatures depend on this place."
+                },
+                {
+                    "id": "c2-wp2",
+                    "landmarkId": "ancestor-tree",
+                    "role": "primary",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c2-b1",
+                            "text": "And here is the old scarred tree. Bark was carefully taken to make a canoe, a shield, a coolamon. The tree was left living. That was the knowledge. Take only what you need.",
+                            "mood": "teach"
+                        }
+                    ]
+                }
+            ],
+            "closeLines": [
+                {
+                    "id": "c2-c1",
+                    "text": "Water and wood, both shaped by patient hands, over a long time. That is Waring country.",
+                    "mood": "reflect",
+                    "pauseGameplay": true
+                }
+            ],
+            "farewellLines": [
+                {
+                    "id": "c2-f1",
+                    "text": "Thank you for walking through the cool morning with me.",
+                    "mood": "farewell",
+                    "pauseGameplay": true
+                }
+            ],
+            "citations": [
+                {
+                    "id": "mv-kulin-seasons",
+                    "title": "Kulin Seasonal Calendar",
+                    "publisher": "Museums Victoria  .  Bunjilaka",
+                    "url": "https://museumsvictoria.com.au/bunjilaka/"
+                },
+                {
+                    "id": "aiatsis-dreaming",
+                    "title": "Dreaming Stories and Ancestors",
+                    "publisher": "AIATSIS",
+                    "url": "https://aiatsis.gov.au"
+                }
+            ]
+        },
+        {
+            "id": "reading-the-stone",
+            "order": 3,
+            "title": "Reading the Stone",
+            "subtitle": "Chapter III  .  Guling  .  Orchid Season",
+            "seasonPresetId": "guling-morning",
+            "welcomeLines": [
+                {
+                    "id": "c3-w1",
+                    "text": "Guling. The orchids are beginning. The coldest time has passed and the land is waking.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                },
+                {
+                    "id": "c3-w2",
+                    "text": "I want to show you the oldest things here. Things made before the oldest language you know.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                }
+            ],
+            "hubLines": [
+                {
+                    "id": "c3-h1",
+                    "text": "Walk east with me. We will pass the grinding stones on the way to the rock art.",
+                    "mood": "teach",
+                    "pauseGameplay": false
+                }
+            ],
+            "waypoints": [
+                {
+                    "id": "c3-wp1",
+                    "landmarkId": "grinding-stones",
+                    "role": "waypoint",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c3-a1",
+                            "text": "These stones are worn smooth by thousands of hands, over thousands of years. Women ground seeds and ochre here. Kangaroo grass into flour. Coloured rock into pigment for ceremony.",
+                            "mood": "teach"
+                        },
+                        {
+                            "id": "c3-a2",
+                            "text": "Grinding stones were sometimes traded over long distances. The person who shaped the tools mattered.",
+                            "mood": "teach"
+                        }
+                    ],
+                    "observationPrompt": "Feel how smooth the stone is in your imagination. That depth of wear took a very long time."
+                },
+                {
+                    "id": "c3-wp2",
+                    "landmarkId": "rock-art",
+                    "role": "primary",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c3-b1",
+                            "text": "The rock art in Victoria is over twenty thousand years old. The artists used ochre, ground from the same kind of stones we just left.",
+                            "mood": "teach"
+                        }
+                    ]
+                }
+            ],
+            "closeLines": [
+                {
+                    "id": "c3-c1",
+                    "text": "The old people are still speaking through these marks. We only have to know how to listen.",
+                    "mood": "reflect",
+                    "pauseGameplay": true
+                }
+            ],
+            "farewellLines": [
+                {
+                    "id": "c3-f1",
+                    "text": "Thank you for taking your time with the old things today.",
+                    "mood": "farewell",
+                    "pauseGameplay": true
+                }
+            ],
+            "citations": [
+                {
+                    "id": "mv-rock-art",
+                    "title": "Aboriginal Rock Art in Victoria",
+                    "publisher": "Museums Victoria",
+                    "url": "https://museumsvictoria.com.au/"
+                },
+                {
+                    "id": "gammage-biggest-estate",
+                    "title": "The Biggest Estate on Earth",
+                    "publisher": "Bill Gammage, Allen & Unwin, 2011"
+                }
+            ]
+        },
+        {
+            "id": "the-emu-in-the-sky",
+            "order": 4,
+            "title": "The Emu in the Sky",
+            "subtitle": "Chapter IV  .  Poorneet  .  Tadpole Season",
+            "seasonPresetId": "poorneet-dusk",
+            "welcomeLines": [
+                {
+                    "id": "c4-w1",
+                    "text": "Poorneet. The tadpoles are hatching in the still water. The sky changes in the evening now.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                },
+                {
+                    "id": "c4-w2",
+                    "text": "Tonight I want you to walk to two places where the land and the sky speak to each other.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                }
+            ],
+            "hubLines": [
+                {
+                    "id": "c4-h1",
+                    "text": "Walk southwest with me first. We are going past the bush tucker trail, then on to the emu dreaming track.",
+                    "mood": "teach",
+                    "pauseGameplay": false
+                }
+            ],
+            "waypoints": [
+                {
+                    "id": "c4-wp1",
+                    "landmarkId": "bush-tucker",
+                    "role": "waypoint",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c4-a1",
+                            "text": "The kangaroo-apple plants here tell you which season you are in. When they flower, the bronze-wing pigeons are laying eggs. The six Kulin seasons each carry their own signs, plants, animals, stars.",
+                            "mood": "teach"
+                        },
+                        {
+                            "id": "c4-a2",
+                            "text": "Listen. Which birds are calling now that were not calling in the cold time?",
+                            "mood": "teach"
+                        }
+                    ],
+                    "observationPrompt": "What plants can you recognise here? Listen for the evening birds."
+                },
+                {
+                    "id": "c4-wp2",
+                    "landmarkId": "emu-dreaming",
+                    "role": "primary",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c4-b1",
+                            "text": "This dreaming track follows the path the Emu ancestor walked across the land in the Dreamtime. And tonight, look at the dark spaces in the Milky Way. There is a great emu shape in those dark patches between the stars.",
+                            "mood": "teach"
+                        }
+                    ]
+                }
+            ],
+            "closeLines": [
+                {
+                    "id": "c4-c1",
+                    "text": "The sky was a calendar. When the celestial emu appeared in a certain position, the real emus were laying their eggs. That is knowledge built over generations.",
+                    "mood": "reflect",
+                    "pauseGameplay": true
+                }
+            ],
+            "farewellLines": [
+                {
+                    "id": "c4-f1",
+                    "text": "Look up tonight before you sleep.",
+                    "mood": "farewell",
+                    "pauseGameplay": true
+                }
+            ],
+            "citations": [
+                {
+                    "id": "mv-astronomy",
+                    "title": "Aboriginal Astronomy",
+                    "publisher": "Museums Victoria",
+                    "url": "https://museumsvictoria.com.au/"
+                },
+                {
+                    "id": "mv-kulin-seasons",
+                    "title": "Kulin Seasonal Calendar",
+                    "publisher": "Museums Victoria  .  Bunjilaka",
+                    "url": "https://museumsvictoria.com.au/bunjilaka/"
+                }
+            ]
+        },
+        {
+            "id": "caring-for-country",
+            "order": 5,
+            "title": "Caring for Country",
+            "subtitle": "Chapter V  .  Kangaroo-apple Season",
+            "seasonPresetId": "kangaroo-apple-midday",
+            "welcomeLines": [
+                {
+                    "id": "c5-w1",
+                    "text": "The kangaroo-apples are ripening. This is the generous time. The land is giving.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                },
+                {
+                    "id": "c5-w2",
+                    "text": "Today I want to take you north and then east, to understand how this Country was looked after.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                }
+            ],
+            "hubLines": [
+                {
+                    "id": "c5-h1",
+                    "text": "Walk north with me first, to the songline path. We will follow it east toward the grinding stones.",
+                    "mood": "teach",
+                    "pauseGameplay": false
+                }
+            ],
+            "waypoints": [
+                {
+                    "id": "c5-wp1",
+                    "landmarkId": "songline",
+                    "role": "waypoint",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c5-a1",
+                            "text": "A songline is a song that is also a map. Each verse describes a landmark. If you know the song, you can navigate Country you have never physically visited.",
+                            "mood": "teach"
+                        },
+                        {
+                            "id": "c5-a2",
+                            "text": "Songlines connected the Kulin Nation to communities far away. They were also trade routes, carrying stone tools, cloaks, and ochre across the continent.",
+                            "mood": "teach"
+                        }
+                    ],
+                    "observationPrompt": "This path runs all the way to the mountains and the sea."
+                },
+                {
+                    "id": "c5-wp2",
+                    "landmarkId": "grinding-stones",
+                    "role": "primary",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c5-b1",
+                            "text": "And here are the grinding stones. The songline brought people through this Country, and this was where they stopped to work, to trade, to share a meal.",
+                            "mood": "teach"
+                        }
+                    ]
+                }
+            ],
+            "closeLines": [
+                {
+                    "id": "c5-c1",
+                    "text": "When you care for Country, you are also caring for the people who will come after you. That is what looking after means.",
+                    "mood": "reflect",
+                    "pauseGameplay": true
+                }
+            ],
+            "farewellLines": [
+                {
+                    "id": "c5-f1",
+                    "text": "Go gently. Keep an eye on what is growing around you.",
+                    "mood": "farewell",
+                    "pauseGameplay": true
+                }
+            ],
+            "citations": [
+                {
+                    "id": "gammage-biggest-estate",
+                    "title": "The Biggest Estate on Earth",
+                    "publisher": "Bill Gammage, Allen & Unwin, 2011"
+                },
+                {
+                    "id": "aiatsis-songlines",
+                    "title": "Songlines and Dreaming Tracks",
+                    "publisher": "AIATSIS",
+                    "url": "https://aiatsis.gov.au"
+                }
+            ]
+        },
+        {
+            "id": "corroboree-night",
+            "order": 6,
+            "title": "Corroboree Night",
+            "subtitle": "Chapter VI  .  Biderap  .  Dry Season",
+            "seasonPresetId": "biderap-night",
+            "welcomeLines": [
+                {
+                    "id": "c6-w1",
+                    "text": "Biderap. The dry time. People have been gathering tonight from many directions. Come and join us.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                },
+                {
+                    "id": "c6-w2",
+                    "text": "A corroboree is not just a dance. It is a way of keeping knowledge alive, of meeting each other, of being together on Country.",
+                    "mood": "welcome",
+                    "pauseGameplay": true
+                }
+            ],
+            "hubLines": [
+                {
+                    "id": "c6-h1",
+                    "text": "Walk east with me. There is something I want to show you before we reach the gathering ground.",
+                    "mood": "teach",
+                    "pauseGameplay": false
+                }
+            ],
+            "waypoints": [
+                {
+                    "id": "c6-wp1",
+                    "landmarkId": "possum-cloak",
+                    "role": "waypoint",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c6-a1",
+                            "text": "Possum skin cloaks were made over a lifetime. Each panel is a story, your totem, your country, your family. A baby received their first cloak at birth. An elder's cloak held a whole life.",
+                            "mood": "teach"
+                        },
+                        {
+                            "id": "c6-a2",
+                            "text": "After European settlement the tradition was nearly lost. Kulin Nation artists have been reviving it. Some cloaks are in museums now. Some are back on Country.",
+                            "mood": "teach"
+                        }
+                    ],
+                    "observationPrompt": "In the old way, the decorated inner surface pressed against your skin as you slept."
+                },
+                {
+                    "id": "c6-wp2",
+                    "landmarkId": "meeting-place",
+                    "role": "primary",
+                    "elderLinesOnArrival": [
+                        {
+                            "id": "c6-b1",
+                            "text": "The corroboree ground. Groups have come from many language nations to be here tonight. Trade, ceremony, strengthening of family connections. All of this happens in a gathering like this one.",
+                            "mood": "teach"
+                        }
+                    ]
+                }
+            ],
+            "closeLines": [
+                {
+                    "id": "c6-c1",
+                    "text": "Gatherings like this one maintained peace and trust across Country. They were governance, medicine, education, and celebration, all at once.",
+                    "mood": "reflect",
+                    "pauseGameplay": true
+                }
+            ],
+            "farewellLines": [
+                {
+                    "id": "c6-f1",
+                    "text": "Thank you for joining us tonight. Safe travels on your own Country.",
+                    "mood": "farewell",
+                    "pauseGameplay": true
+                }
+            ],
+            "citations": [
+                {
+                    "id": "mv-possum-cloaks",
+                    "title": "Possum Skin Cloaks",
+                    "publisher": "Museums Victoria",
+                    "url": "https://museumsvictoria.com.au/"
+                },
+                {
+                    "id": "aiatsis-ceremony",
+                    "title": "Ceremony and Corroboree",
+                    "publisher": "AIATSIS",
+                    "url": "https://aiatsis.gov.au"
+                }
+            ]
+        }
+    ]
+}

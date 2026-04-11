@@ -113,6 +113,26 @@ function lerpRgbHex(a: number, b: number, t: number): number {
     return (r << 16) | (g << 8) | bl;
 }
 
+/**
+ * Map a season-preset string ("golden-hour", "goldenHour", "dawn", etc.) to
+ * a TimeOfDayState enum value. Returns null if the string doesn't match any
+ * known state.
+ */
+function parseTimeOfDayString(raw: string): TimeOfDayState | null {
+    const normalised = raw.replace(/[-_\s]/g, '').toLowerCase();
+    const map: Record<string, TimeOfDayState> = {
+        dawn: TimeOfDayState.Dawn,
+        morning: TimeOfDayState.Morning,
+        goldenhour: TimeOfDayState.GoldenHour,
+        golden: TimeOfDayState.GoldenHour,
+        midday: TimeOfDayState.GoldenHour,
+        dusk: TimeOfDayState.Dusk,
+        twilight: TimeOfDayState.Dusk,
+        night: TimeOfDayState.Night,
+    };
+    return map[normalised] ?? null;
+}
+
 function lerpPalette(a: TimeOfDayPalette, b: TimeOfDayPalette, t: number): TimeOfDayPalette {
     return {
         ambientTint: [
@@ -160,6 +180,21 @@ class TimeOfDayManager extends Phaser.Events.EventEmitter {
         this.cachedPalette_ = TIME_OF_DAY_PALETTES[state];
         this.running_ = false;
         this.emit('change', state, this.cachedPalette_);
+    }
+
+    /**
+     * Accept a season preset string (kebab-case or camelCase) and apply the
+     * matching state. Used by SeasonPreset.applySeasonPreset(). Unknown strings
+     * are ignored so a malformed chapters.json doesn't crash the scene.
+     */
+    setPreset(timeOfDay: string): void {
+        const state = parseTimeOfDayString(timeOfDay);
+        if (state === null) {
+            // eslint-disable-next-line no-console
+            console.warn(`[TimeOfDay] unknown preset state: ${timeOfDay}`);
+            return;
+        }
+        this.setState(state);
     }
 
     /** Called every frame from GameScene. Advances the cycle + interpolates the palette. */

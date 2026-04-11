@@ -1,6 +1,6 @@
 import { GameObjects, Scene, Math as PMath } from 'phaser';
 import { FloatingLabel } from '../ui/FloatingLabel';
-import type { LandmarkData, ProximityState } from '../types';
+import type { LandmarkData, ProximityState, WaypointRole } from '../types';
 import { CONSTANTS } from '../types';
 
 export const LANDMARK_EVENTS = {
@@ -8,8 +8,17 @@ export const LANDMARK_EVENTS = {
     NEAR_LEAVE: 'landmark-near-leave',
 } as const;
 
+/**
+ * The role a landmark plays in the current chapter (see ChapterSystem).
+ *   - 'primary'  : the visitor can press E to open the StoryCard
+ *   - 'waypoint' : proximity triggers elder dialogue but no StoryCard
+ * Landmarks not referenced by the current chapter are not spawned at all.
+ */
+export type LandmarkChapterRole = WaypointRole;
+
 export class Landmark extends GameObjects.Container {
     readonly data_: LandmarkData;
+    readonly role: LandmarkChapterRole;
     private icon: GameObjects.Sprite;
     private heroBg_: GameObjects.Image | null = null;
     private heroFg_: GameObjects.Image | null = null;
@@ -19,9 +28,10 @@ export class Landmark extends GameObjects.Container {
     private lastGlowState: ProximityState = 'hidden';
     private usingHero_ = false;
 
-    constructor(scene: Scene, data: LandmarkData) {
+    constructor(scene: Scene, data: LandmarkData, role: LandmarkChapterRole = 'primary') {
         super(scene, data.position.x, data.position.y);
         this.data_ = data;
+        this.role = role;
 
         // Glow effect behind icon
         this.glowGraphics = scene.add.graphics();
@@ -94,6 +104,11 @@ export class Landmark extends GameObjects.Container {
         return this._isNear;
     }
 
+    /** Waypoint landmarks trigger elder dialogue only — the full StoryCard is reserved for primary roles. */
+    get canOpenStoryCard(): boolean {
+        return this.role === 'primary';
+    }
+
     updateProximity(playerX: number, playerY: number): void {
         const dist = PMath.Distance.Between(
             playerX, playerY,
@@ -122,7 +137,7 @@ export class Landmark extends GameObjects.Container {
             this.scene.events.emit(LANDMARK_EVENTS.NEAR_LEAVE, this);
         }
 
-        this.label.setState(state);
+        this.label.setProximityState(state);
         this.updateGlow(state, dist);
     }
 

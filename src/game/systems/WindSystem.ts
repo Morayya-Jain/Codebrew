@@ -23,6 +23,28 @@ export class WindSystem extends Phaser.Events.EventEmitter {
     private gustUntil_ = 0;
     private gustStrength_ = 0;
     private nextGust_ = 8000;
+    /**
+     * Additive override from the current SeasonPreset. A season with
+     * windIntensity 0.2 (cold dawn) adds -0.15 here, pulling `value` down;
+     * a 0.6 season adds +0.25. Centred around the base `breeze` of 0.35 so
+     * presets feel relative to the default. Does NOT touch `time_` or gust
+     * scheduling, so LFO phase and gust rhythm stay continuous.
+     */
+    private presetOffset_ = 0;
+
+    /**
+     * Set the preset wind offset. `intensity` is the season's target wind
+     * value in the 0..1 range, matching the SeasonPreset.windIntensity field
+     * in chapters.json.
+     */
+    setIntensityOverride(intensity: number): void {
+        // Centre on the nominal breeze of 0.35. A preset of 0.35 is neutral.
+        this.presetOffset_ = intensity - 0.35;
+    }
+
+    clearIntensityOverride(): void {
+        this.presetOffset_ = 0;
+    }
 
     /** Advance the wind by `deltaMs`. Call once per frame from GameScene. */
     tick(deltaMs: number): void {
@@ -41,13 +63,16 @@ export class WindSystem extends Phaser.Events.EventEmitter {
         const t = this.time_ / 1000;
         const base = (Math.sin(t * 0.35) + Math.sin(t * 0.73 + 1.1)) * 0.18;
         const breeze = 0.35 + base;
-        let value = breeze;
+        let value = breeze + this.presetOffset_;
         const isGusting = this.time_ < this.gustUntil_;
         if (isGusting) {
             const u = 1 - (this.gustUntil_ - this.time_) / 1600;
             const envelope = Math.sin(Math.min(1, u) * Math.PI);
             value += envelope * this.gustStrength_;
         }
+        // Clamp to a sane range so a very low preset can't produce negatives
+        // that flip grass rotation.
+        value = Math.max(0.02, value);
         // Direction wobbles slightly with time so gusts feel organic.
         const direction = this.baseDir_ + Math.sin(t * 0.22) * 0.12;
         return { value, direction, isGusting };

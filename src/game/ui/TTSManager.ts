@@ -1,7 +1,6 @@
 export class TTSManager {
     private synth: SpeechSynthesis | null;
     private voice: SpeechSynthesisVoice | null = null;
-    private currentUtterance: SpeechSynthesisUtterance | null = null;
     private _speaking = false;
 
     constructor() {
@@ -33,16 +32,13 @@ export class TTSManager {
 
         utterance.onend = () => {
             this._speaking = false;
-            this.currentUtterance = null;
             onEnd?.();
         };
 
         utterance.onerror = () => {
             this._speaking = false;
-            this.currentUtterance = null;
         };
 
-        this.currentUtterance = utterance;
         this._speaking = true;
         this.synth.speak(utterance);
     }
@@ -51,7 +47,6 @@ export class TTSManager {
         if (!this.synth) return;
         this.synth.cancel();
         this._speaking = false;
-        this.currentUtterance = null;
     }
 
     private initVoice(): void {

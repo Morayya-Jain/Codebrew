@@ -51,7 +51,7 @@ export class FloatingLabel extends GameObjects.Container {
         scene.add.existing(this);
     }
 
-    setState(newState: ProximityState): void {
+    setProximityState(newState: ProximityState): void {
         if (newState === this.currentState) return;
 
         this.killTweens();
