@@ -81,6 +81,10 @@ export class FloatingLabel extends GameObjects.Container {
         }
     }
 
+    setPromptLabel(label: string): void {
+        this.promptText.setText(label);
+    }
+
     getState(): ProximityState {
         return this.currentState;
     }

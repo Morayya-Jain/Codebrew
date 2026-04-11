@@ -1,11 +1,20 @@
 import { Scene } from 'phaser';
+import type { LandmarksFile, Region } from '../types';
+
+interface PreloadSceneData {
+    region?: Region;
+}
 
 export class PreloadScene extends Scene {
+    private region: Region = 'victoria';
+
     constructor() {
         super('PreloadScene');
     }
 
-    init(): void {
+    init(data: PreloadSceneData = {}): void {
+        this.region = data.region ?? 'victoria';
+
         const centerX = this.cameras.main.width / 2;
         const centerY = this.cameras.main.height / 2;
 
@@ -31,42 +40,32 @@ export class PreloadScene extends Scene {
 
     preload(): void {
         this.load.setPath('assets');
-        this.load.json('landmarks', 'landmarks.json');
-        // Chapter data - drives the elder-led narrative flow. Failure to load
-        // is not fatal: GameScene falls back to the old "all landmarks as
-        // primaries" mode, which keeps exploration working without chapters.
+        // Chapter data - legacy system, no longer wired into gameplay but still
+        // loaded so any lingering reference resolves to a valid JSON blob
+        // rather than crashing. Treasure hunt mode replaces chapter flow.
         this.load.json('chapters', 'chapters.json');
         // NPC dialogue data - four scripted Aboriginal characters the player
         // can walk up to and talk with. Failure to load is handled at the
         // GameScene consumer side (no NPCs spawn).
         this.load.json('npcs', 'npcs.json');
 
-        // Load hero photographs for each landmark from public/assets/landmarks/Victoria/.
-        // Missing files silently fall back to the procedural icons baked in BootScene.
-        const heroImages: Array<{ id: string; file: string }> = [
-            { id: 'budj-bim', file: 'budj_bim.jpg' },
-            { id: 'mount-eccles', file: 'mount_eccels.jpg' },
-            { id: 'tyrendarra', file: 'tyrendarra.jpg' },
-            { id: 'lake-condah', file: 'lake_condah_mission.jpg' },
-            { id: 'kurtonitj', file: 'kurtonitj.jpg' },
-            { id: 'brambuk', file: 'brambuk_nationalpark.jpeg' },
-            { id: 'bunjil-shelter', file: 'bunjil_shelter.jpg' },
-            { id: 'gulgurn-manja', file: 'gulgurn_manja.jpg' },
-            { id: 'ngamadjidj', file: 'ngamadjidj.jpg' },
-            { id: 'billimina', file: 'billimina_shelter.jpg' },
-            { id: 'mudadgadjiin', file: 'mudadgadjiin_shelter.jpg' },
-            { id: 'djab-wurrung', file: 'djab_wurrung.jpg' },
-            { id: 'mount-william', file: 'mount_william.jpg' },
-            { id: 'wurdi-youang', file: 'wurdi_youang.jpg' },
-            { id: 'kow-swamp', file: 'kow_swamp.jpg' },
-            { id: 'scarred-trees', file: 'scarred_trees.png' },
-            { id: 'buchan-caves', file: 'buchan_caves.jpeg' },
-            { id: 'gippsland-lakes', file: 'gippsland_lakes.jpg' },
-            { id: 'tarra-bulga', file: 'tarra_bulga.jpg' },
-            { id: 'point-nepean', file: 'point_nepean.jpg' },
-        ];
-        for (const { id, file } of heroImages) {
-            this.load.image(`landmark-hero-${id}`, `landmarks/Victoria/${file}`);
+        // Data-driven hero photograph loading. BootScene preloaded
+        // landmarks.json already, so the cache is warm by the time this
+        // preload() runs. We iterate the chosen region's landmarks and queue
+        // one image load per entry that declares a heroImageFile. Missing
+        // files are handled by the loaderror handler below (silent fallback
+        // to the procedural icon baked in BootScene).
+        const landmarksData = this.cache.json.get('landmarks') as LandmarksFile | undefined;
+        if (landmarksData?.landmarks) {
+            const regionDir = this.region === 'nsw' ? 'NSW' : 'Victoria';
+            for (const lm of landmarksData.landmarks) {
+                if (lm.region !== this.region) continue;
+                if (!lm.heroImageFile) continue;
+                this.load.image(
+                    `landmark-hero-${lm.id}`,
+                    `landmarks/${regionDir}/${lm.heroImageFile}`,
+                );
+            }
         }
 
         // ---------- Phase C painted assets (painted-* keyspace) -----------
@@ -195,6 +194,6 @@ export class PreloadScene extends Scene {
             });
         }
 
-        this.scene.start('GameScene');
+        this.scene.start('GameScene', { region: this.region });
     }
 }

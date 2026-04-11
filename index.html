@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/src/styles/dialog-card.css">
     <link rel="stylesheet" href="/src/styles/chapter-picker.css">
     <link rel="stylesheet" href="/src/styles/museum.css">
+    <link rel="stylesheet" href="/src/styles/teaser-card.css">
+    <link rel="stylesheet" href="/src/styles/completion-card.css">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <title>Walking Through Country</title>
 </head>
@@ -102,6 +104,29 @@
     <div id="soft-prompt-overlay" aria-hidden="true">
         <div class="soft-prompt">
             <p>Still there? Touch anywhere to keep walking.</p>
+        </div>
+    </div>
+
+    <div id="teaser-card-overlay" aria-hidden="true">
+        <div class="teaser-card" role="dialog" aria-labelledby="tc-name">
+            <button class="teaser-card__close-btn" aria-label="Close">&times;</button>
+            <h2 id="tc-name" class="teaser-card__name"></h2>
+            <p class="teaser-card__line"></p>
+            <div class="teaser-card__actions">
+                <button class="teaser-card__continue-btn">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="completion-card-overlay" aria-hidden="true">
+        <div class="completion-card" role="dialog" aria-labelledby="cc-title">
+            <h1 id="cc-title" class="completion-card__title"></h1>
+            <p class="completion-card__subtitle"></p>
+            <ol class="completion-card__list"></ol>
+            <div class="completion-card__actions">
+                <button class="completion-card__replay-btn">Walk another path</button>
+                <button class="completion-card__exit-btn">Return to title</button>
+            </div>
         </div>
     </div>
 

@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import type { LandmarksFile } from '../types';
 
 /** Deterministic mulberry32 RNG — same seed yields the same texture every boot. */
 function seededRng(seed: number): () => number {
@@ -12,9 +13,28 @@ function seededRng(seed: number): () => number {
     };
 }
 
+/** Hash an id to a stable 32-bit seed so deterministic icons stay stable per id. */
+function hashId(id: string): number {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < id.length; i++) {
+        h = Math.imul(h ^ id.charCodeAt(i), 16777619) >>> 0;
+    }
+    return h >>> 0;
+}
+
 export class BootScene extends Scene {
     constructor() {
         super('BootScene');
+    }
+
+    preload(): void {
+        // Load landmarks.json here so generateLandmarkIcons() (run in create)
+        // can iterate the full pool and bake generic fallback icons for any
+        // landmark without a bespoke drawXxxIcon() method. PreloadScene later
+        // reads the same cache entry for hero-image loading, so this is NOT
+        // duplicated work.
+        this.load.setPath('assets');
+        this.load.json('landmarks', 'landmarks.json');
     }
 
     create(): void {
@@ -811,6 +831,7 @@ export class BootScene extends Scene {
         const cx = size / 2;
         const cy = size / 2;
 
+        // Bespoke Victorian icons — each is hand-drawn to reflect its site.
         this.drawBudjBimIcon(cx, cy, size);
         this.drawMountEcclesIcon(cx, cy, size);
         this.drawTyrendarraIcon(cx, cy, size);
@@ -831,6 +852,95 @@ export class BootScene extends Scene {
         this.drawGippslandLakesIcon(cx, cy, size);
         this.drawTarraBulgaIcon(cx, cy, size);
         this.drawPointNepeanIcon(cx, cy, size);
+
+        // Every landmark in landmarks.json that does NOT have a bespoke icon
+        // above gets a deterministic generic marker keyed to its id and tinted
+        // with its iconColor. This keeps NSW (and any future region) playable
+        // without hand-drawing twenty more bespoke icons.
+        const SPECIFIC_IDS: ReadonlySet<string> = new Set([
+            'budj-bim', 'mount-eccles', 'tyrendarra', 'lake-condah', 'kurtonitj',
+            'brambuk', 'bunjil-shelter', 'gulgurn-manja', 'ngamadjidj', 'billimina',
+            'mudadgadjiin', 'djab-wurrung', 'mount-william', 'wurdi-youang', 'kow-swamp',
+            'scarred-trees', 'buchan-caves', 'gippsland-lakes', 'tarra-bulga', 'point-nepean',
+        ]);
+        const data = this.cache.json.get('landmarks') as LandmarksFile | undefined;
+        if (!data?.landmarks) return;
+        for (const lm of data.landmarks) {
+            if (SPECIFIC_IDS.has(lm.id)) continue;
+            this.drawGenericLandmarkIcon(cx, cy, size, lm.id, lm.iconColor);
+        }
+    }
+
+    /**
+     * Deterministic generic landmark icon — concentric disc in the landmark's
+     * iconColor, ringed by radial dot motifs seeded from the id. Used for any
+     * landmark that doesn't have a hand-drawn generator.
+     */
+    private drawGenericLandmarkIcon(
+        cx: number,
+        cy: number,
+        size: number,
+        id: string,
+        colorHex: string,
+    ): void {
+        const gfx = this.add.graphics();
+
+        const rng = seededRng(hashId(id));
+        const color = parseInt(colorHex.replace('#', ''), 16) || 0x888888;
+        const r = (color >> 16) & 0xff;
+        const g = (color >> 8) & 0xff;
+        const b = color & 0xff;
+        const darker = ((r * 0.55) << 16) | ((g * 0.55) << 8) | (b * 0.55);
+        const lighter = (Math.min(255, r + 60) << 16)
+            | (Math.min(255, g + 60) << 8)
+            | Math.min(255, b + 60);
+
+        // Outer soft glow halo
+        gfx.fillStyle(color, 0.1);
+        gfx.fillCircle(cx, cy, 58);
+
+        // Drop shadow ellipse below the marker
+        gfx.fillStyle(0x000000, 0.18);
+        gfx.fillEllipse(cx + 3, cy + 16, 62, 22);
+
+        // Main disc — dark rim + color body
+        gfx.fillStyle(darker, 0.9);
+        gfx.fillCircle(cx, cy, 38);
+        gfx.fillStyle(color, 0.82);
+        gfx.fillCircle(cx, cy, 32);
+
+        // Inner ring
+        gfx.lineStyle(2, lighter, 0.55);
+        gfx.strokeCircle(cx, cy, 23);
+
+        // Radial dot motif — count, radius, and jitter driven by the seeded
+        // RNG so each id gets a recognisable but unique pattern.
+        const dotCount = 6 + Math.floor(rng() * 4);
+        const ringR = 14 + rng() * 4;
+        for (let i = 0; i < dotCount; i++) {
+            const baseAngle = (i / dotCount) * Math.PI * 2;
+            const jitter = (rng() - 0.5) * 0.35;
+            const a = baseAngle + jitter;
+            gfx.fillStyle(lighter, 0.85);
+            gfx.fillCircle(cx + Math.cos(a) * ringR, cy + Math.sin(a) * ringR, 2.6);
+        }
+
+        // Center boss — small highlight disc
+        gfx.fillStyle(0xffffff, 0.85);
+        gfx.fillCircle(cx, cy, 4);
+        gfx.fillStyle(color, 0.5);
+        gfx.fillCircle(cx, cy, 2);
+
+        // Outer decorative dots around the glow halo
+        gfx.fillStyle(lighter, 0.2);
+        const outerCount = 8;
+        for (let i = 0; i < outerCount; i++) {
+            const a = (i / outerCount) * Math.PI * 2 + rng() * 0.15;
+            gfx.fillCircle(cx + Math.cos(a) * 48, cy + Math.sin(a) * 48, 2);
+        }
+
+        gfx.generateTexture(`landmark-${id}`, size, size);
+        gfx.destroy();
     }
 
     // =========================================================================

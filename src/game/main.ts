@@ -1,5 +1,6 @@
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
+import { RegionSelectScene } from './scenes/RegionSelectScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { GameScene } from './scenes/GameScene';
 import { UIScene } from './scenes/UIScene';
@@ -30,6 +31,7 @@ const config: Phaser.Types.Core.GameConfig = {
     scene: [
         BootScene,
         TitleScene,
+        RegionSelectScene,
         PreloadScene,
         GameScene,
         UIScene,

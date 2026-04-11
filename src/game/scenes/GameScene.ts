@@ -4,25 +4,26 @@ import { Landmark, LANDMARK_EVENTS } from '../entities/Landmark';
 import { Npc } from '../entities/Npc';
 import { CONSTANTS } from '../types';
 import type {
-    ChaptersFile,
-    ChapterPhase,
     LandmarkData,
     LandmarksFile,
     NpcData,
     NpcsFile,
-    Waypoint,
-    WeatherKind,
+    Region,
 } from '../types';
 import { PostFxPipeline } from '../fx/PostFxPipeline';
 import { timeOfDay } from '../systems/TimeOfDay';
 import { AmbientAudio } from '../systems/AmbientAudio';
 import { windSystem } from '../systems/WindSystem';
-import { ChapterSystem, CHAPTER_EVENTS } from '../systems/ChapterSystem';
+import { ChapterSystem } from '../systems/ChapterSystem';
 import { WeatherSystem } from '../systems/WeatherSystem';
-import { applySeasonPreset } from '../systems/SeasonPreset';
 import { IdleKiosk, IDLE_KIOSK_EVENTS } from '../systems/IdleKiosk';
 import { SpriteFactory } from '../systems/SpriteFactory';
 import { ParallaxSystem } from '../systems/ParallaxSystem';
+import { TreasureHuntSession } from '../systems/TreasureHuntSession';
+
+interface GameSceneData {
+    region?: Region;
+}
 
 interface AmbientParticle {
     x: number;
@@ -69,24 +70,37 @@ export class GameScene extends Scene {
     private fireflyEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     private leafEmitter_: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     private chapterSystem_: ChapterSystem | null = null;
-    private chapterStarted_ = false;
-    // The landmark whose StoryCard was most recently opened, so the resume
-    // handler can decide whether to advance the chapter (only when closing a
-    // primary active waypoint's card).
+    // The landmark whose StoryCard (or TeaserCard) was most recently opened,
+    // so the resume handler can advance the treasure hunt clue chain when a
+    // target's card closes.
     private lastOpenedLandmarkId_: string | null = null;
     private weatherSystem_: WeatherSystem | null = null;
-    private chaptersData_: ChaptersFile | null = null;
     private idleKiosk_: IdleKiosk | null = null;
     private spriteFactory_: SpriteFactory | null = null;
     private parallax_: ParallaxSystem | null = null;
+    private region_: Region = 'victoria';
+    private treasureHunt_: TreasureHuntSession | null = null;
 
     constructor() {
         super('GameScene');
     }
 
-    // Public accessor so UIScene can subscribe to chapter events.
+    init(data: GameSceneData = {}): void {
+        this.region_ = data.region ?? 'victoria';
+    }
+
+    // Public accessor — chapter system is disabled in treasure hunt mode.
+    // Returns null so legacy callers still type-check and branch safely.
     getChapterSystem(): ChapterSystem | null {
         return this.chapterSystem_;
+    }
+
+    getTreasureHuntSession(): TreasureHuntSession | null {
+        return this.treasureHunt_;
+    }
+
+    getRegion(): Region {
+        return this.region_;
     }
 
     // Public accessor so UIScene's SettingsMenu can toggle audio mute.
@@ -146,25 +160,28 @@ export class GameScene extends Scene {
         // Register and attach the post-FX pipeline (WebGL only; graceful skip on Canvas)
         this.attachPostFxPipeline();
 
-        // Load landmarks and chapters from JSON. Both files loaded in
-        // PreloadScene; chapters.json drives the multi-chapter picker flow.
+        // Load landmarks from JSON (cached by BootScene). Chapters.json still
+        // loads in PreloadScene but is no longer used for gameplay — the
+        // treasure hunt system replaces chapter-driven flow entirely.
         const landmarksData = this.cache.json.get('landmarks') as LandmarksFile | null;
-        this.chaptersData_ = this.cache.json.get('chapters') as ChaptersFile | null;
 
-        // Chapter system is created up-front. It stays empty (no chapter
-        // loaded) until the player picks one from the ChapterPicker. If
-        // chapters.json is missing, the system remains empty and the game
-        // falls back to free-exploration mode (E works on every landmark).
-        this.chapterSystem_ = new ChapterSystem();
+        // Chapter system intentionally left null in treasure hunt mode. The
+        // class and data file remain on disk for possible future revival.
+        this.chapterSystem_ = null;
 
-        // Spawn ALL landmarks every session. The chapter system drives elder
-        // dialogue for the 2 active waypoints; landmarks outside the chapter
-        // are still visible and readable via E, just without elder guidance.
+        // Build a treasure hunt session for the chosen region, then spawn
+        // ONLY the 10 landmarks it picked. The clue chain (and which 10 are
+        // picked) is randomised fresh on every playthrough.
         if (landmarksData) {
-            this.landmarks = landmarksData.landmarks.map(
+            this.treasureHunt_ = TreasureHuntSession.create(
+                this.region_,
+                landmarksData.landmarks,
+            );
+            const selection = this.treasureHunt_.getSelection();
+            this.landmarks = selection.map(
                 (data: LandmarkData) => new Landmark(this, data, 'primary')
             );
-            this.landmarkPositions = landmarksData.landmarks.map(d => ({
+            this.landmarkPositions = selection.map(d => ({
                 x: d.position.x, y: d.position.y, id: d.id, iconColor: d.iconColor,
             }));
         }
@@ -177,18 +194,16 @@ export class GameScene extends Scene {
             this.createNpcs_(npcsData.npcs);
         }
 
-        // Chapter flow - phase changes drive player.canMove and a couple of
-        // housekeeping hooks. See ChapterSystem for the full state machine.
-        this.wireChapterSystem_();
+        // Treasure hunt mode runs without chapter phases, so no phase-gated
+        // player movement and no elder narration is wired here.
 
         // Phase 6 particle emitters (smoke, embers, dust, fireflies, wind leaves)
         // — created AFTER landmarks so the smoke/ember emitters can anchor to
-        // the real Brambuk position from landmarks.json.
+        // a selected landmark (or fall back to a default world position).
         this.createParticleSystems_();
 
-        // Chapter-driven weather (mist, heat-shimmer). Starts in 'clear' state
-        // and only activates once applySeasonPreset_() fires after a chapter
-        // is picked.
+        // Weather system — starts in 'clear' state; in treasure hunt mode no
+        // season preset swap runs, so the atmosphere stays neutral.
         this.weatherSystem_ = new WeatherSystem(this);
 
         // Museum idle detection. Fires staged events that UIScene picks up
@@ -229,14 +244,15 @@ export class GameScene extends Scene {
 
         // Start audio + time-of-day cycling on the first user input
         // (autoplay policy compliant, plus the opening scene holds golden hour).
-        // Also kick off the chapter flow (title card → welcome → hub → walking).
+        // Treasure hunt mode: player is free to move immediately, so there's
+        // no chapter title card or welcome phase to wait on.
         const onFirstInput = (): void => {
             this.audio_?.start();
             timeOfDay.start();
-            this.startChapterIfReady_();
         };
         this.input.keyboard?.once('keydown', onFirstInput);
         this.input.once('pointerdown', onFirstInput);
+        if (this.player) this.player.canMove = true;
 
         // Mute toggle: M key
         this.input.keyboard?.on('keydown-M', () => {
@@ -253,7 +269,7 @@ export class GameScene extends Scene {
         // steady at 1.08 during the framing (a single bilinear resample, not
         // oscillated every frame) so it doesn't create the blur the removed
         // breathing did.
-        this.events.on(LANDMARK_EVENTS.NEAR_ENTER, (landmark: Landmark) => {
+        this.events.on(LANDMARK_EVENTS.NEAR_ENTER, (_landmark: Landmark) => {
             this.tweens.killTweensOf(this.cameras.main);
             this.tweens.add({
                 targets: this.cameras.main,
@@ -261,9 +277,6 @@ export class GameScene extends Scene {
                 duration: 900,
                 ease: 'Sine.easeInOut',
             });
-            // Let the chapter system know — if this landmark is the active
-            // waypoint, its elder dialogue queue will fire.
-            this.chapterSystem_?.onWaypointNear(landmark.data_.id);
         });
         this.events.on(LANDMARK_EVENTS.NEAR_LEAVE, () => {
             this.tweens.killTweensOf(this.cameras.main);
@@ -281,32 +294,59 @@ export class GameScene extends Scene {
             this.audio_ = null;
         });
 
-        // Launch UI scene as overlay
-        this.scene.launch('UIScene');
+        // Launch UI scene as overlay, forwarding the chosen region so the
+        // clue banner + progress dots + mini-map can show the right data.
+        this.scene.launch('UIScene', { region: this.region_ });
+
+        // Emit the opening clue once UIScene has mounted its listeners.
+        // One frame delay (100ms) is more than enough to ensure the UIScene's
+        // create() has run and its event subscriptions are live.
+        this.time.delayedCall(100, () => this.emitCurrentClue_());
 
         // Listen for resume event - add cooldown to prevent E key retriggering.
-        // Also: if the player just closed the active primary waypoint's story
-        // card, advance the chapter. Reading a non-primary (or already passed)
-        // waypoint's card is fine, it just won't advance.
+        // Treasure hunt advance: if the landmark just closed was the current
+        // clue target, advance the chain and emit the next clue (or
+        // completion). Teaser closes leave the chain untouched.
         this.events.on('resume', () => {
             this.time.delayedCall(200, () => {
                 this.isPaused = false;
             });
-            const sys = this.chapterSystem_;
             const opened = this.lastOpenedLandmarkId_;
             this.lastOpenedLandmarkId_ = null;
-            if (sys?.phase === 'walking' && opened) {
-                const wp = sys.activeWaypoint;
-                if (wp?.role === 'primary'
-                    && wp.landmarkId === opened
-                    && sys.isWaypointArrived(wp.id)) {
-                    sys.advanceWaypoint();
-                }
+            if (!opened || !this.treasureHunt_) return;
+            if (!this.treasureHunt_.isCurrentTarget(opened)) return;
+            const completed = this.treasureHunt_.advance();
+            if (completed) {
+                const uiScene = this.scene.get('UIScene');
+                uiScene.events.emit('treasureHuntComplete', {
+                    region: this.region_,
+                    visited: this.treasureHunt_.getVisitedInOrder(),
+                });
+            } else {
+                this.emitCurrentClue_();
             }
         });
 
+        // UIScene can ask us to restart (back to region picker) or exit
+        // (back to the title acknowledgement) after a completed hunt.
+        this.events.on('huntRestart', () => this.resetToRegionPicker_());
+        this.events.on('huntExit', () => this.resetToAttract_());
+
         // Fade in
         this.cameras.main.fadeIn(800, 10, 6, 3);
+    }
+
+    private emitCurrentClue_(): void {
+        if (!this.treasureHunt_) return;
+        const payload = this.treasureHunt_.buildCluePayload();
+        // Sync each spawned landmark's clue-target flag so FloatingLabel
+        // shows "Read Story" on the target and "Look Around" on everything
+        // else.
+        for (const lm of this.landmarks) {
+            lm.setCurrentClueTarget(lm.data_.id === payload.targetId);
+        }
+        const uiScene = this.scene.get('UIScene');
+        uiScene.events.emit('clueUpdate', payload);
     }
 
     update(_time: number, delta: number): void {
@@ -369,42 +409,18 @@ export class GameScene extends Scene {
             }
         }
 
-        // Handle interaction. E opens the StoryCard only for a primary
-        // landmark that the chapter has actually arrived at and whose elder
-        // dialogue has finished - so the visitor can't interrupt the Elder
-        // mid-sentence, and can't read the primary story out of order.
+        // Handle interaction. In treasure hunt mode E always resolves:
+        //   - on the current clue target → full StoryCard + advance chain
+        //   - on any other spawned landmark → TeaserCard (chain untouched)
+        //   - on an NPC (only when no landmark is in range) → DialogCard
+        // The target vs teaser branching lives inside openStoryCard.
         if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
             if (nearestCandidate) {
-                if (this.canInteractWithLandmark_(nearestCandidate)) {
-                    this.openStoryCard(nearestCandidate.data_);
-                }
+                this.openStoryCard(nearestCandidate.data_);
             } else if (nearestNpc) {
-                // Only trigger NPC dialog when no landmark is in range, so
-                // landmark reading always takes precedence.
-                if (!this.chapterSystem_?.elderVoice?.isSpeaking) {
-                    this.openDialogCard_(nearestNpc.data_);
-                }
+                this.openDialogCard_(nearestNpc.data_);
             }
         }
-    }
-
-    private canInteractWithLandmark_(landmark: Landmark): boolean {
-        const sys = this.chapterSystem_;
-        // If there's no chapter loaded, free-exploration mode: any landmark.
-        if (!sys || !sys.chapter) return true;
-        // Don't let the visitor interrupt the Elder mid-sentence.
-        if (sys.elderVoice.isSpeaking) return false;
-        // Is this landmark one of the chapter's waypoints?
-        const chapterWp = sys.chapter.waypoints.find(
-            wp => wp.landmarkId === landmark.data_.id,
-        );
-        if (chapterWp) {
-            // Chapter landmark: only readable after arrival (can't skip ahead).
-            return sys.isWaypointArrived(chapterWp.id);
-        }
-        // Non-chapter landmark: always readable. The elder won't comment, but
-        // the visitor can still explore the world freely.
-        return true;
     }
 
     // Public getters for UIScene / MiniMap
@@ -423,7 +439,21 @@ export class GameScene extends Scene {
         this.lastOpenedLandmarkId_ = data.id;
 
         const uiScene = this.scene.get('UIScene');
-        uiScene.events.emit('openStoryCard', data);
+        const hunt = this.treasureHunt_;
+
+        if (hunt && !hunt.isCurrentTarget(data.id)) {
+            // Out-of-order discovery: show the teaser card. The chain stays
+            // at the current clue so the player still needs to find it.
+            hunt.markTeased(data.id);
+            uiScene.events.emit('openTeaserCard', {
+                id: data.id,
+                name: data.name,
+                teaserLine: data.teaserLine,
+            });
+        } else {
+            // Current target (or no hunt loaded): show the full story card.
+            uiScene.events.emit('openStoryCard', data);
+        }
 
         this.scene.pause();
     }
@@ -471,137 +501,34 @@ export class GameScene extends Scene {
         });
     }
 
-    // =========================================================================
-    // CHAPTER / NARRATIVE WIRING
-    // =========================================================================
-
-    private wireChapterSystem_(): void {
-        const sys = this.chapterSystem_;
-        if (!sys) return;
-
-        // Gate player movement by chapter phase.
-        sys.on(CHAPTER_EVENTS.PHASE_CHANGED, (phase: ChapterPhase) => {
-            const frozenPhases: ReadonlySet<ChapterPhase> = new Set([
-                'attract', 'welcome', 'close', 'farewell',
-            ]);
-            if (this.player) {
-                this.player.canMove = !frozenPhases.has(phase);
-            }
-            // Race-safe: when walking begins, the player may already be
-            // standing inside the active waypoint's NEAR range (they walked
-            // toward it during the hub monologue, which left them free to
-            // roam). NEAR_ENTER only fires on the transition, so we'd miss
-            // the arrival entirely. Re-poll proximity once here.
-            if (phase === 'walking') {
-                this.recheckActiveWaypointProximity_();
-            }
-        });
-
-        // Waypoint activation - emit an event the UI can listen to for hints.
-        // Also re-poll proximity for the new active waypoint, same reason as
-        // above (the player might already be standing on the next stop).
-        sys.on(CHAPTER_EVENTS.WAYPOINT_ACTIVE, (wp: Waypoint) => {
-            this.events.emit('chapterWaypointActive', wp);
-            this.recheckActiveWaypointProximity_();
-        });
-
-        // When the full chapter completes, let the UI show its final card
-        // (ChapterTitleCard "Chapter Complete") and the FarewellScreen modal.
-        sys.on(CHAPTER_EVENTS.CHAPTER_COMPLETE, () => {
-            this.events.emit('chapterComplete', {
-                chapter: sys.chapter,
-                seasonPreset: sys.seasonPreset,
-            });
-        });
-
-        // Farewell dismiss -> reset to attract mode for next visitor.
-        this.events.on('farewellDismissed', () => {
-            this.resetToAttract_();
-        });
-
-        // Player starts frozen until the first input begins the chapter.
-        // (canMove default is true; this explicit set keeps welcome aligned
-        // with the first-input -> beginWelcome transition below.)
-        if (this.player) {
-            this.player.canMove = false;
-        }
-    }
-
-    private recheckActiveWaypointProximity_(): void {
-        const sys = this.chapterSystem_;
-        if (!sys || sys.phase !== 'walking') return;
-        const wp = sys.activeWaypoint;
-        if (!wp || sys.isWaypointArrived(wp.id)) return;
-        const landmark = this.landmarks.find(l => l.data_.id === wp.landmarkId);
-        if (!landmark || !this.player) return;
-        landmark.updateProximity(this.player.x, this.player.y);
-        if (landmark.isNear) {
-            sys.onWaypointNear(landmark.data_.id);
-        }
-    }
-
-    private startChapterIfReady_(): void {
-        if (this.chapterStarted_) return;
-        this.chapterStarted_ = true;
-        const sys = this.chapterSystem_;
-        const data = this.chaptersData_;
-
-        if (!sys || !data || data.chapters.length === 0) {
-            // Free exploration fallback - no chapters to drive the flow.
-            if (this.player) this.player.canMove = true;
-            return;
-        }
-
-        if (data.chapters.length === 1) {
-            // Single chapter - skip picker, auto-load.
-            sys.load(data, data.chapters[0].id);
-            this.applySeasonPreset_();
-            this.emitChapterStart_();
-            return;
-        }
-
-        // Multi-chapter - show picker and wait for selection.
-        if (this.player) this.player.canMove = false;
-        this.events.emit('showChapterPicker', data);
-        this.events.once('chapterSelected', (chapterId: string) => {
-            sys.load(data, chapterId);
-            this.applySeasonPreset_();
-            this.emitChapterStart_();
-        });
-    }
-
-    private applySeasonPreset_(): void {
-        const preset = this.chapterSystem_?.seasonPreset;
-        const chapter = this.chapterSystem_?.chapter;
-        if (!preset) return;
-        applySeasonPreset(preset, this.audio_);
-        const weather = (preset.weather ?? 'clear') as WeatherKind;
-        this.weatherSystem_?.setWeather(weather);
-        // Swap parallax painted backgrounds for this chapter if they exist.
-        if (chapter) {
-            this.parallax_?.switchChapter(chapter.id, CONSTANTS.WORLD_WIDTH, CONSTANTS.WORLD_HEIGHT);
-        }
-    }
-
-    private emitChapterStart_(): void {
-        const chapter = this.chapterSystem_?.chapter;
-        if (!chapter) return;
-        this.events.emit('chapterIntroRequested', chapter);
-        this.time.delayedCall(900, () => this.chapterSystem_?.beginWelcome());
-    }
-
     /**
-     * Kiosk reset path. Used by IdleKiosk (180s idle) and FarewellScreen
-     * dismiss callback. Fades the camera, stops UIScene and GameScene, then
-     * restarts TitleScene for a clean session for the next visitor.
+     * Kiosk reset path. Used by IdleKiosk (180s idle) and the completion
+     * overlay "return to title" button. Fades the camera, stops UIScene and
+     * GameScene, then restarts TitleScene for a clean session for the next
+     * visitor.
      */
     private resetToAttract_(): void {
         this.idleKiosk_?.setEnabled(false);
-        this.chapterSystem_?.elderVoice.stop();
+        this.chapterSystem_?.elderVoice?.stop();
         this.cameras.main.fadeOut(600, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
             this.scene.stop('UIScene');
             this.scene.start('TitleScene');
+        });
+    }
+
+    /**
+     * Treasure hunt replay path. Called from the completion overlay when the
+     * player picks "Walk another path". Fades out, tears down UIScene, and
+     * returns to RegionSelectScene so a fresh region (and a fresh random 10)
+     * can be chosen.
+     */
+    private resetToRegionPicker_(): void {
+        this.idleKiosk_?.setEnabled(false);
+        this.cameras.main.fadeOut(600, 0, 0, 0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.stop('UIScene');
+            this.scene.start('RegionSelectScene');
         });
     }
 

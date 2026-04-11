@@ -1,45 +1,78 @@
 import { Scene } from 'phaser';
 import { StoryCard } from '../ui/StoryCard';
 import { DialogCard } from '../ui/DialogCard';
+import { TeaserCard } from '../ui/TeaserCard';
+import { CompletionCard } from '../ui/CompletionCard';
 import { MiniMap } from '../ui/MiniMap';
-import { ElderDialogue } from '../ui/ElderDialogue';
-import { ChapterTitleCard } from '../ui/ChapterTitleCard';
-import { ChapterPicker } from '../ui/ChapterPicker';
-import { FarewellScreen } from '../ui/FarewellScreen';
 import { SettingsMenu } from '../ui/SettingsMenu';
-import type { ChapterData, ChaptersFile, LandmarkData, NpcData, SeasonPresetData } from '../types';
+import type { LandmarkData, NpcData, Region } from '../types';
+import { REGION_LABELS } from '../types';
 import type { GameScene } from './GameScene';
-import { CHAPTER_EVENTS, type ChapterSystem } from '../systems/ChapterSystem';
+import { TreasureHuntSession } from '../systems/TreasureHuntSession';
+import type { ClueUpdatePayload } from '../systems/TreasureHuntSession';
+
+interface UISceneData {
+    region?: Region;
+}
+
+interface TeaserPayload {
+    id: string;
+    name: string;
+    teaserLine: string;
+}
+
+interface CompletionPayload {
+    region: Region;
+    visited: LandmarkData[];
+}
 
 export class UIScene extends Scene {
     private storyCard!: StoryCard;
     private dialogCard!: DialogCard;
+    private teaserCard!: TeaserCard;
+    private completionCard!: CompletionCard;
     private miniMap!: MiniMap;
     private progressText!: Phaser.GameObjects.Text;
     private hintText!: Phaser.GameObjects.Text;
+    private clueBannerBg!: Phaser.GameObjects.Graphics;
+    private clueBannerText!: Phaser.GameObjects.Text;
+    private clueBannerLabel!: Phaser.GameObjects.Text;
     private discoveredIds: Set<string> = new Set();
-    private totalLandmarks = 20;
+    private readonly totalLandmarks = TreasureHuntSession.LANDMARK_COUNT;
+    private currentClueIndex_ = 0;
     private progressDotsGfx!: Phaser.GameObjects.Graphics;
-    private elderDialogue_: ElderDialogue | null = null;
-    private chapterTitleCard_: ChapterTitleCard | null = null;
-    private chapterPicker_: ChapterPicker | null = null;
-    private farewellScreen_: FarewellScreen | null = null;
     private settingsMenu_: SettingsMenu | null = null;
     private softPromptEl_: HTMLElement | null = null;
-    private chapterSystem_: ChapterSystem | null = null;
+    private region_: Region = 'victoria';
 
     constructor() {
         super('UIScene');
     }
 
+    init(data: UISceneData = {}): void {
+        this.region_ = data.region ?? 'victoria';
+        this.discoveredIds = new Set();
+        this.currentClueIndex_ = 0;
+    }
+
     create(): void {
         this.storyCard = new StoryCard();
         this.dialogCard = new DialogCard();
+        this.teaserCard = new TeaserCard();
+        this.completionCard = new CompletionCard();
         const { width, height } = this.cameras.main;
+        const gameScene = this.scene.get('GameScene') as GameScene;
 
-        // Progress tracker (top right) — in Phase 1 this shows "Waypoint n of m"
-        // for the active chapter, falling back to the original stories counter
-        // if no chapter is loaded.
+        // Region label in the top-left corner. Tiny, low-contrast — mostly
+        // so visitors can double-check which country they're walking.
+        this.add.text(20, 20, REGION_LABELS[this.region_], {
+            fontFamily: '"Crimson Text", Georgia, serif',
+            fontSize: '14px',
+            color: '#8a7a6a',
+            fontStyle: 'italic',
+        }).setAlpha(0.7).setScrollFactor(0);
+
+        // Progress tracker (top right) — "n / 10 Clues Followed"
         this.progressText = this.add.text(width - 20, 20, '', {
             fontFamily: '"Crimson Text", Georgia, serif',
             fontSize: '16px',
@@ -49,9 +82,28 @@ export class UIScene extends Scene {
 
         this.progressDotsGfx = this.add.graphics().setScrollFactor(0);
 
+        // Clue banner — top-center parchment-style panel showing the current
+        // treasure hunt clue. Hidden until the first clueUpdate event fires.
+        this.clueBannerBg = this.add.graphics().setScrollFactor(0);
+        this.clueBannerLabel = this.add.text(width / 2, 26, '', {
+            fontFamily: '"Crimson Text", Georgia, serif',
+            fontSize: '13px',
+            color: '#c4805a',
+            align: 'center',
+            fontStyle: 'italic',
+        }).setOrigin(0.5, 0).setScrollFactor(0);
+        this.clueBannerText = this.add.text(width / 2, 46, '', {
+            fontFamily: '"Crimson Text", Georgia, serif',
+            fontSize: '17px',
+            color: '#f5e6d3',
+            align: 'center',
+            wordWrap: { width: 640 },
+        }).setOrigin(0.5, 0).setScrollFactor(0);
+        this.setClueBannerAlpha(0);
+
         // HUD hint text (bottom center)
         this.hintText = this.add.text(width / 2, height - 28,
-            'WASD / Arrow Keys to move  ·  Shift to sprint  ·  Walk with the Elder',
+            'WASD / Arrow Keys to move  ·  Shift to sprint  ·  [ E ] to read',
             {
                 fontFamily: '"Crimson Text", Georgia, serif',
                 fontSize: '14px',
@@ -69,30 +121,11 @@ export class UIScene extends Scene {
             });
         });
 
-        // Pick up the chapter system from GameScene. It's constructed during
-        // GameScene.create() which runs strictly before UIScene.create() (we
-        // are a launched overlay, not the owner), so the reference is valid.
-        const gameScene = this.scene.get('GameScene') as GameScene;
-        this.chapterSystem_ = gameScene.getChapterSystem();
-
-        // Mount the narrative + museum UI layers. ElderDialogue listens on
-        // the chapter system directly; others are driven by GameScene events.
-        this.chapterPicker_ = new ChapterPicker();
-        this.farewellScreen_ = new FarewellScreen();
+        // Settings menu (Escape toggles)
         this.settingsMenu_ = new SettingsMenu();
         this.softPromptEl_ = document.getElementById('soft-prompt-overlay');
 
-        if (this.chapterSystem_) {
-            this.elderDialogue_ = new ElderDialogue(this, this.chapterSystem_);
-            this.chapterTitleCard_ = new ChapterTitleCard(this);
-            this.wireChapterEvents_(gameScene);
-        }
-
-        // Settings: Escape toggles the settings menu during gameplay. Block
-        // the toggle during elder monologues so a held Escape doesn't
-        // interrupt the reading flow.
         this.input.keyboard?.on('keydown-ESC', () => {
-            if (this.chapterSystem_?.elderVoice?.isSpeaking) return;
             if (this.settingsMenu_?.isVisible()) {
                 this.settingsMenu_.hide();
             } else {
@@ -100,15 +133,11 @@ export class UIScene extends Scene {
             }
         });
 
-        // Apply settings changes to the runtime (volume -> audio mute toggle,
-        // reduced motion -> future weather/bloom suppression).
+        // Apply settings changes to the runtime (volume -> audio mute toggle).
         this.settingsMenu_?.onChange((state) => {
             const gs = this.scene.get('GameScene') as GameScene;
             const audio = gs?.getAmbientAudio?.();
             if (audio) {
-                // Simple mute-at-zero behaviour. A full gain ramp would need
-                // an API on AmbientAudio; for Phase B we map volume <= 5 to
-                // fully muted, > 5 to unmuted.
                 audio.setMuted(state.volume <= 5);
             }
         });
@@ -117,9 +146,7 @@ export class UIScene extends Scene {
         gameScene.events.on('idleSoftPrompt', () => {
             this.softPromptEl_?.classList.add('visible');
             this.softPromptEl_?.setAttribute('aria-hidden', 'false');
-            // Any input hides it (GameScene's IdleKiosk resets timers on
-            // the same input, so no need for a separate handler).
-            const hide = () => {
+            const hide = (): void => {
                 this.softPromptEl_?.classList.remove('visible');
                 this.softPromptEl_?.setAttribute('aria-hidden', 'true');
                 window.removeEventListener('keydown', hide);
@@ -129,33 +156,62 @@ export class UIScene extends Scene {
             window.addEventListener('pointerdown', hide, { once: true });
         });
 
-        // Tear down narrative UI cleanly on scene shutdown.
+        // Tear narrative UI down cleanly on scene shutdown.
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-            this.elderDialogue_?.destroy();
-            this.elderDialogue_ = null;
-            this.chapterTitleCard_?.destroy();
-            this.chapterTitleCard_ = null;
-            this.chapterPicker_?.hide();
-            this.chapterPicker_ = null;
-            this.farewellScreen_?.hide();
-            this.farewellScreen_ = null;
             this.settingsMenu_?.hide();
             this.settingsMenu_ = null;
             this.softPromptEl_?.classList.remove('visible');
+            this.teaserCard?.hide();
+            this.completionCard?.hide();
         });
 
         this.refreshProgressUi_();
 
-        // Listen for story card open events from GameScene
+        // Story card — shown when the player reads the current clue target.
         this.events.on('openStoryCard', (data: LandmarkData) => {
             this.discoveredIds = new Set([...this.discoveredIds, data.id]);
-            this.refreshProgressUi_();
             this.storyCard.show(data, () => this.closeStoryCard());
         });
 
+        // Teaser card — shown when the player reaches a non-target landmark
+        // that's still in the random 10 selection.
+        this.events.on('openTeaserCard', (payload: TeaserPayload) => {
+            this.teaserCard.show(payload, () => this.closeTeaserCard_());
+        });
+
+        // Clue updates drive both the parchment banner and the progress dots.
+        this.events.on('clueUpdate', (payload: ClueUpdatePayload) => {
+            this.currentClueIndex_ = payload.index;
+            if (payload.isComplete) {
+                this.setClueBannerAlpha(0);
+            } else {
+                this.showClueBanner_(payload);
+            }
+            this.refreshProgressUi_();
+        });
+
+        // Full hunt completion — show the final summary card.
+        this.events.on('treasureHuntComplete', (payload: CompletionPayload) => {
+            this.currentClueIndex_ = this.totalLandmarks;
+            this.setClueBannerAlpha(0);
+            this.refreshProgressUi_();
+            this.completionCard.show(
+                payload,
+                () => {
+                    this.completionCard.hide();
+                    const gs = this.scene.get('GameScene');
+                    gs.events.emit('huntRestart');
+                },
+                () => {
+                    this.completionCard.hide();
+                    const gs = this.scene.get('GameScene');
+                    gs.events.emit('huntExit');
+                },
+            );
+        });
+
         // NPC dialog flow, mirrors the story card lifecycle. NPCs don't
-        // contribute to the landmark progress tracker, so there's no
-        // refreshProgressUi_ call on open.
+        // contribute to the treasure hunt progress.
         this.events.on('openDialogCard', (data: NpcData) => {
             this.dialogCard.show(data, () => this.closeDialogCard_());
         });
@@ -181,95 +237,83 @@ export class UIScene extends Scene {
         gameScene.events.emit('resume');
     }
 
+    private closeTeaserCard_(): void {
+        const gameScene = this.scene.get('GameScene');
+        gameScene.scene.resume();
+        gameScene.events.emit('resume');
+    }
+
     private closeDialogCard_(): void {
         const gameScene = this.scene.get('GameScene');
         gameScene.scene.resume();
         gameScene.events.emit('resume');
     }
 
-    private wireChapterEvents_(gameScene: GameScene): void {
-        const sys = this.chapterSystem_;
-        if (!sys) return;
+    private showClueBanner_(payload: ClueUpdatePayload): void {
+        this.clueBannerLabel.setText(`Clue ${payload.index + 1} of ${payload.total}`);
+        this.clueBannerText.setText(payload.clueText);
 
-        sys.on(CHAPTER_EVENTS.CHAPTER_READY, () => {
-            this.refreshProgressUi_();
-        });
-        sys.on(CHAPTER_EVENTS.WAYPOINT_ACTIVE, () => {
-            this.refreshProgressUi_();
-        });
-        sys.on(CHAPTER_EVENTS.WAYPOINT_ARRIVED, () => {
-            this.refreshProgressUi_();
-        });
+        const { width } = this.cameras.main;
+        const padX = 36;
+        const padY = 14;
+        const textW = Math.max(
+            this.clueBannerLabel.width,
+            this.clueBannerText.width,
+        );
+        const boxW = Math.min(width - 60, textW + padX * 2);
+        const boxH = this.clueBannerLabel.height + this.clueBannerText.height + padY * 2 + 6;
+        const boxX = width / 2 - boxW / 2;
+        const boxY = 14;
 
-        // Chapter picker - GameScene asks UI to show it; UI emits
-        // 'chapterSelected' back with the chosen ID.
-        gameScene.events.on('showChapterPicker', (data: ChaptersFile) => {
-            this.chapterPicker_?.show(data, (chapterId: string) => {
-                gameScene.events.emit('chapterSelected', chapterId);
-            });
-        });
+        this.clueBannerBg.clear();
+        this.clueBannerBg.fillStyle(0x1a1210, 0.88);
+        this.clueBannerBg.fillRoundedRect(boxX, boxY, boxW, boxH, 12);
+        this.clueBannerBg.lineStyle(1.5, 0xe8c170, 0.45);
+        this.clueBannerBg.strokeRoundedRect(boxX, boxY, boxW, boxH, 12);
+        this.clueBannerBg.lineStyle(1, 0xe8c170, 0.2);
+        this.clueBannerBg.strokeRoundedRect(boxX + 4, boxY + 4, boxW - 8, boxH - 8, 9);
 
-        // Title card on chapter intro
-        gameScene.events.on('chapterIntroRequested', (chapter: ChapterData) => {
-            this.chapterTitleCard_?.show(chapter, sys.seasonPreset);
-        });
+        this.clueBannerLabel.setPosition(width / 2, boxY + padY);
+        this.clueBannerText.setPosition(
+            width / 2,
+            boxY + padY + this.clueBannerLabel.height + 4,
+        );
 
-        // Chapter complete -> brief card, then FarewellScreen modal with
-        // citations + farewell line. window.setTimeout is used here rather
-        // than scene.time.delayedCall because the latter's scheduling is
-        // tied to the scene's update loop, which can get out of sync across
-        // parallel scenes in edge cases (e.g. if another scene pauses).
-        gameScene.events.on('chapterComplete', (payload: { chapter: ChapterData; seasonPreset: SeasonPresetData | null }) => {
-            this.chapterTitleCard_?.showComplete();
-            window.setTimeout(() => {
-                this.farewellScreen_?.show(
-                    payload.chapter,
-                    payload.seasonPreset,
-                    () => {
-                        gameScene.events.emit('farewellDismissed');
-                    },
-                );
-            }, 3200);
+        this.setClueBannerAlpha(0);
+        this.tweens.add({
+            targets: [this.clueBannerBg, this.clueBannerLabel, this.clueBannerText],
+            alpha: 1,
+            duration: 500,
+            ease: 'Quad.easeOut',
         });
     }
 
+    private setClueBannerAlpha(a: number): void {
+        this.clueBannerBg.setAlpha(a);
+        this.clueBannerLabel.setAlpha(a);
+        this.clueBannerText.setAlpha(a);
+    }
+
     private refreshProgressUi_(): void {
-        const sys = this.chapterSystem_;
         const { width } = this.cameras.main;
         const baseY = 45;
-
-        if (sys && sys.chapter) {
-            const total = sys.totalWaypoints;
-            const index = Math.min(sys.activeWaypointIndex + 1, total);
-            this.progressText.setText(`Waypoint ${index} of ${total}  ·  ${sys.chapter.title}`);
-            this.progressText.setColor('#e8c170');
-
-            this.progressDotsGfx.clear();
-            for (let i = 0; i < total; i++) {
-                const x = width - 20 - (total - 1 - i) * 14;
-                const reached = i < sys.activeWaypointIndex
-                    || (i === sys.activeWaypointIndex && sys.activeWaypoint
-                        && sys.isWaypointArrived(sys.activeWaypoint.id));
-                this.progressDotsGfx.fillStyle(reached ? 0xe8c170 : 0x3a2a1a, reached ? 0.9 : 0.5);
-                this.progressDotsGfx.fillCircle(x, baseY, 4);
-            }
-            return;
-        }
-
-        // Fallback: old "stories discovered" counter for free-exploration mode.
         const total = this.totalLandmarks;
-        const count = this.discoveredIds.size;
-        this.progressText.setText(count === total
-            ? 'All Stories Discovered!'
-            : `${count} / ${total} Stories Discovered`);
-        this.progressText.setColor(count === total ? '#4aff4a' : '#e8c170');
+        const count = Math.min(this.currentClueIndex_, total);
+
+        this.progressText.setText(count >= total
+            ? 'All Clues Followed!'
+            : `${count} / ${total} Clues Followed`);
+        this.progressText.setColor(count >= total ? '#4aff4a' : '#e8c170');
 
         this.progressDotsGfx.clear();
         for (let i = 0; i < total; i++) {
             const x = width - 20 - (total - 1 - i) * 14;
-            const discovered = i < count;
-            this.progressDotsGfx.fillStyle(discovered ? 0xe8c170 : 0x3a2a1a, discovered ? 0.9 : 0.5);
-            this.progressDotsGfx.fillCircle(x, baseY, 4);
+            const found = i < count;
+            const isCurrent = i === count && count < total;
+            const color = found ? 0xe8c170 : isCurrent ? 0xc4805a : 0x3a2a1a;
+            const alpha = found ? 0.9 : isCurrent ? 0.85 : 0.5;
+            this.progressDotsGfx.fillStyle(color, alpha);
+            this.progressDotsGfx.fillCircle(x, baseY, isCurrent ? 5 : 4);
         }
     }
 }

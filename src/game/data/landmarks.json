@@ -7,7 +7,11 @@
             "fullStory": "Budj Bim, in south-west Victoria, is one of Australia's most remarkable Aboriginal heritage sites and a UNESCO World Heritage-listed cultural landscape. The Gunditjmara people engineered an extraordinary aquaculture system here more than 6,600 years ago, making it one of the oldest known aquaculture systems in the world — older than the pyramids of Egypt.\n\nThe Gunditjmara used lava flows from the dormant Budj Bim volcano to construct a complex network of stone channels, weirs, and holding ponds to trap, store, and harvest kooyang (short-finned eels). These engineered waterways stretched across the landscape, allowing the Gunditjmara to manage eel populations year-round and sustain large, permanent settlements.\n\nThis challenges the old assumption that Aboriginal Australians were only nomadic hunter-gatherers. The Gunditjmara built stone dwellings, managed food resources through engineering, and lived in villages — a settled way of life sustained by deep knowledge of the land.\n\nToday, the Gunditjmara people continue to care for Budj Bim. The site's World Heritage listing in 2019 recognised not just its archaeological importance, but the living cultural connection that the Gunditjmara maintain with this extraordinary place.",
             "position": { "x": 1000, "y": 4800 },
             "iconColor": "#3a7d5c",
-            "illustrationColor": "#2a6d4c"
+            "illustrationColor": "#2a6d4c",
+            "region": "victoria",
+            "clueText": "Where ancient eels run through channels of stone — a place older than the pyramids.",
+            "teaserLine": "Listen. The water here has been shaped by hands for six thousand years.",
+            "heroImageFile": "budj_bim.jpg"
         },
         {
             "id": "mount-eccles",
@@ -16,7 +20,11 @@
             "fullStory": "Mount Eccles, now known as Budj Bim National Park, sits at the heart of the volcanic landscape that the Gunditjmara people transformed into a vast aquaculture system. The dormant volcano and its surrounding lava flows created the natural foundations — stone, channels, and wetlands — that the Gunditjmara engineered over thousands of years.\n\nThe crater lake at the summit, Lake Surprise, is a sacred site. The volcanic terrain provided the basalt stone that the Gunditjmara shaped into channel walls, weirs, and house foundations. Lava tubes, caves, and rock formations throughout the park hold cultural significance and were used for shelter, ceremony, and food storage.\n\nThe park contains evidence of permanent stone dwellings — circular foundations that once supported bark and timber structures. These villages, sustained by the eel aquaculture system, supported one of the highest population densities of any Aboriginal community in pre-contact Australia.\n\nMount Eccles / Budj Bim National Park is jointly managed by the Gunditjmara people and Parks Victoria, ensuring that the deep cultural knowledge of this landscape continues to guide its care and interpretation.",
             "position": { "x": 1400, "y": 4200 },
             "iconColor": "#5a4a3a",
-            "illustrationColor": "#4a3a2a"
+            "illustrationColor": "#4a3a2a",
+            "region": "victoria",
+            "clueText": "Seek the sleeping volcano whose breath once cooled into villages and a crater lake of surprise.",
+            "teaserLine": "Lava sleeps here now, but the walls it made still stand.",
+            "heroImageFile": "mount_eccels.jpg"
         },
         {
             "id": "tyrendarra",
@@ -25,7 +33,11 @@
             "fullStory": "Tyrendarra Indigenous Protected Area, on the south-west Victorian coast near Portland, protects a landscape of immense cultural significance to the Gunditjmara people. The area contains some of the best-preserved evidence of Aboriginal stone house foundations and eel harvesting infrastructure in Australia.\n\nArchaeological surveys at Tyrendarra have revealed the remains of circular stone dwellings, arranged in clusters that suggest organised village settlements. Alongside these houses, the engineered channels and weirs of the Gunditjmara aquaculture system are clearly visible — stone-lined waterways designed to direct eels into traps during their seasonal migrations.\n\nThe coastal environment at Tyrendarra also provided shellfish, fish, and seabirds, while the inland wetlands supported plant foods and freshwater species. The Gunditjmara managed this diverse landscape through controlled burning and water management, maintaining its productivity across seasons.\n\nDeclared an Indigenous Protected Area in 2015, Tyrendarra is managed by the Gunditjmara people through the Winda-Mara Aboriginal Corporation. It represents a powerful assertion of Aboriginal land management and custodianship — ancient knowledge applied to contemporary conservation.",
             "position": { "x": 800, "y": 5400 },
             "iconColor": "#6a8a5a",
-            "illustrationColor": "#5a7a4a"
+            "illustrationColor": "#5a7a4a",
+            "region": "victoria",
+            "clueText": "Find the coastal protected land where stone foundations remember the shape of homes.",
+            "teaserLine": "The foundations of a settled life rest beneath the wind and grass.",
+            "heroImageFile": "tyrendarra.jpg"
         },
         {
             "id": "lake-condah",
@@ -34,7 +46,11 @@
             "fullStory": "Lake Condah Mission, established in 1867 near the shores of Lake Condah (Tae Rak) in south-west Victoria, was one of several missions set up to confine and control Aboriginal people during the colonial period. The Gunditjmara and other Aboriginal people were moved here under government policy, separated from their traditional lands and subjected to strict rules about language, movement, and cultural practice.\n\nDespite the hardship and restrictions, the Gunditjmara people at Lake Condah found ways to maintain their culture, language, and connection to country. They continued to practise traditions, pass on knowledge to younger generations, and care for the land around the mission as they had for thousands of years.\n\nThe mission was closed in 1913, and the land was taken for soldier settlements. After decades of campaigning, the Gunditjmara won back ownership of parts of their traditional lands through a landmark native title determination in 2007.\n\nToday, the remains of the mission — stone buildings, a chimney, and other structures — stand as a powerful reminder of what Aboriginal people endured and survived. Lake Condah is both a place of sorrow and a place of strength, showing the resilience of Aboriginal culture in the face of enormous loss.",
             "position": { "x": 1600, "y": 5800 },
             "iconColor": "#6b4226",
-            "illustrationColor": "#5a3620"
+            "illustrationColor": "#5a3620",
+            "region": "victoria",
+            "clueText": "By the shores of Tae Rak, walk where hard memory meets the resilience of those who endured.",
+            "teaserLine": "Stone walls still stand. So do the stories of those who kept culture alive here.",
+            "heroImageFile": "lake_condah_mission.jpg"
         },
         {
             "id": "kurtonitj",
@@ -43,7 +59,11 @@
             "fullStory": "Kurtonitj is a Gunditjmara cultural site in south-west Victoria, part of the broader volcanic landscape that encompasses Budj Bim, Lake Condah, and Tyrendarra. The site preserves evidence of stone house foundations and cultural features that demonstrate the settled, complex society the Gunditjmara maintained for thousands of years.\n\nThe name Kurtonitj reflects the Gunditjmara language and the deep connection between place, language, and identity. Each named site across Gunditjmara country carries stories, responsibilities, and knowledge — a living map of culture embedded in the landscape.\n\nKurtonitj sits within the broader cultural landscape that was recognised for World Heritage listing. The interconnected network of sites across Gunditjmara country — from volcanic craters to engineered waterways to village ruins — tells a story of sophisticated land management and permanent settlement that challenges outdated assumptions about Aboriginal life.\n\nThe Gunditjmara people continue to care for Kurtonitj and the surrounding country, drawing on the knowledge passed down through generations while working with contemporary land management practices to protect this irreplaceable heritage.",
             "position": { "x": 1200, "y": 6000 },
             "iconColor": "#7a6a4a",
-            "illustrationColor": "#6a5a3a"
+            "illustrationColor": "#6a5a3a",
+            "region": "victoria",
+            "clueText": "Find the homeland where each named stone speaks the language of the Gunditjmara.",
+            "teaserLine": "A living map of identity, inscribed into country.",
+            "heroImageFile": "kurtonitj.jpg"
         },
         {
             "id": "brambuk",
@@ -52,7 +72,11 @@
             "fullStory": "Brambuk — The National Park and Cultural Centre sits at the entrance to the Grampians (Gariwerd) National Park in western Victoria. It is a place where the living culture of the Jardwadjali and Djab Wurrung peoples is shared with visitors from around the world.\n\nThe centre's distinctive building was designed to reflect Aboriginal cultural themes, with its sweeping roofline inspired by the shape of a cockatoo in flight. Inside, visitors can learn about the Dreaming stories of Gariwerd, the significance of the rock art in the mountains, and the deep connection between the Aboriginal peoples and their country.\n\nBrambuk offers cultural programs including guided walks to rock art sites, boomerang throwing, didgeridoo playing, and bush tucker tastings. These programs are led by Aboriginal guides who share their knowledge and stories directly with visitors, keeping culture alive through personal connection.\n\nThe centre is owned and managed by Aboriginal communities, making it a powerful example of self-determination and cultural pride. Brambuk demonstrates that Aboriginal culture is not something from the past — it is a living, breathing tradition that continues to grow and adapt while staying connected to ancient roots.",
             "position": { "x": 2200, "y": 3800 },
             "iconColor": "#e8651a",
-            "illustrationColor": "#d4510a"
+            "illustrationColor": "#d4510a",
+            "region": "victoria",
+            "clueText": "Follow the cockatoo's wing to the gateway of Gariwerd's living teachings.",
+            "teaserLine": "The centre here sings with the shape of a bird in flight.",
+            "heroImageFile": "brambuk_nationalpark.jpeg"
         },
         {
             "id": "bunjil-shelter",
@@ -61,7 +85,11 @@
             "fullStory": "Bunjil's Shelter, near Stawell in western Victoria, is one of the most culturally significant Aboriginal sites in south-eastern Australia. The shelter contains a painting of Bunjil, the great creator spirit of the Kulin Nation peoples, depicted as a wedge-tailed eagle accompanied by his two helpers, Djurt-djurt (the nankeen kestrel).\n\nBunjil is central to the Dreaming of the Kulin Nation. He is believed to have created the mountains, rivers, animals, and people. After shaping the world, Bunjil rose into the sky where he watches over his creation. The painting at this shelter is one of the most important representations of Bunjil and has been a place of spiritual significance for thousands of years.\n\nThe rock art at Bunjil's Shelter was created using red ochre, and the figures are painted in a distinctive style. The shelter itself is a natural sandstone overhang that has protected the painting from the elements for millennia.\n\nBunjil's Shelter is a registered Aboriginal cultural heritage place and is protected under Victorian law. Visitors can view the painting from a viewing platform, but the shelter itself is sacred and must be treated with the deepest respect.",
             "position": { "x": 2600, "y": 3400 },
             "iconColor": "#8b5e3c",
-            "illustrationColor": "#6d4a2f"
+            "illustrationColor": "#6d4a2f",
+            "region": "victoria",
+            "clueText": "Look for the overhang where the great eagle spirit watches from a sandstone wall.",
+            "teaserLine": "The creator's painting has waited here for thousands of years.",
+            "heroImageFile": "bunjil_shelter.jpg"
         },
         {
             "id": "gulgurn-manja",
@@ -70,7 +98,11 @@
             "fullStory": "Gulgurn Manja, meaning 'hands of young people', is a spectacular rock art shelter in the northern Grampians (Gariwerd). The site contains more than 100 hand stencils — one of the largest collections of hand art at any single site in south-eastern Australia.\n\nThe hand stencils were created by placing a hand against the rock wall and blowing a mouthful of ochre paint around it, leaving a negative image. The stencils come in many sizes, from tiny children's hands to large adult prints, suggesting that people of all ages participated in creating art at this site over many generations.\n\nHand stencils are among the most personal forms of rock art. Each print is unique — a direct physical impression of an individual who stood in that shelter hundreds or thousands of years ago. The layering of prints at Gulgurn Manja, with newer stencils overlapping older ones, creates a powerful visual record of continuous cultural practice across deep time.\n\nThe site is managed by Parks Victoria with guidance from the Jardwadjali and Djab Wurrung peoples. Visitors can view the shelter from a boardwalk, but touching the rock art is prohibited to prevent further deterioration of these irreplaceable images.",
             "position": { "x": 3400, "y": 2800 },
             "iconColor": "#c44b2a",
-            "illustrationColor": "#a83520"
+            "illustrationColor": "#a83520",
+            "region": "victoria",
+            "clueText": "Seek the shelter whose walls hold a hundred hands of young people, pressed across generations.",
+            "teaserLine": "Small palms and large, pressed into stone across generations.",
+            "heroImageFile": "gulgurn_manja.jpg"
         },
         {
             "id": "ngamadjidj",
@@ -79,7 +111,11 @@
             "fullStory": "Ngamadjidj Shelter, in the northern Grampians (Gariwerd), contains a remarkable collection of rock paintings executed in white clay or pipeclay. The figures depict what are believed to be spirit beings — elongated, ghost-like forms that appear to float across the rock surface.\n\nThe white figures at Ngamadjidj are distinctive in the Grampians rock art tradition, where most paintings use red, yellow, or orange ochre. The choice of white pigment and the ethereal style of the figures suggest that these paintings may have held particular spiritual significance, perhaps representing ancestral spirits or beings from the Dreaming.\n\nThe name Ngamadjidj relates to the white figures themselves, reflecting the Aboriginal practice of naming places after their most significant cultural features. The shelter provided protection from weather and was likely used as a campsite as well as a place for ceremony and art.\n\nNgamadjidj is one of over 80 per cent of Victoria's known rock art sites located within Gariwerd. Together, these sites form one of the richest collections of Aboriginal rock art in south-eastern Australia, spanning over 20,000 years of artistic and cultural expression.",
             "position": { "x": 2000, "y": 3000 },
             "iconColor": "#d0c8b0",
-            "illustrationColor": "#b0a890"
+            "illustrationColor": "#b0a890",
+            "region": "victoria",
+            "clueText": "Pale figures drift across a quiet shelter in the northern ranges — find where they wait.",
+            "teaserLine": "They are not of this world. They wait in white.",
+            "heroImageFile": "ngamadjidj.jpg"
         },
         {
             "id": "billimina",
@@ -88,7 +124,11 @@
             "fullStory": "Billimina Shelter, in the southern Grampians (Gariwerd), is one of the most archaeologically significant Aboriginal sites in Victoria. Excavations at the shelter have yielded evidence of human occupation stretching back over 20,000 years, and the rock art on its walls includes some of the oldest dated paintings in south-eastern Australia.\n\nThe art at Billimina includes hand stencils, animal figures, and geometric designs painted in red, yellow, and white ochre. The shelter floor has produced stone tools, charcoal from cooking fires, and other artefacts that paint a detailed picture of how Aboriginal people lived in Gariwerd across thousands of years, through ice ages and changing climates.\n\nBillimina demonstrates the extraordinary continuity of Aboriginal culture. People were living in and painting this shelter during the last Ice Age, when the climate was colder and drier, and continued to use it as conditions changed. This long occupation record shows the adaptability and resilience of Aboriginal people and their deep, enduring connection to country.\n\nThe shelter is protected as a significant cultural heritage site. Its art and archaeology provide invaluable insights into the long human history of Gariwerd and the rich cultural traditions of the Jardwadjali and Djab Wurrung peoples.",
             "position": { "x": 2800, "y": 2400 },
             "iconColor": "#8a6a4a",
-            "illustrationColor": "#7a5a3a"
+            "illustrationColor": "#7a5a3a",
+            "region": "victoria",
+            "clueText": "Find the shelter whose walls have heard twenty thousand years of winter fires.",
+            "teaserLine": "Older than ice melting, older than most human memory.",
+            "heroImageFile": "billimina_shelter.jpg"
         },
         {
             "id": "mudadgadjiin",
@@ -97,7 +137,11 @@
             "fullStory": "Mudadgadjiin Shelter is another important rock art site within the Grampians (Gariwerd) National Park. Like its neighbouring shelters, Mudadgadjiin preserves painted images created by the Jardwadjali and Djab Wurrung peoples over many generations.\n\nThe paintings at Mudadgadjiin include figures, symbols, and hand stencils applied in ochre pigments. Each painting was created with care and purpose — rock art was not casual decoration but a form of communication, ceremony, and record-keeping. The images encode Dreaming stories, mark territorial boundaries, record significant events, and transmit knowledge between generations.\n\nThe sandstone shelters of Gariwerd provided ideal surfaces for painting. The rock overhangs protected the art from rain and direct sunlight, allowing images to survive for thousands of years. The ochre pigments — made from grinding coloured minerals and mixing them with water or animal fat — bonded with the stone surface to create remarkably durable images.\n\nMudadgadjiin is part of the vast network of rock art sites across Gariwerd that together tell the story of one of the world's oldest continuing artistic traditions. These sites are sacred to the Jardwadjali and Djab Wurrung peoples and are protected under cultural heritage legislation.",
             "position": { "x": 5200, "y": 2400 },
             "iconColor": "#9a6a3a",
-            "illustrationColor": "#8a5a2a"
+            "illustrationColor": "#8a5a2a",
+            "region": "victoria",
+            "clueText": "Seek the ochre canvas tucked within Gariwerd's sandstone folds.",
+            "teaserLine": "Each image here was a word, a story, a warning.",
+            "heroImageFile": "mudadgadjiin_shelter.jpg"
         },
         {
             "id": "djab-wurrung",
@@ -106,7 +150,11 @@
             "fullStory": "The Djab Wurrung Heritage Trees, near Ararat in western Victoria, are a group of ancient trees that hold profound cultural and spiritual significance for the Djab Wurrung people. Some of these trees are estimated to be over 800 years old and carry the scars of bark removal for canoes, shields, and coolamons.\n\nAmong the most significant are the birthing trees — hollow trees where Djab Wurrung women traditionally gave birth. These trees are living connections to ancestors and to the continuous chain of life and culture. The placenta of each newborn was placed within the hollow of the tree, binding child and country together from the moment of birth.\n\nThe Djab Wurrung Heritage Trees became the focus of a major cultural heritage campaign when a highway duplication project threatened to destroy several of the most significant trees. Djab Wurrung people and supporters established a protest camp that lasted years, drawing national and international attention to the importance of protecting these living cultural sites.\n\nThe campaign highlighted the conflict between infrastructure development and cultural heritage protection, and the need for Aboriginal communities to have a meaningful voice in decisions that affect their sacred sites. The trees remain a powerful symbol of cultural resilience and the fight to protect irreplaceable heritage.",
             "position": { "x": 3800, "y": 3800 },
             "iconColor": "#6b4226",
-            "illustrationColor": "#5a3620"
+            "illustrationColor": "#5a3620",
+            "region": "victoria",
+            "clueText": "Find the ancient trees where Djab Wurrung mothers gave birth, and country held the newborns.",
+            "teaserLine": "Roots, hollows, and the placentas of newborns, all bound together.",
+            "heroImageFile": "djab_wurrung.jpg"
         },
         {
             "id": "mount-william",
@@ -115,7 +163,11 @@
             "fullStory": "Mount William, near Lancefield in central Victoria, is the site of the largest known Aboriginal stone axe quarry in Australia. For thousands of years, the Wurundjeri people of the Kulin Nation mined a distinctive green-grey stone (metamorphosed sandstone) from outcrops on the mountain and crafted it into highly prized axes.\n\nMount William axes were among the most valued trade items in south-eastern Australia. They were exchanged across vast distances through intricate trade networks — axes from this quarry have been found hundreds of kilometres away. The trade was governed by strict protocols: the Wurundjeri controlled access to the quarry, and the exchange of axes strengthened alliances, settled disputes, and maintained relationships between language groups.\n\nThe quarry site preserves thousands of quarrying pits, stone flakes from axe production, and grinding grooves where rough blanks were shaped and polished. The scale of production indicates that Mount William was not just a local resource but a site of major economic and social importance across the region.\n\nMount William is listed on the Victorian Heritage Register and the National Heritage List. It stands as powerful evidence of the sophisticated economic systems, trade networks, and social structures that Aboriginal Australians developed over tens of thousands of years.",
             "position": { "x": 4200, "y": 2000 },
             "iconColor": "#5a6a5a",
-            "illustrationColor": "#4a5a4a"
+            "illustrationColor": "#4a5a4a",
+            "region": "victoria",
+            "clueText": "Walk to where the Wurundjeri quarried green stone that travelled to distant clans.",
+            "teaserLine": "The axes made here reached farther than any footstep alone.",
+            "heroImageFile": "mount_william.jpg"
         },
         {
             "id": "wurdi-youang",
@@ -124,7 +176,11 @@
             "fullStory": "Wurdi Youang is an Aboriginal stone arrangement near Little River in Victoria, on the traditional country of the Wathaurong people. The arrangement consists of roughly 100 basalt stones set in an egg-shaped formation about 50 metres across, with its major axis aligned east-west.\n\nResearchers have suggested that some of the prominent stones at Wurdi Youang may indicate the positions where the sun sets at the solstices and equinoxes. If confirmed, this would make it one of the oldest known astronomical observatories in the world, predating Stonehenge by thousands of years.\n\nAboriginal Australians were sophisticated astronomers. They used the stars, sun, and moon to navigate, to know when certain foods would be available, and to time ceremonies. The night sky was a map of stories — the Emu in the Sky, the Seven Sisters, and many other constellations told Dreaming stories that encoded practical knowledge about the natural world.\n\nWurdi Youang reminds us that Aboriginal knowledge systems were — and are — complex, precise, and deeply connected to the land and sky. The site is sacred to the Wathaurong people and is managed with their guidance and oversight.",
             "position": { "x": 4400, "y": 4800 },
             "iconColor": "#7a7a6a",
-            "illustrationColor": "#5a5a4a"
+            "illustrationColor": "#5a5a4a",
+            "region": "victoria",
+            "clueText": "Find the basalt stones arranged in an egg, older than Stonehenge, pointing to the sun.",
+            "teaserLine": "Look east. Look west. The stones know the sky.",
+            "heroImageFile": "wurdi_youang.jpg"
         },
         {
             "id": "kow-swamp",
@@ -133,7 +189,11 @@
             "fullStory": "Kow Swamp, near Cohuna in northern Victoria, is one of the most significant Aboriginal burial sites in Australia. Archaeological excavations in the 1960s and 1970s uncovered the remains of over 40 individuals, dating from approximately 9,000 to 13,000 years ago — making it one of the largest collections of late Pleistocene human remains found anywhere in the world.\n\nThe burials at Kow Swamp revealed important information about the people who lived in the Murray River region during and after the last Ice Age. The remains showed evidence of cultural practices including cranial modification and the use of ochre in burial rituals, indicating sophisticated ceremonial traditions.\n\nThe excavation and study of these remains became a landmark case in the movement for the repatriation of Aboriginal ancestral remains. After years of campaigning by Aboriginal communities, the Kow Swamp remains were returned to the Traditional Owners in 1990 and reburied in a ceremony that honoured both the ancestors and the living culture that sought their return.\n\nKow Swamp stands as both an archaeological site of global significance and a powerful symbol of the Aboriginal fight for the respectful treatment of ancestral remains. The repatriation set an important precedent for Indigenous cultural heritage rights in Australia and internationally.",
             "position": { "x": 3400, "y": 1200 },
             "iconColor": "#8a7a5a",
-            "illustrationColor": "#7a6a4a"
+            "illustrationColor": "#7a6a4a",
+            "region": "victoria",
+            "clueText": "Seek the northern swamp where thirteen thousand years of memory were unearthed, then returned.",
+            "teaserLine": "The ancestors are home again. Walk gently.",
+            "heroImageFile": "kow_swamp.jpg"
         },
         {
             "id": "scarred-trees",
@@ -142,7 +202,11 @@
             "fullStory": "Across Victoria, ancient trees bear the scars of Aboriginal bark harvesting — oval or shield-shaped marks where large sheets of bark were carefully removed to make canoes, shields, coolamons (carrying vessels), shelters, and containers. These scarred trees are among the most widespread and visible forms of Aboriginal cultural heritage in the landscape.\n\nBark removal was a skilled practice governed by strict protocols. The right tree species had to be selected — typically river red gums, box eucalyptus, or grey box — and the bark removed at the right time of year, when sap flow made it pliable. Only one section was taken from each tree, allowing it to heal and continue growing. Many scarred trees are 200 to 500 years old, with some estimated at over 800 years.\n\nThe shape and size of the scar often reveals what the bark was used for. Long, narrow scars typically indicate canoe bark; smaller, more oval scars suggest shields or coolamons. The regrowth around each scar creates a distinctive raised border that becomes more pronounced as the tree ages.\n\nScarred trees are protected under the Aboriginal Heritage Act 2006 (Victoria). They are living cultural heritage — not artefacts in a museum, but markers in the landscape that connect the present to thousands of years of Aboriginal life, craft, and land management.",
             "position": { "x": 4600, "y": 800 },
             "iconColor": "#4a3018",
-            "illustrationColor": "#3a2010"
+            "illustrationColor": "#3a2010",
+            "region": "victoria",
+            "clueText": "Look for the tree that gave up its bark so a canoe could be born.",
+            "teaserLine": "Every scar is a shield, a vessel, a record of living craft.",
+            "heroImageFile": "scarred_trees.png"
         },
         {
             "id": "buchan-caves",
@@ -151,7 +215,11 @@
             "fullStory": "The Buchan Caves in East Gippsland, Victoria, are a network of ancient limestone caves formed over millions of years by underground rivers dissolving the rock. The caves and surrounding country are the traditional land of the Gunaikurnai people, who have lived in this region for tens of thousands of years.\n\nFor the Gunaikurnai, these caves and the surrounding landscape are deeply significant. The rivers, mountains, and forests of Gippsland feature in Dreaming stories that explain the creation of the land and guide the Gunaikurnai in their responsibilities as custodians. Archaeological evidence from the region shows that Aboriginal people inhabited the area during the last Ice Age, making it one of the longest-occupied regions in Australia.\n\nThe caves contain spectacular formations — stalactites, stalagmites, and flowstone created over hundreds of thousands of years. The surrounding bushland is rich with native plants and animals that sustained the Gunaikurnai through the seasons.\n\nToday, the Gunaikurnai people have regained formal recognition of their connection to this country through native title. The caves are a place where geological time and cultural time meet — ancient stone formations alongside a living culture that stretches back to the deep past.",
             "position": { "x": 6800, "y": 3200 },
             "iconColor": "#5a4a6a",
-            "illustrationColor": "#4a3a5a"
+            "illustrationColor": "#4a3a5a",
+            "region": "victoria",
+            "clueText": "Beneath Gunaikurnai hills, water has carved rooms over millions of years. Seek them there.",
+            "teaserLine": "The stone here holds two kinds of time — geological and cultural.",
+            "heroImageFile": "buchan_caves.jpeg"
         },
         {
             "id": "gippsland-lakes",
@@ -160,7 +228,11 @@
             "fullStory": "The Gippsland Lakes, in eastern Victoria, form the largest navigable inland waterway system in Australia. This network of lakes, marshes, and lagoons stretches over 70 kilometres along the coast and is the traditional country of the Gunaikurnai people, who have lived here and managed its resources for tens of thousands of years.\n\nIn Gunaikurnai Dreaming, the landscape of Gippsland was shaped by ancestral beings whose journeys created the rivers, lakes, and mountains. The lakes provided an extraordinarily rich food source — fish, eels, waterbirds, shellfish, and aquatic plants sustained large populations across the seasons. The Gunaikurnai developed sophisticated fishing techniques and managed the waterways through controlled burning of surrounding vegetation.\n\nThe lakes system was also a major meeting point for different Gunaikurnai clans. Seasonal gatherings brought people together for ceremony, trade, dispute resolution, and social events. The abundance of food resources made it possible to support large gatherings that could last for weeks.\n\nToday, the Gunaikurnai people hold native title over much of the Gippsland region, including parts of the lakes system. They are actively involved in managing the lakes and surrounding lands, combining traditional ecological knowledge with contemporary conservation science to protect this unique environment.",
             "position": { "x": 6200, "y": 4200 },
             "iconColor": "#1a8fe8",
-            "illustrationColor": "#0a6dba"
+            "illustrationColor": "#0a6dba",
+            "region": "victoria",
+            "clueText": "Follow the eels through seventy kilometres of lagoons where clans once gathered.",
+            "teaserLine": "The water was food, a meeting place, and a path laid down in Dreaming.",
+            "heroImageFile": "gippsland_lakes.jpg"
         },
         {
             "id": "tarra-bulga",
@@ -169,7 +241,11 @@
             "fullStory": "Tarra-Bulga National Park, in the Strzelecki Ranges of South Gippsland, protects some of the last remaining temperate rainforest in Victoria. This ancient forest of mountain ash, myrtle beech, and tree ferns is the traditional country of the Gunaikurnai people, who have known and cared for these forests for thousands of years.\n\nThe Gunaikurnai had deep knowledge of the rainforest and its resources. The cool, wet forests provided materials for tools, shelter, and ceremony. Lyrebirds, wombats, possums, and other forest animals were important food sources, and the Gunaikurnai understood the seasonal patterns that governed when different resources were available.\n\nThe forests of the Strzelecki Ranges were devastated by European settlement — logging, clearing for farmland, and bushfires destroyed the vast majority of the original forest. Tarra-Bulga is one of the few places where remnants of the old-growth forest survive, making it ecologically precious as well as culturally significant.\n\nThe park's towering mountain ash trees, some over 60 metres tall, and its dense understorey of ferns and mosses create a cathedral-like atmosphere. Walking through Tarra-Bulga is a reminder of what Gippsland's forests looked like before European contact — and of the Gunaikurnai people who lived among them for millennia.",
             "position": { "x": 5800, "y": 3600 },
             "iconColor": "#2a5a22",
-            "illustrationColor": "#1a4a16"
+            "illustrationColor": "#1a4a16",
+            "region": "victoria",
+            "clueText": "Find the last fragment of mountain ash forest the Gunaikurnai once knew in full.",
+            "teaserLine": "These ferns remember a wider world.",
+            "heroImageFile": "tarra_bulga.jpg"
         },
         {
             "id": "point-nepean",
@@ -178,7 +254,271 @@
             "fullStory": "Point Nepean, at the tip of the Mornington Peninsula in Victoria, is a place of cultural significance to the Bunurong (Boon Wurrung) people, who have been the custodians of this coastal country for thousands of years. The headland and surrounding coastline provided rich resources — shellfish, fish, seals, and coastal plants — that sustained the Bunurong through the seasons.\n\nShell middens along the coast at Point Nepean contain the layered remains of thousands of meals, building up over centuries as families returned to favourite camping spots. Analysis of these middens reveals the sophisticated marine resource management practised by the Bunurong — they harvested different species at different times of year, ensuring sustainable use of coastal resources.\n\nThe dramatic landscape of Point Nepean — windswept heathlands, rocky shores, and sheltered bays — features in Bunurong Dreaming stories. The narrow entrance to Port Phillip Bay, which Point Nepean guards, is the subject of creation narratives that explain how the bay was formed and the responsibilities that come with caring for this waterway.\n\nPoint Nepean has had many uses since European contact — quarantine station, military fortification, and national park. Throughout all these changes, the Bunurong connection to country has endured. Today, the Bunurong Land Council works to ensure that Aboriginal cultural heritage at Point Nepean is recognised, protected, and shared.",
             "position": { "x": 5400, "y": 5400 },
             "iconColor": "#5a8a8a",
-            "illustrationColor": "#4a7a7a"
+            "illustrationColor": "#4a7a7a",
+            "region": "victoria",
+            "clueText": "Seek the windswept headland at the bay's mouth where shell middens layer the centuries.",
+            "teaserLine": "Thousands of meals, thousands of stories, all told in shells.",
+            "heroImageFile": "point_nepean.jpg"
+        },
+        {
+            "id": "baiame-cave",
+            "name": "Baiame Cave",
+            "shortDescription": "A sandstone shelter near Milbrodale with a five-metre ochre painting of Baiame, the great creator spirit of the Kamilaroi and Wonnarua.",
+            "fullStory": "Baiame Cave, near Milbrodale in the Hunter region of New South Wales, holds one of the most extraordinary rock art images in south-eastern Australia. On the back wall of a shallow sandstone shelter, a five-metre-wide figure of Baiame — the creator being of the Kamilaroi, Wonnarua, Wiradjuri, and other language groups — stretches his arms across the rock. An elaborate headdress rises above him, and his eyes are painted wide, watching the country below.\n\nBaiame is the sky father, the creator who shaped the land, the animals, and the laws that govern human life. After his work was done, he stepped back into the sky, leaving footprints across the landscape and returning to watch over creation. Paintings and engravings of Baiame are some of the most sacred Aboriginal artworks in Australia, and very few are publicly accessible.\n\nThe painting at Baiame Cave is believed to be several hundred years old in its current form, though the tradition of depicting Baiame stretches much further back. The ochre has held to the sandstone through centuries of heat and storms, a testament to both the skill of the painters and the protective nature of the shelter.\n\nThe Wonnarua people are the Traditional Owners of this country. Visitors reach the cave by a short walk from a public road, but the site is sacred and should be approached with quiet respect. Photographs of the figure itself are traditionally discouraged by the local community.",
+            "position": { "x": 1000, "y": 1000 },
+            "iconColor": "#8b5e3c",
+            "illustrationColor": "#6d4a2f",
+            "region": "nsw",
+            "clueText": "Seek the sandstone shelter where the sky father stretches his arms across the rock.",
+            "teaserLine": "Baiame is watching. Return when the chain leads here.",
+            "heroImageFile": "Baiame Cave.png"
+        },
+        {
+            "id": "berry-island-reserve-gadyan-track",
+            "name": "Berry Island Reserve — Gadyan Track",
+            "shortDescription": "A small harbour island at Wollstonecraft circled by the Gadyan (shell) Track — a one-kilometre walk through Cammeraygal middens and engravings.",
+            "fullStory": "Berry Island Reserve sits on the lower north shore of Sydney Harbour, at Wollstonecraft. Once a true island, it is now joined to the mainland by a low sand bar that lets visitors walk out at any tide. The whole island is Cammeraygal country — the saltwater people whose land stretches along the northern harbour foreshores.\n\nThe Gadyan Track, named after the Cammeraygal word for 'shell', is a one-kilometre interpretive walk that circles the island. It passes shell middens layered with the remains of thousands of years of meals, rock engravings of fish and shield motifs, and grinding grooves where stone axes and tools were sharpened against the sandstone. Interpretive signs along the track explain the cultural meaning of each site in the words of local Aboriginal knowledge holders.\n\nBefore European arrival, the Cammeraygal lived abundantly from Sydney Harbour's rich waters. Rock shelters on Berry Island and other headlands provided camping sites; bays and inlets offered fish, oysters, mussels, and mud crabs; headlands gave vantage points to watch weather and whales. The shell middens on the island record generations of this life, in some places more than two metres deep.\n\nToday Berry Island is cared for jointly by North Sydney Council and Aboriginal heritage advisors. It is one of the most accessible places in inner Sydney to walk through a living Aboriginal cultural landscape, with trains and ferries both within easy reach.",
+            "position": { "x": 2400, "y": 1000 },
+            "iconColor": "#1a8fe8",
+            "illustrationColor": "#0a6dba",
+            "region": "nsw",
+            "clueText": "Follow a shell-studded track around an island no longer cut off, where the saltwater people left layers of meals in the ground.",
+            "teaserLine": "Berry Island remembers the Cammeraygal. Not yet your path.",
+            "heroImageFile": "Berry Island Reserve - Gadyan Track.png"
+        },
+        {
+            "id": "blue-mountains-national-park",
+            "name": "Blue Mountains National Park",
+            "shortDescription": "A UNESCO-listed sandstone wilderness west of Sydney on Gundungurra and Darug country, holding thousands of Aboriginal sites and songlines.",
+            "fullStory": "The Blue Mountains rise west of Sydney as a vast plateau of eucalypt forests, sheer sandstone cliffs, and hidden valleys. The blue haze that gave the mountains their name comes from oils released by eucalypt leaves. The park is part of the Greater Blue Mountains Area, inscribed on the UNESCO World Heritage List in 2000.\n\nThe mountains are Gundungurra country to the south and west, and Darug country to the north and east. Both peoples have walked these ridges and valleys for tens of thousands of years. Their country holds thousands of documented Aboriginal sites: rock shelters painted with figures and hand stencils, stone arrangements, grinding grooves, axe quarries, and ceremony places. Many more sites remain unrecorded, known only to Traditional Owners.\n\nThe Three Sisters at Katoomba are one of the most famous places in the park. In Gundungurra tradition, the three pinnacles are three sisters of the Katoomba people — Meehni, Wimlah, and Gunnedoo — who were turned to stone by a wise man to protect them during a tribal battle, and who could not be turned back when he was killed.\n\nThe Blue Mountains are crossed by songlines that connect to Wiradjuri country to the west and to the coastal peoples to the east. These songlines carry stories of creation beings travelling through the landscape, and they still guide cultural practice today. Gundungurra and Darug people work with Parks NSW in caring for the park, and cultural tours led by Aboriginal guides are offered at several locations. The landscape is sacred and should be walked with the quiet attention it deserves.",
+            "position": { "x": 3800, "y": 1000 },
+            "iconColor": "#5a7a9a",
+            "illustrationColor": "#4a6a8a",
+            "region": "nsw",
+            "clueText": "Walk to the blue-hazed sandstone plateau where three stone sisters still keep their watch.",
+            "teaserLine": "The Gundungurra know this country. Walk on until your clue leads back.",
+            "heroImageFile": "Blue mountains national park.png"
+        },
+        {
+            "id": "bournda-national-park",
+            "name": "Bournda National Park",
+            "shortDescription": "A coastal park of lagoons, beaches, and spotted-gum forests near Merimbula on Yuin country, shared with the Djiringanj clan.",
+            "fullStory": "Bournda National Park, on the south coast of New South Wales between Tathra and Merimbula, protects a stretch of coastline where freshwater lagoons, long ocean beaches, and spotted-gum forests meet. The park lies on Yuin country, specifically the country of the Djiringanj clan whose traditional lands run between Bega and the Tasman Sea.\n\nThe Bournda and Wallagoot lagoons were significant resource areas for the Djiringanj. At certain times of year, the sand bars that separated these lagoons from the ocean would be breached, flooding the lagoons with saltwater and triggering fish migrations. The Djiringanj knew when these openings would occur and gathered to harvest fish, shellfish, and crustaceans. Shell middens along the lagoon shores record generations of this seasonal abundance.\n\nThe forests inland from the beach provided kangaroo, possum, and bush tucker, while the river flats supplied eel and native carp. The Djiringanj managed this country with controlled burning, which kept the open forest structure favoured by kangaroos and protected the larger trees from destructive wildfire.\n\nLike much of the south coast, Bournda was contested land during the early colonial period. The Djiringanj and neighbouring Yuin peoples suffered violence and displacement, but remained connected to their country. Today, Yuin community members work with Parks NSW on cultural heritage and land management, and cultural walks led by Yuin guides are sometimes offered. The park is a place where ancient saltwater knowledge still meets the living sea.",
+            "position": { "x": 5200, "y": 1000 },
+            "iconColor": "#3a6a28",
+            "illustrationColor": "#2a5a18",
+            "region": "nsw",
+            "clueText": "Find the south coast lagoons where Djiringanj fishermen waited for the sand bar to break.",
+            "teaserLine": "The saltwater lagoons remember another purpose. Walk on.",
+            "heroImageFile": "Bournda National Park.png"
+        },
+        {
+            "id": "brewarrina-fish-traps",
+            "name": "Brewarrina Fish Traps (Baiame's Ngunnhu)",
+            "shortDescription": "A vast stone weir system on the Barwon River, shaped by Baiame himself in Ngemba tradition and still catching fish after many thousands of years.",
+            "fullStory": "At Brewarrina in far-western New South Wales, the Barwon River slows and spreads over a rocky bed. On that bed stands Baiame's Ngunnhu — the Brewarrina Fish Traps — one of the oldest surviving human-built structures on Earth. Dry-laid stone walls form a series of interlocking pens that funnel fish into easily-harvested holding pools. The system stretches for hundreds of metres along the river.\n\nIn the Dreaming of the Ngemba people and the surrounding language groups — Murrawarri, Euahlayi, Yuwaalaraay, Wailwan, and others — the fish traps were built by Baiame himself. Baiame, the sky father, threw his net across the river and then shaped the stones into pens with his sons, teaching the people how to work together to feed themselves without exhausting the river. The traps are central to the creation story of this country.\n\nThe Ngunnhu were designed so that only certain clans could operate certain pens, ensuring that all language groups got a share of the fish and that resources were divided fairly. The elaborate protocols around their use made Brewarrina one of the great meeting places of inland Australia, where ceremony, trade, and social life took place alongside the harvest.\n\nArchaeological estimates place the structures at least as old as the end of the last Ice Age; some researchers argue they may be much older, possibly the oldest human-built construction in the world. The traps still function today. The Ngemba people, through the Brewarrina Aboriginal Cultural Museum, share their knowledge of this extraordinary place with visitors, and continue to maintain the stones as their ancestors did.",
+            "position": { "x": 6600, "y": 1000 },
+            "iconColor": "#6a8a8a",
+            "illustrationColor": "#5a7a7a",
+            "region": "nsw",
+            "clueText": "Follow the Barwon to the stone weirs that Baiame himself built across the river bed.",
+            "teaserLine": "Baiame's Ngunnhu is older than most memory. Your clue has not yet led here.",
+            "heroImageFile": "Brewarrina Fish Traps.png"
+        },
+        {
+            "id": "bulgandry-engraving-site",
+            "name": "Bulgandry Art Site",
+            "shortDescription": "A sandstone platform near Kariong carved with dozens of figures — including the ancestral being Bulgandry — in Darkinjung country.",
+            "fullStory": "Bulgandry is a flat sandstone platform in Brisbane Water National Park, near Kariong on the Central Coast of New South Wales. The platform is covered with Aboriginal rock engravings — dozens of them — carved into the soft sandstone over a very long period of time. It is one of the most significant engraving sites in the Sydney Basin.\n\nThe name comes from the largest figure on the platform: Bulgandry, an ancestral being who strides across the rock with outstretched arms and legs. Bulgandry is part of the Darkinjung people's ancestral knowledge; the figure may be related to Baiame or another creator being, though the exact meaning is held by the Traditional Owners.\n\nAround Bulgandry, smaller engravings show fish, kangaroos, wallabies, eels, boomerangs, and human figures. Some may depict ceremonies; others may record hunts or mark boundaries. Rock engravings in Darkinjung country are not casual drawings — they were made with great effort, by pecking the sandstone with hard stones over hours or days, and they carry meanings that were tied to ritual, learning, and place.\n\nBrisbane Water National Park has thousands of engravings scattered across its sandstone ridges, but Bulgandry is one of the very few that is easily visited. A short walking track and a viewing platform protect the site while allowing respectful visitors to see it clearly. The Darkinjung Local Aboriginal Land Council works with Parks NSW to care for the site and to share its story.",
+            "position": { "x": 1000, "y": 2400 },
+            "iconColor": "#d0c8b0",
+            "illustrationColor": "#b0a890",
+            "region": "nsw",
+            "clueText": "Find the sandstone platform where an ancestral being strides across stone with outstretched arms.",
+            "teaserLine": "Bulgandry is not your target yet. Continue the path.",
+            "heroImageFile": "bulgandry engraving site.png"
+        },
+        {
+            "id": "georges-river",
+            "name": "Georges River",
+            "shortDescription": "A long tidal river flowing through Dharug and Dharawal country in southern Sydney, its banks lined with middens, rock carvings, and fish traps.",
+            "fullStory": "The Georges River flows for more than ninety kilometres from its headwaters in the southern Sydney hinterland to where it meets the sea at Botany Bay. The upper reaches are Dharug country; the lower reaches, below Liverpool, are Dharawal (Tharawal) country. For both peoples, the river was a highway, a larder, and a place of ceremony.\n\nAlong the river's sandstone banks, traces of long Aboriginal occupation survive: rock shelters with hand stencils and painted figures, engravings carved into flat sandstone platforms, grinding grooves where stone tools were shaped, and shell middens built up over centuries of fishing and shellfish harvesting. Some of the richest middens are on the lower river, where saltwater mixes with fresh.\n\nThe Dharug and Dharawal fished the river with spears and traps, and gathered oysters, mussels, and mud crabs from the muddy banks. The river's forests provided kangaroo, possum, and bush tucker plants; the swamp reeds supplied fibre for nets and baskets. At certain points, the river narrowed enough that fish could be driven into stone weirs much like those at Brewarrina, though on a smaller scale.\n\nThe early colonial period was devastating for the river people. Smallpox, then violence and displacement, emptied many of the camps that had stood along the Georges for thousands of years. But the Dharug and Dharawal peoples endured, and today they work through Land Councils and cultural organisations to protect sites along the river, teach language and culture, and care for country. The Georges River National Park and Heathcote National Park together protect much of the river's upper course, and Aboriginal heritage walks are offered at several locations.",
+            "position": { "x": 2400, "y": 2400 },
+            "iconColor": "#2a8ab8",
+            "illustrationColor": "#1a6a98",
+            "region": "nsw",
+            "clueText": "Follow the long tidal river from the sandstone hills down to the bay, where Dharug and Dharawal country meet.",
+            "teaserLine": "The Georges River flows elsewhere for now. Keep your clue close.",
+            "heroImageFile": "Georges river.png"
+        },
+        {
+            "id": "grotto-point-lighthouse",
+            "name": "Grotto Point Engravings",
+            "shortDescription": "Sandstone carvings of whales, sharks, fish, and ancestral figures on a harbour headland near Manly — Cammeraygal country.",
+            "fullStory": "Near Grotto Point on the north shore of Sydney Harbour, a short detour off the Manly Scenic Walkway leads to one of the most dramatic rock engraving sites in Sydney. On flat slabs of weathered sandstone, just back from the cliff edge, Aboriginal ancestors carved dozens of figures: sharks, fish, eels, a wallaby, boomerangs, and several large human or ancestral forms. The site is Cammeraygal country, connected to the Borogegal and Gayimai clans who lived along these northern harbour shores.\n\nThe engravings at Grotto Point are characteristic of the Sydney Basin rock art tradition: simple, bold outlines pecked into sandstone with harder stones, the figures often several metres long. They were made over an extended period, with some figures overlapping others and some re-engraved when the weather had worn them down. Their exact ages are difficult to date, but the tradition is thousands of years old.\n\nBecause Grotto Point is exposed to the weather and the sea, the engravings have weathered significantly. They are best seen in low morning or evening light, when the angled sun throws shadow into the pecked grooves. Walking to the site on the Manly Scenic Walkway takes visitors past other Aboriginal heritage places and spectacular harbour views.\n\nCammeraygal country was among the first taken in the early colonial period. The Cammeraygal, Borogegal, and Gayimai peoples suffered enormous losses, and their descendants today trace their connection through several Sydney and Central Coast Aboriginal communities. The engravings at Grotto Point are visited with respect by many — Aboriginal community members, Parks NSW staff, and walkers who understand that they are standing on living cultural country.",
+            "position": { "x": 3800, "y": 2400 },
+            "iconColor": "#8a8a7a",
+            "illustrationColor": "#6a6a5a",
+            "region": "nsw",
+            "clueText": "Seek the harbour headland north of Manly where sharks and ancestors are carved into the cliff-top stone.",
+            "teaserLine": "Grotto Point holds sharks and spirits. Not yet.",
+            "heroImageFile": "Grotto Point Lighthouse.png"
+        },
+        {
+            "id": "gulaga-national-park",
+            "name": "Gulaga National Park",
+            "shortDescription": "Gulaga — Mother Mountain — rises above Yuin country on the NSW far south coast, and was handed back to the Yuin people in 2006.",
+            "fullStory": "Gulaga is the great rounded mountain that rises above the far south coast of New South Wales, just inland from the seaside town of Narooma. To the Yuin people, Gulaga is Mother Mountain — the mother of the country and the source of the creation stories that shape Yuin law and life. The mountain and its two offspring, Najanuga (Little Dromedary) and Barunguba (Montague Island), are the central features of Yuin saltwater country.\n\nIn Yuin tradition, Gulaga is a sleeping mother, her body forming the rounded shape of the mountain. The rainforest on her slopes is her skin; the springs that emerge from her are her milk; the granite tors at her summit are her bones. The country around her — the beaches, lakes, forests, and rivers — is her children and all those she watches over.\n\nThe mountain is rich in sacred sites. Men's sites and women's sites are both present and are known only to those with the right to know them. Certain ceremonies are still carried out on Gulaga, and the Yuin people continue to care for her as their ancestors did.\n\nIn 2006, after decades of negotiation, Gulaga National Park was handed back to its Traditional Owners and is now jointly managed by the Yuin people and Parks NSW. It was one of the first national parks in NSW to be returned to Aboriginal ownership. Walking tracks lead partway up the mountain, and cultural tours led by Yuin guides are offered from Narooma. Visitors are asked to walk quietly, take nothing from the mountain, and remember that Gulaga is a mother who is watching them as they walk.",
+            "position": { "x": 5200, "y": 2400 },
+            "iconColor": "#4a6a3a",
+            "illustrationColor": "#3a5a2a",
+            "region": "nsw",
+            "clueText": "Climb toward the rounded Mother Mountain above the far south coast where the Yuin people still hold ceremony.",
+            "teaserLine": "Gulaga is sleeping. She will welcome you when your clue arrives.",
+            "heroImageFile": "Gulaga National Park.png"
+        },
+        {
+            "id": "ku-ring-gai",
+            "name": "Ku-ring-gai Chase National Park",
+            "shortDescription": "A sandstone wilderness on Sydney's northern edge — Guringai country — with more than 800 documented rock engravings, shelters, and middens.",
+            "fullStory": "Ku-ring-gai Chase National Park wraps around the northern edge of Sydney, a sandstone wilderness of ridges, gullies, mangrove creeks, and hidden bays. It is Guringai country — the country of the people whose name was shortened in the colonial period and who have since reclaimed it. With their neighbours the Darug, the Guringai walked these ridges, fished these bays, and lived in these rock shelters for many thousands of years.\n\nThe park contains more than 800 recorded Aboriginal sites, and many more that remain unrecorded. Rock engravings cover dozens of flat sandstone platforms across the park, showing figures of Baiame and other ancestral beings, whales, fish, kangaroos, emus, boomerangs, and human hunters. The Aboriginal Heritage Walk at West Head takes visitors to several of these engraving sites along a well-maintained loop track.\n\nPainted rock shelters, though less common than engravings in this part of Sydney, are also scattered through the park. Some contain hand stencils made with ochre and pipeclay; others carry figures painted in red, white, and yellow. Shell middens line the quiet bays, and grinding grooves can be found near water sources where stone tools were shaped.\n\nThe Guringai people endured terrible losses in the early colonial period, and the descendant communities today live across Sydney and the Central Coast. They work with Parks NSW and the Metropolitan Local Aboriginal Land Council to care for the park's cultural heritage, and cultural tours led by Aboriginal guides are sometimes offered. The park is a place where a vast Aboriginal landscape still sits quietly at Sydney's edge, waiting to be walked with attention.",
+            "position": { "x": 6600, "y": 2400 },
+            "iconColor": "#6a5a6a",
+            "illustrationColor": "#5a4a5a",
+            "region": "nsw",
+            "clueText": "Seek the northern ridges beyond the harbour where hundreds of ancestor figures are carved into flat sandstone.",
+            "teaserLine": "Ku-ring-gai waits in the hush of eucalypt ridges. Not yet.",
+            "heroImageFile": "Ku ring gai.png"
+        },
+        {
+            "id": "la-perouse-aboriginal-site",
+            "name": "La Perouse Aboriginal Site",
+            "shortDescription": "The Aboriginal heritage sites around La Perouse on Botany Bay — shell middens, engravings, and the place where two worlds first met.",
+            "fullStory": "At the north headland of Botany Bay, on Gweagal country, the La Perouse Aboriginal Site encompasses a cluster of heritage places where the story of first contact between Aboriginal Australians and British colonisers begins. This is where Captain Cook anchored the Endeavour in 1770, and where, in January 1788, the First Fleet briefly called before moving on to Sydney Cove. The stretch of coast around Congwong Bay, Little Bay, and Cape Banks holds shell middens, rock shelters, engravings, and the footprints of a long Dharawal presence that predates any ship by thousands of years.\n\nThe Gweagal clan of the Dharawal people lived here on the rich saltwater of Botany Bay. Their country included the sand spits, the rocky headlands, and the freshwater springs that make La Perouse possible. They fished, gathered shellfish, made canoes from bark, and traded across the bay with Bidjigal and Gadigal neighbours.\n\nWhen the Endeavour arrived in April 1770, Gweagal warriors met the landing party with spears. Two of them were shot by the British; one was killed. The encounter is remembered in Dharawal oral history and in the written logs of the Endeavour. Shields and spears taken during that first contact are now held in museums in Australia and overseas, and their return is the subject of ongoing cultural negotiation.\n\nThe La Perouse heritage sites are protected within Kamay Botany Bay National Park and the surrounding reserves. The La Perouse Aboriginal community, with the Local Aboriginal Land Council, offers cultural tours and guided walks that tell the story of this place from the Gweagal perspective. Walking here is walking through a site of first encounter — not only for Aboriginal people, but for every non-Indigenous Australian who wants to understand where the national story really starts.",
+            "position": { "x": 1000, "y": 4400 },
+            "iconColor": "#7a7a8a",
+            "illustrationColor": "#6a6a7a",
+            "region": "nsw",
+            "clueText": "Walk to the headland where the first ships met the Gweagal, and middens still line the bay.",
+            "teaserLine": "Two worlds met here. Your path has not yet returned.",
+            "heroImageFile": "La Perouse Aboriginal Site.png"
+        },
+        {
+            "id": "maiyingu-marragu",
+            "name": "Maiyingu Marragu",
+            "shortDescription": "A western Blue Mountains rock shelter with more than two hundred hand stencils — Maiyingu Marragu means 'the hand that is seen'.",
+            "fullStory": "Maiyingu Marragu, sometimes called Blackfellows Hands Cave, is a rock shelter in the western Blue Mountains, not far from Lithgow. The name comes from the local Aboriginal language and means something like 'the hand that is seen'. The shelter contains more than two hundred hand stencils, along with painted figures of animals and abstract motifs. It is one of the richest hand-art sites in the Blue Mountains.\n\nHand stencils are among the most personal forms of rock art. To make one, a person placed their hand against the stone, filled their mouth with ochre or pipeclay mixed with water, and sprayed the pigment out around their hand. When they lifted their hand away, a negative image remained — a silhouette of that individual, frozen in that moment. Generations of people left their marks at Maiyingu Marragu in this way: children, adults, elders, sometimes even the stencilled hand of a child held within the stencil of an adult.\n\nThe rock shelter lies in Wiradjuri and Gundungurra country, near the boundary between the two peoples. Its use stretches back thousands of years, and the layering of newer stencils over older ones shows that it was returned to by many generations. The stencils appear in red ochre, yellow ochre, and white pipeclay — each colour meaningful, each colour requiring different pigments to be prepared and carried to the site.\n\nMaiyingu Marragu is protected as an Aboriginal Place under NSW law. The shelter is accessible via a walking track through forest, but the fragile art must be viewed from a boardwalk without touching. Local Wiradjuri and Gundungurra knowledge holders work with Parks NSW and local councils to care for the site and share its story with respectful visitors.",
+            "position": { "x": 2400, "y": 4400 },
+            "iconColor": "#c44b2a",
+            "illustrationColor": "#a83520",
+            "region": "nsw",
+            "clueText": "Find the western Blue Mountains shelter whose walls carry two hundred hands in ochre and pipeclay.",
+            "teaserLine": "Maiyingu Marragu holds many hands. Not yet yours.",
+            "heroImageFile": "Maiyingu Marragu.png"
+        },
+        {
+            "id": "manna-mountain",
+            "name": "Manna Mountain",
+            "shortDescription": "A mountain of significance in New South Wales — specific cultural details should be sourced from the local Traditional Owners.",
+            "fullStory": "Manna Mountain rises from the rugged ranges of New South Wales, one of many mountains in this country that hold deep cultural significance for Aboriginal peoples. Every mountain in Aboriginal Australia has a name, a story, and a set of responsibilities attached to it. Mountains mark boundaries between country, they hold the spirits of ancestors who walked the land in the Dreaming, and they are often sites of ceremony and learning whose details are held only by the custodian community.\n\n[Note to the developer: the specific cultural narrative of Manna Mountain should be sourced directly from the local Traditional Owners and added to this entry with their permission. The description below speaks to the general cultural importance of mountain country in NSW while respecting the principle that sacred stories are shared only with the authority of those who hold them.]\n\nIn NSW, mountain country is typically the country of the people whose traditional lands include that range — Gundungurra, Wiradjuri, Kamilaroi, Ngiyampaa, Yuin, and many others. Their connection to mountains is woven through songlines: the invisible paths that run across Aboriginal Australia carrying stories of creation beings from place to place.\n\nClimbing a mountain in Aboriginal Australia is always a negotiation. Some mountains are open to all visitors; others are restricted to men, or to women, or to those who have undergone certain ceremonies. Many now-popular walking destinations in NSW were sacred places long before walking tracks were cut. The best way to walk a mountain in NSW respectfully is to learn its name, learn who the Traditional Owners are, and walk quietly enough to hear what the country has to say.",
+            "position": { "x": 3800, "y": 4400 },
+            "iconColor": "#6a6a5a",
+            "illustrationColor": "#5a5a4a",
+            "region": "nsw",
+            "clueText": "Seek the mountain in the ranges whose story waits to be shared by those who hold it.",
+            "teaserLine": "Manna Mountain is not yet your destination.",
+            "heroImageFile": "Manna Mountain.png"
+        },
+        {
+            "id": "mount-grenfell-historic-site",
+            "name": "Mount Grenfell Historic Site",
+            "shortDescription": "A semi-arid rock art complex near Cobar with over 1,300 figures in three main shelters — Ngiyampaa Wangaaypuwan country.",
+            "fullStory": "Mount Grenfell Historic Site lies about 70 kilometres west of Cobar in the semi-arid country of central western New South Wales. It sits on Ngiyampaa Wangaaypuwan country, the traditional lands of the Wangaaypuwan people. Three main rock shelters at the site contain more than 1,300 individual rock art figures — one of the largest concentrations of Aboriginal rock art in New South Wales.\n\nThe figures are mostly painted, with some engraved into the softer sandstone. They include hand stencils, human figures, kangaroos, emus, lizards, birds, abstract geometric designs, and contact-era images such as horses. The colours are red ochre, white pipeclay, and yellow ochre — pigments that had to be carried long distances into this dry country. The layering of newer figures over older ones shows that the shelters were used across many generations, possibly spanning thousands of years.\n\nThe surrounding country is harsh: red earth, spinifex, mulga, and low ridges. But it was productive for those who knew it. Ephemeral waterholes, seasonal bush tucker, and kangaroo populations supported the Wangaaypuwan and their neighbours. The rock shelters would have been camping sites, ceremony places, and refuges from the heat.\n\nMount Grenfell was declared a Historic Site in 1974 and, after a long campaign, was handed back to the Wangaaypuwan people through an Aboriginal land handover in 2004 — one of the first such returns in NSW. It is now jointly managed by the Wangaaypuwan community and the NSW National Parks and Wildlife Service. A walking track leads from the car park to the shelters, and interpretive signs share some of the story of the place. The Wangaaypuwan ask that visitors walk quietly, take nothing, and remember that the rock art is still alive with meaning.",
+            "position": { "x": 5200, "y": 4400 },
+            "iconColor": "#a04020",
+            "illustrationColor": "#803010",
+            "region": "nsw",
+            "clueText": "Walk west of Cobar to the red shelters where hundreds of figures are painted above the dry country.",
+            "teaserLine": "Mount Grenfell waits in the red country. Your path goes elsewhere for now.",
+            "heroImageFile": "Mount grenfell historic site.png"
+        },
+        {
+            "id": "mount-yengo",
+            "name": "Mount Yengo",
+            "shortDescription": "A flat-topped mountain where Baiame stepped off the earth back into the sky — sacred to Darkinjung, Wonnarua, Awabakal, and Worimi peoples.",
+            "fullStory": "Mount Yengo rises in the Hunter Valley's sandstone country, about a hundred kilometres north of Sydney. Its flat, plateau-like summit is unmistakable from miles away and is one of the most sacred mountains in south-eastern Australia. Mount Yengo sits where several countries meet — Darkinjung, Wonnarua, Awabakal, and Worimi — and it is held in common by all of them.\n\nIn the Dreaming of these peoples, Mount Yengo is where Baiame, the sky father, stepped off the earth for the last time after creating the country and teaching the people his law. His weight as he stepped flattened the top of the mountain into the plateau that visitors see today. From Mount Yengo, Baiame rose back into the sky, where he watches over everything he made.\n\nBecause of its sacred status, Mount Yengo is a place where ceremonies were held, where initiates were taught, and where knowledge was passed between clans. It is not a place for casual tourism. Yengo National Park, which surrounds the mountain, contains many other Aboriginal sites — rock engravings, shelters, and pathways — that make up the wider cultural landscape around Baiame's final footprint.\n\nThe summit of Mount Yengo is closed to the public in respect for its sacred status. Visitors can view the mountain from lookouts in Yengo National Park and along the Great North Road, the colonial-era convict road that runs through the park. The Darkinjung, Wonnarua, Awabakal, and Worimi peoples continue to care for the mountain and its stories, and to ask that everyone who travels through this country remembers whose country it is.",
+            "position": { "x": 6600, "y": 4400 },
+            "iconColor": "#4a4a6a",
+            "illustrationColor": "#3a3a5a",
+            "region": "nsw",
+            "clueText": "Look for the flat-topped mountain where Baiame took his last step from the earth into the sky.",
+            "teaserLine": "Mount Yengo is not to be climbed lightly. Walk on.",
+            "heroImageFile": "Mount Yengo.png"
+        },
+        {
+            "id": "mungo-national-park",
+            "name": "Mungo National Park",
+            "shortDescription": "Ancient dry lake beds and lunettes where Mungo Lady and Mungo Man rested — among the oldest human remains outside Africa.",
+            "fullStory": "Mungo National Park lies in far-western New South Wales, within the Willandra Lakes Region World Heritage Area. Forty thousand years ago, these dry lake beds were full of water, fringed with forests, and rich in fish, shellfish, and waterbirds. The people who lived here left behind the longest continuous record of human occupation in Australia, and some of the oldest evidence of human ritual anywhere in the world.\n\nIn 1968, the remains of a woman who had been cremated, her bones carefully crushed and placed in a small pit, were uncovered in the eroding sand of the Walls of China lunette at Lake Mungo. She became known as Mungo Lady. Six years later, a man who had been buried with ochre sprinkled across his body was found nearby. He became Mungo Man. Both sets of remains were dated to around 40,000 to 42,000 years before present. They are some of the oldest known human remains outside Africa, and their elaborate burial rites — cremation and ochre burial — push back the dated origins of ritualised human behaviour by tens of thousands of years.\n\nThe country is the traditional land of three peoples: the Paakantji (or Barkandji), the Mutthi Mutthi, and the Ngiyampaa. All three are formal Traditional Owners of the Willandra Lakes Region, and all three are connected to the ancestors who lived and died at Mungo through both oral tradition and direct descent.\n\nAfter decades of advocacy, Mungo Lady was returned to her Traditional Owners in 1992. Mungo Man followed in 2017, in a moving ceremony at Lake Mungo that was attended by representatives of the three peoples and by scientists and community leaders from across the country. Today, visitors can tour the park with Aboriginal guides, walk the Walls of China lunette, and stand where the oldest Australians were laid to rest by the people who loved them.",
+            "position": { "x": 1000, "y": 5800 },
+            "iconColor": "#c4805a",
+            "illustrationColor": "#a46040",
+            "region": "nsw",
+            "clueText": "Walk to the dry lake beds of the far west where Mungo Lady and Mungo Man rested for forty thousand years.",
+            "teaserLine": "Mungo holds the oldest quiet. Not yet yours.",
+            "heroImageFile": "Mungo National Park.png"
+        },
+        {
+            "id": "mutawintji-national-park",
+            "name": "Mutawintji National Park",
+            "shortDescription": "Desert gorge country north-east of Broken Hill — the first park in NSW handed back to its Traditional Owners, Malyangapa and Pantjikali country.",
+            "fullStory": "Mutawintji National Park protects a range of rugged red sandstone gorges in the far west of New South Wales, about 130 kilometres north-east of Broken Hill. The landscape is austere and beautiful: red stone walls, hidden rockholes that hold water through the driest seasons, dry creek beds lined with river red gums, and broad spinifex plains. The park is on the country of the Malyangapa, Pantjikali, and Wanyubalku peoples.\n\nMutawintji is one of the most important rock art sites in Australia. The gorges contain hundreds of engravings and paintings, stone arrangements, and rockholes of deep ceremonial significance. Rock art at Mutawintji includes hand stencils, animal and human figures, geometric patterns, and large-scale ancestral figures. Some of the engravings are pecked so deeply into the hard sandstone that they may be thousands of years old.\n\nThe water-holding rockholes are perhaps even more significant than the art. In this dry country, permanent water is life. The rockholes at Mutawintji were both physical resources and sacred places, governed by strict protocols about who could approach them, when, and how they should be treated. Ceremonies were held in the surrounding areas, and the rockholes still hold water in even the driest years.\n\nIn 1983, after years of protest and campaigning, the Aboriginal owners of Mutawintji closed the area to tourism to prevent continued damage to the sites. In 1998, Mutawintji became the first national park in New South Wales to be handed back to its Aboriginal Traditional Owners. It is now jointly managed, and access to the most sacred areas is restricted or guided by Aboriginal rangers. Visitors who come here are asked to follow the protocols set by the Traditional Owners and to remember that this red country is sacred, not scenic.",
+            "position": { "x": 2400, "y": 5800 },
+            "iconColor": "#8c3010",
+            "illustrationColor": "#6c2008",
+            "region": "nsw",
+            "clueText": "Seek the red gorges of the far west where Malyangapa ancestors carved the stone and guarded the rockholes.",
+            "teaserLine": "Mutawintji is sacred country. Walk on until your clue returns.",
+            "heroImageFile": "Mutawintji National Park.png"
+        },
+        {
+            "id": "piliga-national-park",
+            "name": "Pilliga Forest",
+            "shortDescription": "The largest inland forest in NSW — half a million hectares of Gamilaraay country with springs, sandstone caves, and deep ceremony places.",
+            "fullStory": "The Pilliga is the largest remaining inland forest in New South Wales, stretching over half a million hectares in the state's north-west. It is a dry forest of cypress pine, ironbark, and bloodwood, cut by sandstone ridges and dotted with springs. The country is Gamilaraay (Kamilaroi), and the forest holds some of the most important Gamilaraay cultural sites.\n\nThe name 'Pilliga' comes from a Gamilaraay word meaning 'spearhead', a reference to the sharp, narrow belah trees that grow through the forest and were used to make spears. For thousands of years, the Gamilaraay lived in the Pilliga and the surrounding country, harvesting kangaroo, emu, possum, and bush tucker, and using the forest's abundant timber and stone resources.\n\nAt the edge of the Pilliga is Sawn Rocks — a dramatic cliff of columnar basalt shaped like organ pipes — which the Gamilaraay hold as a place of great significance. Sandstone caves elsewhere in the forest contain rock art, and grinding grooves where stone axes were shaped are found near the springs. The forest was a place of teaching, where elders took younger people to learn the country and its laws.\n\nIn recent years, the Pilliga has been at the centre of campaigns against gas drilling and coal seam fracking by Gamilaraay people and environmental advocates. The forest's future as a cultural and ecological landscape is contested, and the Gamilaraay continue to assert their custodianship through land councils, cultural heritage work, and direct protest. The forest is still wild, still vast, and still deeply Gamilaraay country.",
+            "position": { "x": 3800, "y": 5800 },
+            "iconColor": "#6a6a3a",
+            "illustrationColor": "#5a5a2a",
+            "region": "nsw",
+            "clueText": "Enter the vast inland Gamilaraay forest where cypress, ironbark, and sandstone caves hide the old ways.",
+            "teaserLine": "The Pilliga stretches wide. Your clue waits elsewhere.",
+            "heroImageFile": "Piliga national park.png"
+        },
+        {
+            "id": "red-hands-cave",
+            "name": "Red Hands Cave",
+            "shortDescription": "A Blue Mountains rock shelter near Glenbrook with a panel of red ochre hand stencils made by Darug ancestors.",
+            "fullStory": "Red Hands Cave is a small rock shelter tucked into a sandstone overhang in the lower Blue Mountains, about four kilometres from Glenbrook. The shelter contains a panel of red ochre hand stencils — more than a dozen, clustered on a single wall — made by Darug ancestors over many generations. It is one of the easiest-to-visit rock art sites in the Blue Mountains.\n\nThe hands were made in the traditional Aboriginal way: a person placed their hand flat against the stone, took a mouthful of ochre and water, and blew the pigment in a fine spray around the hand. When they lifted their palm away, a clean silhouette was left behind. Each stencil is a direct physical trace of a specific person who stood in that shelter hundreds or thousands of years ago. The hands at Red Hands Cave vary in size — most are adult-sized, but at least one appears to belong to a child.\n\nThe ochre used in the stencils is a rich, dark red, ground from the hematite minerals found naturally in the Sydney Basin. Red ochre was traded across very long distances in Aboriginal Australia, and the ochre used at Red Hands Cave may have come from local sources or from much further inland.\n\nThe shelter lies in Darug country, part of the western country of the people whose traditional lands stretched from the Sydney plains into the mountains. It was likely used as a camping site, and the stencils may have been made during routine stays, during learning or ceremony, or for purposes that Darug Traditional Owners prefer to keep private. Red Hands Cave is protected as an Aboriginal Place under NSW law, and visitors can view the panel from a short distance behind a protective screen.",
+            "position": { "x": 5200, "y": 5800 },
+            "iconColor": "#b54820",
+            "illustrationColor": "#953818",
+            "region": "nsw",
+            "clueText": "Find the small Blue Mountains shelter above Glenbrook where Darug hands are pressed into the sandstone in red ochre.",
+            "teaserLine": "Red Hands Cave holds many palms. Keep looking for your clue.",
+            "heroImageFile": "Red Hands Cave.png"
+        },
+        {
+            "id": "ti-tree-lake",
+            "name": "Ti Tree Lake",
+            "shortDescription": "A tannin-stained women's lake near Ballina — a significant Bundjalung women's place, wrapped in paperbark and tea-tree forest.",
+            "fullStory": "Ti Tree Lake lies a short drive inland from Ballina, on the north coast of New South Wales. The water of the lake is dark brown, stained by tannins from the tea-tree (ti tree) and paperbark forests that surround it — a natural, acidic water that is cold to the touch and known for its healing properties. The lake is Bundjalung country, and it is specifically a women's site of deep cultural significance.\n\nIn Bundjalung tradition, Ti Tree Lake is a place of women's business — a place for ceremony, teaching, and healing that was traditionally restricted to women. The tannin-rich water was used for its medicinal qualities: for skin conditions, for infections, for the care of new mothers and newborns. The tea-tree forests around the lake held the plant medicines that Bundjalung women used in their healing practice.\n\nMen were not traditionally permitted to approach the lake, and even today Bundjalung women ask that the site be treated with respect for its women-specific cultural meaning. Male visitors to the area are asked to stay a respectful distance from the lake edge and to understand that this is not simply a scenic destination but a sacred women's place.\n\nTi Tree Lake is part of a larger network of Bundjalung sites along the far-north coast, including other women's places, men's places, and shared ceremonial grounds. The Bundjalung people have a long, unbroken connection to this country and continue to care for sacred sites through their cultural heritage organisations and the local Aboriginal Land Councils. The lake reminds visitors that Aboriginal cultural landscapes are not only archaeological — they are still living, and still held by the women and men whose ancestors walked here for thousands of years.",
+            "position": { "x": 6600, "y": 5800 },
+            "iconColor": "#3a6a8a",
+            "illustrationColor": "#2a5a7a",
+            "region": "nsw",
+            "clueText": "Walk to the dark-stained Bundjalung women's lake where paperbark and tea-tree line the quiet water.",
+            "teaserLine": "Ti Tree Lake is women's country. Not yet.",
+            "heroImageFile": "Ti tree lake.png"
         }
     ]
 }

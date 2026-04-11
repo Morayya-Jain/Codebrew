@@ -179,7 +179,7 @@ export class TitleScene extends Scene {
     private startGame(): void {
         this.cameras.main.fadeOut(800, 10, 6, 3);
         this.cameras.main.once('camerafadeoutcomplete', () => {
-            this.scene.start('PreloadScene');
+            this.scene.start('RegionSelectScene');
         });
     }
 }

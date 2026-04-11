@@ -1,0 +1,119 @@
+#teaser-card-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 6, 3, 0.78);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#teaser-card-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.teaser-card {
+    background:
+        radial-gradient(ellipse at top left, rgba(232, 193, 112, 0.05), transparent 60%),
+        radial-gradient(ellipse at bottom right, rgba(180, 90, 40, 0.05), transparent 60%),
+        linear-gradient(145deg, #2a1f16, #14100c);
+    border: 1px solid rgba(232, 193, 112, 0.42);
+    border-radius: 14px;
+    max-width: 460px;
+    width: 90%;
+    padding: 40px 48px 36px;
+    position: relative;
+    text-align: center;
+    transform: translateY(14px) scale(0.96);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow:
+        0 0 0 1px rgba(40, 22, 10, 0.6),
+        0 0 50px rgba(232, 150, 60, 0.12),
+        0 16px 50px rgba(0, 0, 0, 0.6),
+        inset 0 0 60px rgba(0, 0, 0, 0.35);
+}
+
+.teaser-card::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(232, 193, 112, 0.18);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+#teaser-card-overlay.visible .teaser-card {
+    transform: translateY(0) scale(1);
+}
+
+.teaser-card__close-btn {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #a0886a;
+    font-size: 26px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.teaser-card__close-btn:hover {
+    color: #e8c170;
+    background: rgba(232, 193, 112, 0.1);
+}
+
+.teaser-card__name {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #e8c170;
+    margin: 0 0 22px 0;
+    line-height: 1.2;
+}
+
+.teaser-card__line {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 19px;
+    font-style: italic;
+    line-height: 1.55;
+    color: #d4c5b2;
+    margin: 0 0 28px 0;
+}
+
+.teaser-card__actions {
+    display: flex;
+    justify-content: center;
+}
+
+.teaser-card__continue-btn {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a0e08;
+    background: linear-gradient(135deg, #e8c170, #d4a050);
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.teaser-card__continue-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(232, 193, 112, 0.3);
+}
+
+.teaser-card__continue-btn:active {
+    transform: translateY(0);
+}

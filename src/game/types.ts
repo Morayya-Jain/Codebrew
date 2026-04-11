@@ -1,3 +1,10 @@
+export type Region = 'victoria' | 'nsw';
+
+export const REGION_LABELS: Readonly<Record<Region, string>> = Object.freeze({
+    victoria: 'Victoria',
+    nsw: 'New South Wales',
+});
+
 export interface LandmarkData {
     id: string;
     name: string;
@@ -6,6 +13,10 @@ export interface LandmarkData {
     position: { x: number; y: number };
     iconColor: string;
     illustrationColor: string;
+    region: Region;
+    clueText: string;
+    teaserLine: string;
+    heroImageFile?: string;
 }
 
 export interface LandmarksFile {

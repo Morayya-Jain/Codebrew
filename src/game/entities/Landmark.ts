@@ -27,6 +27,7 @@ export class Landmark extends GameObjects.Container {
     private _isNear = false;
     private lastGlowState: ProximityState = 'hidden';
     private usingHero_ = false;
+    private isCurrentClueTarget_ = false;
 
     constructor(scene: Scene, data: LandmarkData, role: LandmarkChapterRole = 'primary') {
         super(scene, data.position.x, data.position.y);
@@ -118,6 +119,23 @@ export class Landmark extends GameObjects.Container {
     /** Waypoint landmarks trigger elder dialogue only — the full StoryCard is reserved for primary roles. */
     get canOpenStoryCard(): boolean {
         return this.role === 'primary';
+    }
+
+    /**
+     * Treasure hunt mode: flag this landmark as the current clue target so
+     * its floating label shows the "Read Story" prompt. Non-targets show
+     * "Look Around" instead to hint that pressing E will open a teaser card
+     * rather than the full story.
+     */
+    setCurrentClueTarget(isTarget: boolean): void {
+        this.isCurrentClueTarget_ = isTarget;
+        this.label.setPromptLabel(
+            isTarget ? '[ E ] Read Story' : '[ E ] Look Around',
+        );
+    }
+
+    get isCurrentClueTarget(): boolean {
+        return this.isCurrentClueTarget_;
     }
 
     updateProximity(playerX: number, playerY: number): void {
